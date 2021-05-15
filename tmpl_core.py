@@ -673,11 +673,13 @@ class AbstractTestManager(abc.ABC,CommonUtility):
             try:
 
                 if hasattr(attr_obj,'is_service'):
-                    print(f'{attr_obj.__name__} : is a service')
+                    # print(f'{attr_obj.__name__} : is a service')
                     self.services[attr_obj.__name__] = attr_obj
 
             except:
-                print(f'Weird object [{attr}]')
+                # Ignore failures, which are usually the ObjDict properties
+                # print(f'Weird object [{attr}]')
+                pass
 
 
 
