@@ -335,6 +335,15 @@ class ExampleTestSequence(TMPL.AbstractTestManager):
 
         self.meas[ShutdownTestboard.name] = ShutdownTestboard(self.resources)
 
+
+    def initialise(self):
+        """
+        Add custom information here
+        """
+        
+        self.information.serial_number = 'example_sn'
+        self.information.part_number = 'example_pn'
+
         
 
 

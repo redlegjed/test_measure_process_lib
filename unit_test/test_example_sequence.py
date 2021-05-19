@@ -99,6 +99,32 @@ class TestExampleSequence(unittest.TestCase):
         print(self.testseq.ds_results)
 
 
+    def test_stacking_multiple_runs(self):
+        """
+        Run test sequence multiple times with different information
+        data and try to stack the resulting datasets
+        """
+        nRuns = 4
+
+        results = []
+        for run in range(nRuns):
+            self.testseq.information.serial_number = f'SN_{run}'
+            self.testseq.information.part_number = 'PN_1'
+            self.testseq.run()
+            results.append(self.testseq.ds_results)
+
+        # concat only works on one dimension
+        ds_all = xr.concat(results,dim='serial_number')
+
+        self.assertTrue('serial_number' in ds_all.coords,
+            msg='serial_number is not a coordinate')
+
+        self.assertEqual(nRuns,ds_all.coords['serial_number'].size,
+            msg='Serial number coordinate is wrong length')
+
+
+
+
 #================================================================
 #%% Runner
 #================================================================
@@ -113,10 +139,11 @@ if __name__ == '__main__':
     else:
         suite = unittest.TestSuite()
 
-        suite.addTest(TestExampleSequence('test_dummy'))
+        # suite.addTest(TestExampleSequence('test_dummy'))
         # suite.addTest(TestExampleSequence('test_got_conditions_and_meas'))
         # suite.addTest(TestExampleSequence('test_conditions_table'))
         # suite.addTest(TestExampleSequence('test_running_default_conditions'))
+        suite.addTest(TestExampleSequence('test_stacking_multiple_runs'))
         
         
         runner = unittest.TextTestRunner()

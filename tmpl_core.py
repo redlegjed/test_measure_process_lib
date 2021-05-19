@@ -216,6 +216,12 @@ class CommonUtility():
     # data into ds_results without having to get too involved with the
     # xarray data set manipulation.
 
+    def clear_results(self):
+        """
+        Reset all ds_results properties
+        """
+        self.ds_results = None
+
     def set_conditions(self,conditions):
         """
         Add conditions into ds_results Dataset
@@ -421,6 +427,8 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
     def __init__(self,resources={}) -> None:
 
+        # Main components
+        # ==============================
         # Resources
         self.resources = resources
         
@@ -432,6 +440,12 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
         # Services
         self.services = ObjDict()
+
+        # Information
+        self.information = ObjDict()
+
+        # Utilities
+        # ==============================
 
         # Logging
         self.log = debugPrintout(self)
@@ -445,6 +459,11 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
         # Scan for services
         self.get_services()
+
+        # Run custom setup
+        self.initialise()
+
+        
 
 
     def __repr__(self):
@@ -481,6 +500,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         """
         # Setup
         # ==============================
+        self.clear_all_results()
 
         # Get conditions
         if not conditions:
@@ -746,6 +766,28 @@ class AbstractTestManager(abc.ABC,CommonUtility):
     #----------------------------------------------------------------
     #%% Results methods
     #----------------------------------------------------------------
+    def clear_all_results(self):
+        """
+        Reset all results in all measurements and conditions
+        """
+
+        # Clear measurement methods
+        # ==============================
+        for m in self.meas:
+            # Deal with no results cases
+            if not hasattr(self.meas[m],'ds_results'):
+                continue
+            self.meas[m].clear_results()
+
+        # Clear conditions
+        # ==============================
+        for c in self.conditions:
+            # Deal with no results cases
+            if not hasattr(self.conditions[c],'ds_results'):
+                continue
+            self.conditions[c].clear_results()
+
+
 
     def get_results(self):
         """
@@ -753,6 +795,8 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         and merge them into final results dataset in self.ds_results
         """
 
+        # Gather all individual datasets
+        # =================================
         ds_list = []
         for m in self.meas:
             # Deal with no results cases
@@ -770,6 +814,17 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
         # Merge Datasets together
         self.ds_results = xr.merge(ds_list)
+        
+
+        # Add information as coordinates or attributes
+        # =============================================
+        for key,value in self.information.items():
+            try:
+                # Try to put info in as a coordinate
+                self.ds_results.coords[key] = [value]
+            except:
+                # Otherwise put info in as attribute
+                self.ds_results.attrs[key] = [value]
 
 
     #----------------------------------------------------------------
@@ -824,9 +879,21 @@ class AbstractTestManager(abc.ABC,CommonUtility):
     #----------------------------------------------------------------
 
     def pre_process(self):
+        """
+        Custom pre processing
+        """
         pass
 
     def post_process(self):
+        """
+        Custom post processing
+        """
+        pass
+
+    def initialise(self):
+        """
+        Custom initialisation/setup
+        """
         pass
 
 
