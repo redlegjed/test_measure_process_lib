@@ -74,10 +74,10 @@ import inspect
 import numpy as np
 import pandas as pd
 import xarray as xr
-from xarray.core.utils import V
+# from xarray.core.utils import V
 
-from tmpl_support import ObjDict,debugPrintout
-import tmpl_storage as ts
+from .tmpl_support import ObjDict,debugPrintout
+from .tmpl_storage import json_to_dataset
  
 #================================================================
 #%% Constants
@@ -450,7 +450,7 @@ class CommonUtility():
         if not os.path.splitext(filename)[1].lower()=='.json':
             raise ValueError('Can only load .json files')
 
-        self.ds_results = ts.json_to_dataset(filename)
+        self.ds_results = json_to_dataset(filename)
 
 
 

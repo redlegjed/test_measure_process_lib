@@ -17,7 +17,7 @@ import os, time
 import numpy as np
 import pandas as pd
 
-import tmpl_core as TMPL
+import tmpl
  
 #================================================================
 #%% Constants
@@ -83,10 +83,10 @@ class ExampleTestboard():
 
         x = np.arange(0,5,1)
         y_values = {
-            'XI':10 + x/10,
-            'XQ':20 + x/10,
-            'YI':30 + x/10,
-            'YQ':40 + x/10,
+            'low_x':10 + x/10,
+            'high_x':20 + x/10,
+            'low_y':30 + x/10,
+            'high_y':40 + x/10,
             'X':50 + x/10,
             'Y':60 + x/10,
         }
@@ -109,7 +109,7 @@ class ExampleTestboard():
 #================================================================
 #%% Measurement classes
 #================================================================
-class MeasActualTemperature(TMPL.AbstractMeasurement):
+class MeasActualTemperature(tmpl.AbstractMeasurement):
     name = 'MeasureActualTemperatures'
 
     def initialise(self):
@@ -139,8 +139,8 @@ class MeasActualTemperature(TMPL.AbstractMeasurement):
 
 
 
-class TribSweeper(TMPL.AbstractMeasurement):
-    name = 'TribSweep'
+class PressureSweeper(tmpl.AbstractMeasurement):
+    name = 'PressureSweep'
 
     def initialise(self):
         #  Break out test resources
@@ -150,30 +150,30 @@ class TribSweeper(TMPL.AbstractMeasurement):
 
     def meas_sequence(self):
         
-        tribs = ['XI','XQ','YI','YQ']
+        pressure_label = ['low_x','low_y','high_x','high_y']
 
-        self.store_coords('trib',tribs)
+        self.store_coords('press',pressure_label)
 
-        for trib in tribs:
+        for press in pressure_label:
             # Do the measurement
-            results = self.tb.sweep(trib)
+            results = self.tb.sweep(press)
 
-            xlabel = f'sweep_trib_var'
-            ylabel = f'data_var_trib'
+            xlabel = f'sweep_press_var'
+            ylabel = f'data_var_press'
 
             # Store the data
             self.store_coords(xlabel,results['x'])
             self.store_data_var(ylabel,results['y'],
-                                coords={'trib':trib,xlabel:None})
+                                coords={'press':press,xlabel:None})
 
-    @TMPL.service
-    def example_service(self,pol):
+    @tmpl.service
+    def example_service(self,axis):
         """
         Example of a service function that other measurements can call
 
         Parameters
         ----------
-        pol : str
+        axis : str
             Input argument
 
         Returns
@@ -186,19 +186,19 @@ class TribSweeper(TMPL.AbstractMeasurement):
             raise RuntimeError('No data available for example_service')
 
         # Check the data variable in the dataset exists
-        if not 'data_var_trib' in self.ds_results:
-            raise RuntimeError('data variable[data_var_trib] is not in dataset for example_service')
+        if not 'data_var_press' in self.ds_results:
+            raise RuntimeError('data variable[data_var_press] is not in dataset for example_service')
 
         # Perform the service operation
-        if pol=='X':
-            return self.ds_results.data_var_trib.sel(trib=['XI','XQ']).mean().values
+        if axis=='X':
+            return self.ds_results.data_var_press.sel(press=['low_x','high_x']).mean().values
         else:
-            return self.ds_results.data_var_trib.sel(trib=['YI','YQ']).mean().values
+            return self.ds_results.data_var_press.sel(press=['low_y','high_y']).mean().values
         
 
 
-class PolSweeper(TMPL.AbstractMeasurement):
-    name = 'PolSweep'
+class AxisSweeper(tmpl.AbstractMeasurement):
+    name = 'AxisSweep'
 
     def initialise(self):
         #  Break out test resources
@@ -209,25 +209,25 @@ class PolSweeper(TMPL.AbstractMeasurement):
 
     def meas_sequence(self):
         
-        pols = ['X','Y']
+        axes = ['X','Y']
 
-        self.store_coords('pol',pols)
+        self.store_coords('axis',axes)
 
-        for pol in pols:
+        for axis in axes:
             # Do the measurement
-            results = self.tb.sweep(pol)
+            results = self.tb.sweep(axis)
 
-            xlabel = f'sweep_pol_var'
-            ylabel = f'data_var_pol'
+            xlabel = f'sweep_axis_var'
+            ylabel = f'data_var_axis'
 
             # Store the data
             self.store_coords(xlabel,results['x'])
             self.store_data_var(ylabel,results['y'],
-                                coords={'pol':pol,xlabel:None})
+                                coords={'axis':axis,xlabel:None})
 
 
 
-class ShutdownTestboard(TMPL.AbstractMeasurement):
+class ShutdownTestboard(tmpl.AbstractMeasurement):
     name = 'Shutdown_Testboard'
 
     def initialise(self):
@@ -245,7 +245,7 @@ class ShutdownTestboard(TMPL.AbstractMeasurement):
 
 
 
-class StartupTestboard(TMPL.AbstractMeasurement):
+class StartupTestboard(tmpl.AbstractMeasurement):
     name = 'Startup_Testboard'
 
     def initialise(self):
@@ -266,7 +266,7 @@ class StartupTestboard(TMPL.AbstractMeasurement):
 #%% Setup conditions classes
 #================================================================
 
-class TemperatureConditions(TMPL.AbstractSetupConditions):
+class TemperatureConditions(tmpl.AbstractSetupConditions):
     name = 'temperature_degC'
 
     def initialise(self):
@@ -290,7 +290,7 @@ class TemperatureConditions(TMPL.AbstractSetupConditions):
         return self.station.set_temperature_setpoint(value)
 
 
-class HumidityConditions(TMPL.AbstractSetupConditions):
+class HumidityConditions(tmpl.AbstractSetupConditions):
     name = 'humidity_pc'
 
     def initialise(self):
@@ -317,7 +317,7 @@ class HumidityConditions(TMPL.AbstractSetupConditions):
 #================================================================
 #%% Test Manager class
 #================================================================
-class ExampleTestSequence(TMPL.AbstractTestManager):
+class ExampleTestSequence(tmpl.AbstractTestManager):
     name = 'ExampleTestSequence'
 
     def define_setup_conditions(self):
@@ -330,8 +330,8 @@ class ExampleTestSequence(TMPL.AbstractTestManager):
         self.meas[StartupTestboard.name] = StartupTestboard(self.resources)
         
         self.meas[MeasActualTemperature.name] = MeasActualTemperature(self.resources)
-        self.meas['trib_sweep'] = TribSweeper(self.resources)
-        self.meas['pol_sweep'] = PolSweeper(self.resources)
+        self.meas['press_sweep'] = PressureSweeper(self.resources)
+        self.meas['axis_sweep'] = AxisSweeper(self.resources)
 
         self.meas[ShutdownTestboard.name] = ShutdownTestboard(self.resources)
 

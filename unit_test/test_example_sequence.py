@@ -75,7 +75,7 @@ class TestExampleSequence(unittest.TestCase):
             self.assertTrue(cond_name in self.testseq.conditions,
                 msg=f'Setup conditions [{cond_name}] failed to be loaded')
 
-        meas_names = ['trib_sweep','pol_sweep']
+        meas_names = ['press_sweep','axis_sweep']
         for meas_name in meas_names:
             self.assertTrue(meas_name in self.testseq.meas,
                 msg=f'Meas [{meas_name}] failed to be loaded')

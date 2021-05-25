@@ -24,7 +24,7 @@ sys.path.append(basepath)
 print(basepath)
 
 # Local libraries
-from tmpl_core import AbstractMeasurement
+from tmpl import AbstractMeasurement
  
 #================================================================
 #%% Constants
