@@ -30,6 +30,7 @@ from example_test_setup import ExampleTestSequence,ExampleTestboard,ExampleStati
 #================================================================
 #%% Constants
 #================================================================
+DATAFILE_PATH = os.path.join(basepath,'unit_test','data_files')
  
 #================================================================
 #%% Functions
@@ -123,6 +124,66 @@ class TestExampleSequence(unittest.TestCase):
             msg='Serial number coordinate is wrong length')
 
 
+    def test_save_results(self):
+        """
+        Save data after a test run in various formats and check the 
+        files are stored.
+        """
+
+        data_filename_json = os.path.join(DATAFILE_PATH,'test_data.json')
+        data_filename_excel = os.path.join(DATAFILE_PATH,'test_data.xlsx')
+
+        self.testseq.run()
+
+        self.testseq.save(data_filename_json)
+        self.testseq.save(data_filename_excel,format='excel')
+
+        self.assertTrue(os.path.exists(data_filename_json),
+            msg='Failed to save json file')
+
+        self.assertTrue(os.path.exists(data_filename_excel),
+            msg='Failed to save excel file')
+
+        # Clean up
+        if os.path.exists(data_filename_json):
+            os.remove(data_filename_json)
+
+        if os.path.exists(data_filename_excel):
+            os.remove(data_filename_excel)
+
+
+    def test_save_and_load_results(self):
+        """
+        Save data after a test run and load it back
+        """
+
+        data_filename_json = os.path.join(DATAFILE_PATH,'test_data.json')
+        
+
+        self.testseq.run()
+
+        self.testseq.save(data_filename_json)
+        
+        self.assertTrue(os.path.exists(data_filename_json),
+            msg='Failed to save json file')
+
+        # Create new test sequence to load back the file
+        new_seq = ExampleTestSequence({},offline_mode=True)
+        new_seq.load(data_filename_json)
+
+        # Compare datasets
+        self.assertTrue(self.testseq.ds_results.equals(new_seq.ds_results),
+            msg='Reloaded Results data is not equal')
+
+
+        # Clean up
+        if os.path.exists(data_filename_json):
+            os.remove(data_filename_json)
+
+        
+
+        
+
 
 
 #================================================================
@@ -143,7 +204,9 @@ if __name__ == '__main__':
         # suite.addTest(TestExampleSequence('test_got_conditions_and_meas'))
         # suite.addTest(TestExampleSequence('test_conditions_table'))
         # suite.addTest(TestExampleSequence('test_running_default_conditions'))
-        suite.addTest(TestExampleSequence('test_stacking_multiple_runs'))
+        # suite.addTest(TestExampleSequence('test_stacking_multiple_runs'))
+        # suite.addTest(TestExampleSequence('test_save_results'))
+        suite.addTest(TestExampleSequence('test_save_and_load_results'))
         
         
         runner = unittest.TextTestRunner()

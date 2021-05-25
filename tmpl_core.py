@@ -66,6 +66,7 @@ import abc
 import traceback
 import itertools
 import copy
+import inspect
 
 #from collections import OrderedDict
  
@@ -76,6 +77,7 @@ import xarray as xr
 from xarray.core.utils import V
 
 from tmpl_support import ObjDict,debugPrintout
+import tmpl_storage as ts
  
 #================================================================
 #%% Constants
@@ -167,6 +169,10 @@ class CommonUtility():
     RUN_COND_STARTUP = 'startup' # Before all measurements start
     RUN_COND_TEARDOWN = 'teardown' # After all measurement end
     RUN_COND_TEARDOWN_AFTER_CONDITIONS = 'teardown_after_conditions'
+
+    # Offline mode
+    offline_mode = False
+    """Flag that sets if the object is to be used offline, i.e. no hardware """
     
 
 
@@ -201,6 +207,12 @@ class CommonUtility():
         ValueError
             If the resource is not found
         """
+        if self.offline_mode:
+            # If offline then resources, e.g. test equipment, may not be
+            # available. Don't throw an error because user may just want to
+            # use processing functions. Just return None and let it break
+            # further on.
+            return self.resources.get(label,None)
 
         if label not in self.resources:
             raise ValueError(f'Measurement [{self.name}] cannot access resource [{label}]')
@@ -399,6 +411,46 @@ class CommonUtility():
             raise ValueError(f'Dataset coordinate [{name}] has different values than what is being entered')
 
 
+    #----------------------------------------------------------------
+    #%% Dataset saving/loading
+    #----------------------------------------------------------------
+    def save(self,filename,format='json'):
+        """
+        Save ds_results dataset
+
+        Parameters
+        ----------
+        filename : str
+            Full path/filename 
+        format : str, optional
+            File format to save in, by default 'json'
+            Options are:
+                * 'json'
+                * 'excel'   
+
+        Raises
+        ------
+        ValueError
+            If file format is not supported
+        """
+
+        if format.lower()=='json':
+            self.ds_results.save.to_json(filename)
+        elif format.lower()=='excel':
+            self.ds_results.save.to_excel(filename)
+        else:
+            raise ValueError(f'Cannot save in format [{format}]')
+
+
+    def load(self,filename):
+
+        if not os.path.exists(filename):
+            raise FileNotFoundError(f'Cannot find file at [{filename}]')
+
+        if not os.path.splitext(filename)[1].lower()=='.json':
+            raise ValueError('Can only load .json files')
+
+        self.ds_results = ts.json_to_dataset(filename)
 
 
 
@@ -425,7 +477,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
     name = 'default_test_manager_name'
 
-    def __init__(self,resources={}) -> None:
+    def __init__(self,resources={},**kwargs) -> None:
 
         # Main components
         # ==============================
@@ -446,6 +498,15 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
         # Utilities
         # ==============================
+        # Offline mode
+        # - can either be set in kwargs or resources
+        #   using resources is a bit of kludge to propagate the 
+        #   flag to sub classes
+        self.offline_mode = kwargs.get('offline_mode',False)
+        self.offline_mode = resources.get('offline_mode',self.offline_mode)
+        if self.offline_mode:
+            # Store in resources for sub classes
+            self.resources['offline_mode'] = self.offline_mode
 
         # Logging
         self.log = debugPrintout(self)
@@ -686,8 +747,11 @@ class AbstractTestManager(abc.ABC,CommonUtility):
             A TMPL object e.g. any class based on AbstractMeasurement or
             AbstractSetupConditions
         """
+        methods = inspect.getmembers(object, predicate=inspect.ismethod)
+        methods = [m[0] for m in methods if not m[0].startswith('_')]
 
-        for attr in [a for a in dir(object) if not a.startswith('_')]:
+        # for attr in [a for a in dir(object) if not a.startswith('_')]:
+        for attr in methods:
             attr_obj = getattr(object,attr)
 
             try:
@@ -956,6 +1020,10 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
         """
         self.run_condition = kwargs.get('run_condition','')
 
+        # Offline mode
+        self.offline_mode = kwargs.get('offline_mode',False)
+        self.offline_mode = resources.get('offline_mode',self.offline_mode)
+
         # Enable/Disable flag
         self.enable =True
 
@@ -1141,6 +1209,9 @@ class AbstractSetupConditions(abc.ABC,CommonUtility):
         # Enable/Disable flag
         self.enable =True
 
+        # Offline mode
+        self.offline_mode = kwargs.get('offline_mode',False)
+        self.offline_mode = resources.get('offline_mode',self.offline_mode)
 
         # Station and unit under test objects
         self.resources = resources

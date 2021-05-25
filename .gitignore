@@ -58,3 +58,6 @@ docs/_build/
 # PyBuilder
 target/
 
+# TMPL custom
+*test_data.xlsx
+*test_data.json
