@@ -105,6 +105,8 @@ class TestExampleSequence(unittest.TestCase):
         # just see if it works for now
         print(self.testseq.ds_results)
 
+        self.assertTrue(self.testseq.last_error=='',msg='Test run failed')
+
 
     def test_stacking_multiple_runs(self):
         """

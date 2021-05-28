@@ -321,19 +321,17 @@ class ExampleTestSequence(tmpl.AbstractTestManager):
     name = 'ExampleTestSequence'
 
     def define_setup_conditions(self):
-        self.conditions['temperature_degC'] = TemperatureConditions(self.resources,values=[25,35,45])
-        self.conditions['humidity_pc'] = HumidityConditions(self.resources,values=[25,35,45])
+        self.add_setup_condition(TemperatureConditions,cond_name='temperature_degC')
+        self.add_setup_condition(HumidityConditions,cond_name='humidity_pc')
 
     def define_measurements(self):
 
-        # Setup links to all the measurements
-        self.meas[StartupTestboard.name] = StartupTestboard(self.resources)
-        
-        self.meas[MeasActualTemperature.name] = MeasActualTemperature(self.resources)
-        self.meas['press_sweep'] = PressureSweeper(self.resources)
-        self.meas['axis_sweep'] = AxisSweeper(self.resources)
-
-        self.meas[ShutdownTestboard.name] = ShutdownTestboard(self.resources)
+        # Add measurements in the order that they execute
+        self.add_measurement(StartupTestboard)
+        self.add_measurement(MeasActualTemperature)
+        self.add_measurement(PressureSweeper)
+        self.add_measurement(AxisSweeper)
+        self.add_measurement(ShutdownTestboard)
 
 
     def initialise(self):

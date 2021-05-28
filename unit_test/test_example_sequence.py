@@ -99,6 +99,8 @@ class TestExampleSequence(unittest.TestCase):
         # just see if it works for now
         print(self.testseq.ds_results)
 
+        self.assertTrue(self.testseq.last_error=='',msg='Test run failed')
+
 
     def test_stacking_multiple_runs(self):
         """
@@ -203,10 +205,10 @@ if __name__ == '__main__':
         # suite.addTest(TestExampleSequence('test_dummy'))
         # suite.addTest(TestExampleSequence('test_got_conditions_and_meas'))
         # suite.addTest(TestExampleSequence('test_conditions_table'))
-        # suite.addTest(TestExampleSequence('test_running_default_conditions'))
+        suite.addTest(TestExampleSequence('test_running_default_conditions'))
         # suite.addTest(TestExampleSequence('test_stacking_multiple_runs'))
         # suite.addTest(TestExampleSequence('test_save_results'))
-        suite.addTest(TestExampleSequence('test_save_and_load_results'))
+        # suite.addTest(TestExampleSequence('test_save_and_load_results'))
         
         
         runner = unittest.TextTestRunner()
