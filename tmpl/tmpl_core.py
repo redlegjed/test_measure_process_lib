@@ -110,31 +110,82 @@ def test_time(func):
     wrapper.__doc__ = func.__doc__                                                                                      
     return wrapper
 
-def with_results(func):
+def with_results(coords=[],data_vars=[]):
     """
+    Decorator function
     Checks if there are results available to process
     If not then it throws an error
 
+    Examples
+    --------
+    Basic check that results exist
+
     @with_results
-    def myfunction(self)
+    def myfunction(self):
+        ...
 
-    """                                                                                                   
-                                                                                                                          
-    def wrapper(self,*arg,**kwargs):       
-        if not hasattr(self,'ds_results'):
-            raise ValueError('This object has no "ds_results" property')      
+    Check that specific coordinates and data variable exist
 
-        if self.ds_results is None:
-            raise ValueError('No results to process')
-        
-        res = func(self,*arg,**kwargs)  
-                                                          
-        return res    
+    @with_results(coords=['temperature','pressure'],data_vars=['volume'])
+    def myfunction(self):
+        ...
 
-    # Documentation
-    wrapper.__name__ = func.__name__
-    wrapper.__doc__ = func.__doc__                                                                                      
-    return wrapper
+    Parameters
+    ----------
+    coords : list of str
+        List of coordinates that must be in ds_results
+
+    data_vars : list of str
+        List of data variables that must be in ds_results
+
+    """    
+
+    # Make sure inputs are lists
+    if isinstance(coords,str):
+        coords = [coords]
+
+    if isinstance(data_vars,str):
+        data_vars = [data_vars]
+
+    # Create the decorator function
+    def decorator(func):
+        """
+        Decorator function to be returned
+
+        Parameters
+        ----------
+        func : function reference
+            The actual function to be decorated
+        """
+        # Wrapper function that does all the work                                                                                                                                # 
+        def wrapper(self,*arg,**kwargs):    
+            # Check ds_results
+            # ==============================   
+            if not hasattr(self,'ds_results'):
+                raise ValueError('This object has no "ds_results" property')      
+
+            if self.ds_results is None:
+                raise ValueError('No results to process')
+
+            missing_coords = [c for c in coords if c not in self.ds_results.coords]
+            missing_data_vars = [d for d in data_vars if d not in self.ds_results]
+
+            if missing_data_vars!=[] or missing_coords!=[]:
+                raise ValueError(f'Results data is missing coordinates {missing_coords} and data variables {missing_data_vars}')
+            
+            # Run the actual function
+            # ==============================
+            res = func(self,*arg,**kwargs)  
+                                                            
+            return res    
+
+        # Documentation
+        wrapper.__name__ = func.__name__
+        wrapper.__doc__ = func.__doc__                                                                                      
+        return wrapper
+
+    return decorator
+
 
 def service(func):
     """
@@ -752,6 +803,59 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
         return cond_table
 
+    def add_setup_condition(self,cond_class,cond_name=''):
+        """
+        Add setup conditions 
+        This takes a class (not an instance) and creates an instance from it
+        that is populated with resources
+
+        Examples
+        --------
+        class Temperature():
+            ...
+
+        testseq.add_condition(Temperature)
+
+        Parameters
+        ----------
+        cond_class : class reference
+            Reference to the class i.e. the class name in code
+
+        cond_name : str
+            Name to be used to reference setup condition. This will appear
+            as a key in the self.conditions dict and also as a coordinate
+            in ds_results.
+            If nothing is specified then the class name is used.
+        """
+        if cond_name=='':
+            cond_name = cond_class.__name__
+
+        self.conditions[cond_name]= cond_class(self.resources)
+
+    #----------------------------------------------------------------
+    #%% Measurement methods
+    #----------------------------------------------------------------
+    def add_measurement(self,meas_class):
+        """
+        Add measurement class
+        This takes a class (not an instance) and creates an instance from it
+        that is populated with resources
+
+        Examples
+        --------
+        class VoltageSweep():
+            ...
+
+        testseq.add_measurement(VoltageSweep)
+
+        Parameters
+        ----------
+        meas_class : class reference
+            Reference to the class i.e. the class name in code
+        """
+
+        self.meas[meas_class.__name__] = meas_class(self.resources)
+
     #----------------------------------------------------------------
     #%% Service handling methods
     #----------------------------------------------------------------
@@ -1170,6 +1274,24 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
 
     def __repr__(self):
         return f'Measurement[{self.name}]'
+
+
+    @property
+    def current_results(self):
+        """
+        Return a subset of ds_results corresponding to the current
+        conditions
+
+        Returns
+        -------
+        xarray Dataset
+            Subset of ds_results if there are current conditions populated
+            or the whole of ds_results if not
+        """
+        if self.current_conditions=={}:
+            return self.ds_results
+
+        return self.ds_results.sel(self.current_conditions)
 
 
     
