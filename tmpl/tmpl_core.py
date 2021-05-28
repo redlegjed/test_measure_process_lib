@@ -110,6 +110,31 @@ def test_time(func):
     wrapper.__doc__ = func.__doc__                                                                                      
     return wrapper
 
+def with_results(func):
+    """
+    Checks if there are results available to process
+    If not then it throws an error
+
+    @with_results
+    def myfunction(self)
+
+    """                                                                                                   
+                                                                                                                          
+    def wrapper(self,*arg,**kwargs):       
+        if not hasattr(self,'ds_results'):
+            raise ValueError('This object has no "ds_results" property')      
+
+        if self.ds_results is None:
+            raise ValueError('No results to process')
+        
+        res = func(self,*arg,**kwargs)  
+                                                          
+        return res    
+
+    # Documentation
+    wrapper.__name__ = func.__name__
+    wrapper.__doc__ = func.__doc__                                                                                      
+    return wrapper
 
 def service(func):
     """
