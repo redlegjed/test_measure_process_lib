@@ -99,10 +99,14 @@ def test_time(func):
                                                                                                                           
     def wrapper(self,*arg,**kwargs):                                                                                                      
         t = time.time()            
-        self.log('<<'*10)
+        self.log('<<'*40)
+        self.log(f'Running {self.name}')
+
         res = func(self,*arg,**kwargs)  
+
         self.test_time_s = time.time()-t                                                                                            
-        self.log(">>\tTime taken: %.3fs " % (self.test_time_s))                                                    
+        self.log(f"{self.name}\tTime taken: %.3fs " % (self.test_time_s))  
+        self.log('>>'*40)                                                  
         return res    
 
     # Documentation
@@ -255,6 +259,30 @@ class CommonUtility():
     #----------------------------------------------------------------
     #%% Resource helpers
     #----------------------------------------------------------------
+    def make_resources_into_properties(self,resources):
+        """
+        Make resources into properties of the class instance
+        This is used in __init__() methods so that resources are
+        immediately available.
+
+        Parameters
+        ----------
+        resources : dict
+            Dictionary of resources of the format :
+                key: resource label
+                value: resource object
+            Each resource will be made available as a property with
+            the name of the key e.g. self.<resource label>
+        """
+
+        for label,res in resources.items():
+            label_no_spaces = label.strip().replace(' ','_')
+            setattr(self,label_no_spaces,res)
+
+            if label!=label_no_spaces:
+                print(f'WARNING: resource["{label}"] has spaces in its name, it will appear as property [{label_no_spaces}]')
+
+
     def get_resource(self,label):
         """
         Return an element from the self.resources dict
@@ -554,11 +582,29 @@ class AbstractTestManager(abc.ABC,CommonUtility):
     name = 'default_test_manager_name'
 
     def __init__(self,resources={},**kwargs) -> None:
+        """
+        Initialise test sequence manager object
+
+        Parameters
+        ----------
+        resources : dict, optional
+            Dictionary of objects, e.g. instrument drivers, required by
+            the measurements, by default {}
+
+        config : dict, optional
+            Configuration settings dictionary. Can be used to store 
+            settings and options for measurements. These should be 'standard'
+            python variable types, like strings, numbers, lists and dicts
+        """
 
         # Main components
         # ==============================
         # Resources
         self.resources = resources
+        self.make_resources_into_properties(resources)
+
+        # Configuration settings
+        self.config = kwargs.get('config',ObjDict())
         
         # Test condition objects
         self.conditions = ObjDict()
@@ -571,6 +617,8 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
         # Information
         self.information = ObjDict()
+
+        
 
         # Utilities
         # ==============================
@@ -828,14 +876,17 @@ class AbstractTestManager(abc.ABC,CommonUtility):
             If nothing is specified then the class name is used.
         """
         if cond_name=='':
-            cond_name = cond_class.__name__
+            if cond_class.name == '':
+                cond_name = cond_class.__name__
+            else:
+                cond_name = cond_class.name
 
         self.conditions[cond_name]= cond_class(self.resources)
 
     #----------------------------------------------------------------
     #%% Measurement methods
     #----------------------------------------------------------------
-    def add_measurement(self,meas_class):
+    def add_measurement(self,meas_class,meas_name=''):
         """
         Add measurement class
         This takes a class (not an instance) and creates an instance from it
@@ -852,9 +903,19 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         ----------
         meas_class : class reference
             Reference to the class i.e. the class name in code
-        """
 
-        self.meas[meas_class.__name__] = meas_class(self.resources)
+        meas_name : str
+            Name to be used to reference measuremEnt. This will appear
+            as a key in the self.meas dict.
+            If nothing is specified then the class name is used.
+        """
+        if meas_name=='':
+            if meas_class.name == '':
+                meas_name = meas_class.__name__
+            else:
+                meas_name = meas_class.name
+
+        self.meas[meas_name] = meas_class(self.resources)
 
     #----------------------------------------------------------------
     #%% Service handling methods
@@ -1164,6 +1225,10 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
 
         # Store the resources
         self.resources = resources
+        self.make_resources_into_properties(resources)
+
+        # Configuration settings
+        self.config = kwargs.get('config',ObjDict())
 
         # Services
         self.services = ObjDict()
@@ -1360,8 +1425,9 @@ class AbstractSetupConditions(abc.ABC,CommonUtility):
         self.offline_mode = kwargs.get('offline_mode',False)
         self.offline_mode = resources.get('offline_mode',self.offline_mode)
 
-        # Station and unit under test objects
+        # Store resources
         self.resources = resources
+        self.make_resources_into_properties(resources)
 
         # Condition values
         self.values = kwargs.get('values',[])
@@ -1369,8 +1435,8 @@ class AbstractSetupConditions(abc.ABC,CommonUtility):
         # Services
         self.services = ObjDict()
 
-        # Configuration data
-        self.config = ObjDict()
+        # Configuration settings
+        self.config = kwargs.get('config',ObjDict())
 
         # logging
         self.log = debugPrintout(self)

@@ -116,9 +116,9 @@ class TemperatureConditions(tmpl.AbstractSetupConditions):
     name = 'temperature_degC'
 
     def initialise(self):
-        #  Break out test resources
-        self.resistor = self.get_resource('resistor')
-        self.set_function = self.get_resource('set_temperature')
+        """
+        Initialise default values and any other setup
+        """
 
         # Set default values
         self.values = [25,35,45]
@@ -138,7 +138,9 @@ class TemperatureConditions(tmpl.AbstractSetupConditions):
     def setpoint(self,value):
         self.log(f'Setpoint = {value} degC')
         self._setpoint = value
-        return self.set_function(self.resistor,value)
+        # Use set_temperature, which is automatically available
+        # from resources
+        return self.set_temperature(self.resistor,value)
 
 
 
@@ -146,10 +148,9 @@ class HumidityConditions(tmpl.AbstractSetupConditions):
     name = 'humidity_pc'
 
     def initialise(self):
-        #  Break out test resources
-        self.resistor = self.get_resource('resistor')
-        self.set_function = self.get_resource('set_humidity')
-
+        """
+        Initialise default values and any other setup
+        """
         # Set default values
         self.values = [55,60,70]
 
@@ -168,7 +169,9 @@ class HumidityConditions(tmpl.AbstractSetupConditions):
     def setpoint(self,value):
         self.log(f'Setpoint = {value} degC')
         self._setpoint = value
-        return self.set_function(self.resistor,value)
+        # Use set_humidity, which is automatically available
+        # from resources
+        return self.set_humidity(self.resistor,value)
 
 #================================================================
 #%% Measurement classes
@@ -180,18 +183,18 @@ class VoltageSweeper(tmpl.AbstractMeasurement):
     name = 'VoltageSweep'
 
     def initialise(self):
-        #  Break out test resources
-        self.resistor = self.get_resource('resistor')
-        self.voltage_supply = self.get_resource('voltage_supply')
 
+        # Set up the voltage values to sweep over
+        self.voltage_sweep = np.linspace(0,1,10)
+        
 
     def meas_sequence(self):
         
         #  Do the measurement
-        voltage_sweep = np.linspace(0,1,10)
-        current = np.zeros(voltage_sweep.shape)
+        
+        current = np.zeros(self.voltage_sweep.shape)
 
-        for index,V in enumerate(voltage_sweep):
+        for index,V in enumerate(self.voltage_sweep):
             # Set voltage
             self.voltage_supply.set_voltage(V,self.resistor)
 
@@ -200,7 +203,7 @@ class VoltageSweeper(tmpl.AbstractMeasurement):
 
         
         # Store the data
-        self.store_coords('swp_voltage',voltage_sweep)
+        self.store_coords('swp_voltage',self.voltage_sweep)
         self.store_data_var('current_A',current,coords=['swp_voltage'])
 
         # Process
@@ -230,16 +233,21 @@ class ExampleTestSequence(tmpl.AbstractTestManager):
     name = 'ExampleResistorTest'
 
     def define_setup_conditions(self):
-        
-        self.add_setup_condition(TemperatureConditions,cond_name='temperature_degC')
-        self.add_setup_condition(HumidityConditions,cond_name='humidity_pc')
+        """
+        Add the setup conditions here in the order that they should be set
+        """
+
+        self.add_setup_condition(TemperatureConditions)
+        self.add_setup_condition(HumidityConditions)
 
     def define_measurements(self):
+        """
+        Add measurements here in the order of execution
+        """
 
         # Setup links to all the measurements
         self.add_measurement(VoltageSweeper)
 
-        print('here')
 
     def initialise(self):
         """
