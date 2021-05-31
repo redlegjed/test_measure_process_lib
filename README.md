@@ -4,6 +4,24 @@ This library is a modular framework for running sequences of measurements. It is
 
 The framework is built around storing data in the [xarray](http://xarray.pydata.org/en/stable/) _Dataset_ class. This provides a convenient data structure for storing multi-dimensional data that can be easily visualised using libraries like [Holoviews](http://holoviews.org/index.html) or its offshoot [hvplot](https://hvplot.holoviz.org/index.html).
 
+## Dependencies and installation
+TMPL depends on these libraries. 
+
+* [xarray](http://xarray.pydata.org/en/stable/)
+* [pandas](https://pandas.pydata.org/pandas-docs/stable/)
+
+TMPL can be installed locally by cloning the repository to a local folder and then installing with pip
+
+```bash
+cd <local_path>
+git clone https://github.com/redlegjed/test_measure_process_lib.git
+pip install -e <local_path>/test_measure_process_lib
+
+```
+Note that this does not install the dependencies. This is in case another package manager, e.g. Anaconda, is being used. So they have to be manually installed.
+
+
+
 ## Core classes
 
 The framework is built on a set of core classes. These are built by inheriting from the Abstract classes defined in *tmpl_core.py*. The classes are:
@@ -24,8 +42,9 @@ The _TestManager_ is initialised with any _resources_ that the measurement class
 ```python
 # Define test equipment objects for measurements to use
 # - can be anything that Measurement classes require
-resources = {'station':station_object,
-            'dut':dut_object,'instrument':instr_object}
+resources = {'chamber':chamber_object,
+            'test_sample':test_sample_object,
+            'instrument':instr_object}
 
 # Create test manager object
 test = TestManager_mymeas(resources)
