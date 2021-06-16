@@ -755,7 +755,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
             # Teardown after all measurements are done
             # ======================================
-            self.run_on_condition(self.RUN_COND_TEARDOWN_AFTER_CONDITIONS,conditions=current_cond)
+            self.run_on_condition(self.RUN_COND_TEARDOWN,conditions=current_cond)
             
 
             # Post processing
