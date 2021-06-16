@@ -711,10 +711,17 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
             # Main measurement loop
             # ==============================
+            self.conditions_table = self.make_conditions_table()
+            nCond,ncols = self.conditions_table.shape
+            self.cond_index = 0
 
             # Loop through conditions
-            for current_cond in self.conditions_table:
+            for index in range(nCond):
                 print(self.log_condition_separator)
+
+                # Extract current conditions
+                self.cond_index = index
+                current_cond = self.conditions_table.iloc[index].to_dict()
 
                 # Setup
                 # -----------
@@ -815,8 +822,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
     #%% Conditions properties/methods
     #----------------------------------------------------------------
 
-    @property
-    def conditions_table(self):
+    def make_conditions_table(self):
         """
         Put all setup conditions into one 'table'
         Convenience function
@@ -850,7 +856,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         cond_values = itertools.product(*[c.values for c in self.conditions.values()])
         cond_table = [{k:v for k,v in zip(cond_labels,m)} for m in cond_values]
 
-        return cond_table
+        return pd.DataFrame(cond_table)
 
     def add_setup_condition(self,cond_class,cond_name=''):
         """
