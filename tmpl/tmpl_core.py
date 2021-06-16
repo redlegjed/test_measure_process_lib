@@ -99,14 +99,14 @@ def test_time(func):
                                                                                                                           
     def wrapper(self,*arg,**kwargs):                                                                                                      
         t = time.time()            
-        self.log('<<'*40)
+        self.log('<'*40)
         self.log(f'Running {self.name}')
 
         res = func(self,*arg,**kwargs)  
 
         self.test_time_s = time.time()-t                                                                                            
         self.log(f"{self.name}\tTime taken: %.3fs " % (self.test_time_s))  
-        self.log('>>'*40)                                                  
+        self.log('>'*40)                                                  
         return res    
 
     # Documentation
@@ -635,6 +635,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         # Logging
         self.log = debugPrintout(self)
         self.last_error = ''
+        self.log_condition_separator = '-'*80
         self.log_section_separator = '='*40
         self.log_sub_section_separator = '-'*40
 
@@ -700,7 +701,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
         # Main sequence
         # ==============================
-        self.log(self.log_section_separator)
+        # self.log(self.log_section_separator)
         self.last_error = ''
         try:
 
@@ -713,7 +714,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
             # Loop through conditions
             for current_cond in self.conditions_table:
-                self.log(self.log_section_separator)
+                print(self.log_condition_separator)
 
                 # Setup
                 # -----------

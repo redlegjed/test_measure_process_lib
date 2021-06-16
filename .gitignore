@@ -61,3 +61,6 @@ target/
 # TMPL custom
 *test_data.xlsx
 *test_data.json
+
+
+tx_dc_test_outline*
