@@ -46,7 +46,7 @@ Get individual results from a measurement
 
 Run individual measurement with specified conditions
 
->>> conditions = dict(temperature_degC=34,wavelength_nm=1550)
+>>> conditions = dict(temperature_degC=34,humidity=50)
 >>> test.meas.InnerSweep.run(conditions)
 
 Run measurement without specifiying conditions
@@ -82,6 +82,7 @@ from .tmpl_storage import json_to_dataset
 #================================================================
 #%% Constants
 #================================================================
+
  
 #================================================================
 #%% Decorator Functions
@@ -245,10 +246,16 @@ class CommonUtility():
 
     """
 
-    # Common run conditions
-    RUN_COND_STARTUP = 'startup' # Before all measurements start
-    RUN_COND_TEARDOWN = 'teardown' # After all measurement end
-    RUN_COND_TEARDOWN_AFTER_CONDITIONS = 'teardown_after_conditions'
+    
+    # Run stages
+    # These labels are used to reference all the stages where a measurement
+    # can be run
+    RUN_STAGE_STARTUP = 'STARTUP'
+    RUN_STAGE_TEARDOWN = 'TEARDOWN'
+    RUN_STAGE_SETUP = 'SETUP'
+    RUN_STAGE_MAIN = 'MAIN'
+    RUN_STAGE_AFTER = 'AFTER'
+    RUN_STAGE_ERROR = 'ERROR'
 
     # Offline mode
     offline_mode = False
@@ -635,7 +642,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         # Logging
         self.log = debugPrintout(self)
         self.last_error = ''
-        self.log_condition_separator = '-'*80
+        self.log_condition_separator = '-'*60
         self.log_section_separator = '='*40
         self.log_sub_section_separator = '-'*40
 
@@ -670,11 +677,11 @@ class AbstractTestManager(abc.ABC,CommonUtility):
             list of dict of conditions, by default None
             Conditions are specified as key value pairs
             e.g.
-                conditions = [dict(temperature_degC=34,wavelength_nm=1550)]
-                conditions = [{'temperature_degC':34,'wavelength_nm':1550}]
-                conditions = [{'temperature_degC':40,'wavelength_nm':1550}]
+                conditions = [dict(temperature_degC=34,humidity=50)]
+                conditions = [{'temperature_degC':34,'humidity':50}]
+                conditions = [{'temperature_degC':40,'humidity':50}]
                 conditions = [
-                    {'temperature_degC':25,'wavelength_nm':1550},
+                    {'temperature_degC':25,'humidity':50},
                     {'temperature_degC':40,'wavelength_nm':1560},
                     ]
 
@@ -698,6 +705,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         if not isinstance(conditions_table,list):
             raise ValueError('Supplied conditions should be a list of dicts with format {cond_name:cond_value}')
     
+        self.df_conditions = pd.DataFrame(conditions_table)
 
         # Main sequence
         # ==============================
@@ -705,65 +713,69 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         self.last_error = ''
         try:
 
-            # Pre-processing
+            # Startup stage
             # ==============================
             self.pre_process()
+            # run startup stage measurements
+            self.run_meas_on_startup()
 
             # Main measurement loop
             # ==============================
-            self.conditions_table = self.make_conditions_table()
-            nCond,ncols = self.conditions_table.shape
+            nCond = len(conditions_table)
             self.cond_index = 0
 
+            # Initialise last conditions log
+            # - use first column of conditions table to make a template
+            last_cond = {label:None for label in self.conditions_table[0]}
+
             # Loop through conditions
-            for index in range(nCond):
+            for self.cond_index,current_cond in enumerate(self.conditions_table):
                 print(self.log_condition_separator)
 
-                # Extract current conditions
-                self.cond_index = index
-                current_cond = self.conditions_table.iloc[index].to_dict()
-
-                # Setup
-                # -----------
-                self.run_on_condition(self.RUN_COND_STARTUP,conditions=current_cond)
-
-                # Set conditions
+                
+                # Setup conditions stage
                 # ------------------------------
                 # Make a dict for keeping track of conditions incrementally
                 accum_cond = {}
 
                 # Loop through current set of conditions
                 for cond_label in self.conditions:
-                    # set individual condtion
+                    # set individual condition
+                    # - but only if the condition is different
                     name = self.conditions[cond_label].name
-                    self.conditions[cond_label].setpoint = current_cond[name]
 
                     # Accumulate conditions for measurements
                     accum_cond[name] = current_cond[name]
 
-                    # Loop through measurements at this condition
-                    # - measurements are given the accumulated conditions
-                    #   for setting coordinates in their ds_results datasets
-                    self.run_on_condition(name,conditions=accum_cond)
+                    # Set condition if it is not the same as the last value
+                    if current_cond[name]!=last_cond[name]:
+                        self.conditions[cond_label].setpoint = current_cond[name]
+
+                        # Loop through measurements at this condition
+                        # - measurements are given the accumulated conditions
+                        #   for setting coordinates in their ds_results datasets
+                        self.run_meas_on_setup(name,conditions=accum_cond)
 
                     
                 # Main measurements
                 # ------------------------------
                 # Loop through measurements that don't have a specific 
                 # run_condition
-                self.run_on_condition('',conditions=current_cond)
+                self.run_main_meas(conditions=current_cond)
 
 
                 # Teardown after individual conditions
                 # -------------------------------------
-                self.run_on_condition(self.RUN_COND_TEARDOWN_AFTER_CONDITIONS,conditions=current_cond)
+                self.run_after_meas(conditions=current_cond)
+                # Store last conditions
+                last_cond = current_cond
 
 
             self.log(self.log_section_separator)
 
             # Teardown after all measurements are done
             # ======================================
-            self.run_on_condition(self.RUN_COND_TEARDOWN,conditions=current_cond)
+            self.run_meas_on_teardown()
             
 
             # Post processing
@@ -778,6 +790,8 @@ class AbstractTestManager(abc.ABC,CommonUtility):
             print('*'*40)
             traceback.print_exc()
             print('*'*40)
+            print('Running error measurements:')
+            self.run_meas_on_error(conditions=current_cond)
 
         finally:
             # Grab all results regardless of any errors
@@ -788,41 +802,327 @@ class AbstractTestManager(abc.ABC,CommonUtility):
             self.log('Test finished with errors - check last_error property')
 
 
-
-
-    def run_on_condition(self,condition_label,conditions={'default':0}):
+    def run_meas_on_startup(self):
         """
-        Run only measurements that have the run_condition specified
+        Run any measurements that are done in the startup stage
+        This is before any conditions have been set.
+        Can be used for turning on instruments, power supplies etc.
+        """
+
+        for meas_label in self.meas:
+            if self.RUN_STAGE_STARTUP not in self.meas[meas_label].run_conditions:
+                # Ignore anything that does not run in this stage
+                continue
+
+            ok = self.meas[meas_label].run()
+            assert ok, f'Measurement [{meas_label}] failed when run at Startup stage'
+
+    
+    def run_meas_on_teardown(self):
+        """
+        Run any measurements that are done in the teardown stage
+        This is before any conditions have been set.
+        Can be used for turning off instruments, power supplies etc.
+        """
+
+        for meas_label in self.meas:
+            if self.RUN_STAGE_TEARDOWN not in self.meas[meas_label].run_conditions:
+                # Ignore anything that does not run in this stage
+                continue
+
+            ok = self.meas[meas_label].run()
+            assert ok, f'Measurement [{meas_label}] failed when run at Teardown stage'
+
+
+    def run_main_meas(self,conditions={'default':0}):
+        """
+        Run any measurements that are done in the Main stage
+        This is the default mode of operation
+
+        Parameters
+        ----------
+        conditions : dict, optional
+            dict of conditions
+            Conditions are specified as key value pairs
+            e.g. conditions = {'temperature_degC':34,'humidity':50}
+
+        """
+
+        for meas_label in self.meas:
+            if self.RUN_STAGE_MAIN not in self.meas[meas_label].run_conditions:
+                # Ignore anything that does not run in this stage
+                continue
+
+            ok = self.meas[meas_label].run(conditions=conditions)
+            assert ok, f'Measurement [{meas_label}] failed at Main stage with conditions {conditions}'
+
+
+
+
+    def run_meas_on_setup(self,condition_label,conditions={'default':0}):
+        """
+        Run only measurements at the Setup stage for specified condition
+        Measurements are checked to see if they are configured to run for
+        the specified condition. If so then they are further checked to see
+        for what values of the condition they should be run.
+
+        There are special values
+        * meas.COND_FIRST_TIME : run the first time a condition is set to a new value
+        * meas.COND_LAST_TIME : run the last time a condition is set to a new value
 
         Parameters
         ----------
         condition_label : str
-            run_condition label of the measurements to be run
+            label condition that is currently being set
             
         conditions : dict, optional
             dict of conditions
             Conditions are specified as key value pairs
-            e.g. conditions = {'temperature_degC':34,'wavelength_nm':1550}
+            e.g. conditions = {'temperature_degC':34,'humidity':50}
         """
+        condition_value = conditions[condition_label]
 
-        for meas_label in self.meas:
+        for meas_label,meas in self.meas.items():
             # Select only measurements whose run_condition 
-            # corresponds to condition_label
-            if self.meas[meas_label].run_condition!=condition_label:
+            # corresponds to the condition stage
+            if self.RUN_STAGE_SETUP not in meas.run_conditions:
                     continue
+
+            if condition_label not in meas.run_conditions[self.RUN_STAGE_SETUP]:
+                # Ignore measurement if this condition is not specified
+                continue
+
+            if condition_value==meas.COND_FIRST_TIME:
+                if self.cond_index in self.cond_first_indexes(condition_label):
+                    # Skip if this setup index is not the first one
+                    continue
+
+            if condition_value==meas.COND_LAST_TIME:
+                if self.cond_index in  self.cond_last_indexes(condition_label):
+                    # Skip if this setup index is not the first one
+                    continue
+
 
             # Run individual measurement
             # - supply conditions for setting coordinates in ds_results dataset
             ok = self.meas[meas_label].run(conditions=conditions)
-            assert ok, f'Measurement [{meas_label}] failed at conditions {conditions}'
+            assert ok, f'Measurement [{meas_label}] failed at Setup stage with conditions {conditions}'
 
+
+    def run_after_meas(self,conditions={'default':0}):
+        """
+        Run only measurements at the After stage for specified condition
+        Measurements are checked to see if they are configured to run for
+        the specified condition. If so then they are further checked to see
+        for what values of the condition they should be run.
+
+        There are special values
+        * meas.COND_FIRST_TIME : run the first time a condition is set to a new value
+        * meas.COND_LAST_TIME : run the last time a condition is set to a new value
+        
+
+        Parameters
+        ----------
+        condition_label : str
+            label condition that is currently being set
+            
+        conditions : dict, optional
+            dict of conditions
+            Conditions are specified as key value pairs
+            e.g. conditions = {'temperature_degC':34,'humidity':50}
+        """
+        
+
+        for meas_label,meas in self.meas.items():
+            # Select only measurements whose run_condition 
+            # corresponds to the condition stage
+            if self.RUN_STAGE_AFTER not in meas.run_conditions:
+                    continue
+
+            if not self.check_meas_conditions(meas,self.RUN_STAGE_AFTER,conditions):
+                continue
+
+            # Run individual measurement
+            # - supply conditions for setting coordinates in ds_results dataset
+            ok = self.meas[meas_label].run(conditions=conditions)
+            assert ok, f'Measurement [{meas_label}] failed at After stage with conditions {conditions}'
+
+
+
+
+    def run_meas_on_error(self,conditions={'default':0}):
+        """
+        Run any measurements that are done when an error occurs.
+        This is useful for safe powering down and cleanup.
+
+        Parameters
+        ----------
+        conditions : dict, optional
+            dict of conditions
+            Conditions are specified as key value pairs
+            e.g. conditions = {'temperature_degC':34,'humidity':50}
+
+        """
+
+        for meas_label in self.meas:
+            if self.RUN_STAGE_ERROR not in self.meas[meas_label].run_conditions:
+                # Ignore anything that does not run in this stage
+                continue
+
+            try:
+                ok = self.meas[meas_label].run(conditions=conditions)
+                assert ok, f'Measurement [{meas_label}] failed at Error stage with conditions {conditions}'
+            except Exception as ex:
+                self.log(f'Failed to run [{meas_label}] after error')
+                self.log(f'Error: [{str(ex)}]')
+
+
+    #----------------------------------------------------------------
+    #%% Condition checking
+    #----------------------------------------------------------------
+    def check_meas_conditions(self,meas,stage,conditions):
+        """
+        Check if a measurement object is set to any of the current conditions
+
+        Parameters
+        ----------
+        meas : Measurement object 
+            inherits from AbstractMeasurement
+
+        stage : str
+            Label of the sequence stage
+
+        conditions : dict
+            dict of current conditions
+            Conditions are specified as key value pairs
+            e.g. conditions = {'temperature_degC':34,'humidity':50}
+
+        Returns
+        -------
+        bool
+            True if the measurement object is linked to specified conditions
+        """
+        # Reject anything that is not relevant to this stage
+        if stage not in meas.run_conditions:
+            return False
+
+        if meas.run_conditions[stage]=={}:
+            # Run every time
+            # TODO check this works
+            return True
+
+        conditions_met = []
+
+        # Extract measurement run conditions
+        for condition_label,condition_value in conditions.items():
+            conditions_met.append(self.check_single_condition(meas,stage,condition_label,condition_value))
+
+        return any(conditions_met)
+
+    def check_single_condition(self,meas,stage,condition_label,condition_value):
+        """
+        Check is a single condition is satisfied by a measurement setup
+        Return True if any condition is satisfied, otherwise False
+
+        Parameters
+        ----------
+        meas : Measurement object 
+            inherits from AbstractMeasurement
+        stage : str
+            Label of the sequence stage
+        condition_label : str
+            Label of condition to be checked
+        condition_value : any
+            value of condition to be checked
+
+        Returns
+        -------
+        bool
+            True - condition satisfied
+            False - condition not satisfied
+        """
+
+        # Measurement does not have this condition
+        if condition_label not in meas.run_conditions[stage]:
+            return False
+
+        # Measurement has this condition and the value is the same
+        if meas.run_conditions[stage][condition_label] == condition_value:
+            return True
+
+        # Check special values
+        if meas.run_conditions[stage][condition_label]==meas.COND_FIRST_TIME:
+            if self.cond_index in self.condition_first_indexes(condition_label):
+                # index is one of first ones
+                return True
+                
+
+        if meas.run_conditions[stage][condition_label]==meas.COND_LAST_TIME:
+            if self.cond_index in  self.condition_last_indexes(condition_label):
+                # index is the last ones
+                return True
+
+        return False
+                
+
+
+    def condition_last_indexes(self,cond_label):
+        """
+        Get the index of the last rows of the condition table where a specific
+        condition is set.
+
+        Parameters
+        ----------
+        cond_label : str
+            Label of condtion to return indexes on
+
+        Returns
+        -------
+        indexes
+            list of int, indexes of the last setting of the specified condition
+        """
+
+        assert hasattr(self,'df_conditions'),'No attribute "df_conditions"'
+        assert cond_label in self.df_conditions.columns, f'df_conditions has no colum [{cond_label}]'
+
+        ind = []
+        for label,group in self.df_conditions.groupby(cond_label):
+            ind.append(group.index[-1])
+
+        return ind
+
+
+    def condition_first_indexes(self,cond_label):
+        """
+        Get the index of the first rows of the condition table where a specific
+        condition is set.
+
+        Parameters
+        ----------
+        cond_label : str
+            Label of condtion to return indexes on
+
+        Returns
+        -------
+        indexes
+            list of int, indexes of the first setting of the specified condition
+        """
+
+        assert hasattr(self,'df_conditions'),'No attribute "df_conditions"'
+        assert cond_label in self.df_conditions.columns, f'df_conditions has no colum [{cond_label}]'
+
+        ind = []
+        for label,group in self.df_conditions.groupby(cond_label):
+            ind.append(group.index[0])
+
+        return ind
 
 
     #----------------------------------------------------------------
     #%% Conditions properties/methods
     #----------------------------------------------------------------
-
-    def make_conditions_table(self):
+    @property
+    def conditions_table(self):
         """
         Put all setup conditions into one 'table'
         Convenience function
@@ -856,7 +1156,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         cond_values = itertools.product(*[c.values for c in self.conditions.values()])
         cond_table = [{k:v for k,v in zip(cond_labels,m)} for m in cond_values]
 
-        return pd.DataFrame(cond_table)
+        return cond_table
 
     def add_setup_condition(self,cond_class,cond_name=''):
         """
@@ -1172,7 +1472,7 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
     -------------
     Create measurement
 
-    >>> meas = MyMeasurement(station,uut)
+    >>> meas = MyMeasurement(resources)
 
     Enable/disable measurement
 
@@ -1189,6 +1489,11 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
     
     """
     name = 'default_measurement_name'
+
+    # Special conditions
+    COND_EACH = 'EACH'
+    COND_FIRST_TIME = 'FIRST_TIME'
+    COND_LAST_TIME = 'LAST_TIME'
 
 
     def __init__(self,resources={},**kwargs):
@@ -1215,7 +1520,11 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
             'conditions' property.
 
         """
+        # TODO may deprecate this
         self.run_condition = kwargs.get('run_condition','')
+
+        # Dict to hold conditions when this is run
+        self.run_conditions = {}
 
         # Offline mode
         self.offline_mode = kwargs.get('offline_mode',False)
@@ -1249,6 +1558,11 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
         self.log_section_separator = '='*40
         self.log_sub_section_separator = '-'*40
 
+        # Default run conditon
+        # - run in main block
+        # - If any other condition is chosen
+        self.run_on_main(True)
+
         # Run custom initialisation
         self.initialise()
         
@@ -1280,8 +1594,8 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
             Dict of current setup conditions
             Conditions are specified as key value pairs
             e.g.
-                conditions = dict(temperature_degC=34,wavelength_nm=1550)
-                conditions = {'temperature_degC':34,'wavelength_nm':1550}
+                conditions = dict(temperature_degC=34,humidity=50)
+                conditions = {'temperature_degC':34,'humidity':50}
                
             The value of each item in the conditions dict is treated as one
             value. The Measurement class does not actually set the conditions
@@ -1366,6 +1680,188 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
         return self.ds_results.sel(self.current_conditions)
 
 
+
+    #----------------------------------------------------------------
+    #%% Run conditions
+    #----------------------------------------------------------------
+    # These methods are used to define when a measurement runs in the 
+    # main sequence. They are generally called in the initialise() method.
+    # All the methods here populate the self.run_conditions dictionary.
+    # This gets used by the TestManager class to determine when to run
+    # each measurement.
+
+    def run_on_startup(self,enable):
+        """
+        Set Measurement to run in the Startup stage of the test sequence
+
+        Parameters
+        ----------
+        enable : bool
+            True - enable Measurement condition
+            False - remove Measurement condition
+        """
+        # Add key for startup stage
+        # no value required for this
+        if enable:
+            self.run_conditions[self.RUN_STAGE_STARTUP] = {}
+            # Disable main by default
+            self.run_on_main(False)
+        else:
+            if self.RUN_STAGE_STARTUP in self.run_conditions:
+                self.run_conditions.pop(self.RUN_STAGE_STARTUP)
+
+    def run_on_teardown(self,enable):
+        """
+        Set Measurement to run in the Teardown stage of the test sequence
+
+        Parameters
+        ----------
+        enable : bool
+            True - enable Measurement condition
+            False - remove Measurement condition
+        """
+        # Add key for teardown stage
+        # no value required for this
+        if enable:
+            self.run_conditions[self.RUN_STAGE_TEARDOWN] = {}
+            # Disable main by default
+            self.run_on_main(False)
+        else:
+            if self.RUN_STAGE_TEARDOWN in self.run_conditions:
+                self.run_conditions.pop(self.RUN_STAGE_TEARDOWN)
+
+
+    def run_on_main(self,enable):
+        """
+        Set Measurement to run in the Main stage of the test sequence
+
+        Parameters
+        ----------
+        enable : bool
+            True - enable Measurement condition
+            False - remove Measurement condition
+        """
+        # Add key for main stage
+        # no value required for this
+        if enable:
+            self.run_conditions[self.RUN_STAGE_MAIN] = {}
+        else:
+            if self.RUN_STAGE_MAIN in self.run_conditions:
+                self.run_conditions.pop(self.RUN_STAGE_MAIN)
+
+
+    def run_on_setup(self,condition_label,value=None):
+        """
+        Run measurement on specific condition during the Setup stage
+        This will cause the Measurement to run after that condition has been
+        set and before the next is set.
+
+        Parameters
+        ----------
+        condition_label : str
+            Text label of condition that acts as the trigger to run
+        value : any, optional
+            Condition value to run on, by default None
+            If None then the measurement will run every time the condition is
+            changed.
+            A specific value will cause the measurement to run only when that
+            value is set.
+            There are also some special values that are encoded in these class 
+            properties;
+            * self.COND_FIRST_TIME : Run the first time a condition value is changed
+            * self.COND_LAST_TIME : Run the last time a condition is set
+
+            These last two apply to the situation where one condition is 
+            repeatedly set. For example if the conditions are temperature and 
+            humidity and the table of conditions looks like this:
+
+            temperature | humidity
+            ------------|----------
+            10          |  40        (FIRST_TIME)
+            ------------|----------
+            10          |  50
+            ------------|----------
+            10          |  60        (LAST_TIME)
+            ------------|----------
+            20          |  40        (FIRST_TIME)
+            ------------|----------
+            20          |  50
+            ------------|----------
+            20          |  60        (LAST_TIME)
+            ------------|----------
+
+            Temperature is set to the same value for 3 rows of the conditions 
+            table, we may not want to run a Measurement for each row. Instead we
+            may want to run the first time the temperature is set or the last time.
+            This is what the FIRST_TIME & LAST_TIME special values are for.
+        """
+        if self.RUN_STAGE_SETUP not in self.run_conditions:
+            self.run_conditions[self.RUN_STAGE_SETUP] = {condition_label:value}
+            # Disable main by default
+            self.run_on_main(False)
+        else:
+            self.run_conditions[self.RUN_STAGE_SETUP][condition_label] = value
+
+
+    def run_after(self,condition_label,value=None):
+        """
+        Run measurement on specific condition during the After stage.
+        The After stage is a cleanup stage after a single set of conditions
+        has been run.
+
+        Parameters
+        ----------
+        condition_label : str
+            Text label of condition that acts as the trigger to run
+        value : any, optional
+            Condition value to run on, by default None
+            If None then the measurement will run every time the condition is
+            changed.
+            A specific value will cause the measurement to run only when that
+            value is set.
+            There are also some special values that are encoded in these class 
+            properties;
+            * self.COND_FIRST_TIME : Run the first time a condition value is changed
+            * self.COND_LAST_TIME : Run the last time a condition is set
+
+            These last two apply to the situation where one condition is 
+            repeatedly set. For example if the conditions are temperature and 
+            humidity and the table of conditions looks like this:
+
+            temperature | humidity
+            ------------|----------
+            10          |  40        (FIRST_TIME)
+            ------------|----------
+            10          |  50
+            ------------|----------
+            10          |  60        (LAST_TIME)
+            ------------|----------
+            20          |  40        (FIRST_TIME)
+            ------------|----------
+            20          |  50
+            ------------|----------
+            20          |  60        (LAST_TIME)
+            ------------|----------
+
+            Temperature is set to the same value for 3 rows of the conditions 
+            table, we may not want to run a Measurement for each row. Instead we
+            may want to run the first time the temperature is set or the last time.
+            This is what the FIRST_TIME & LAST_TIME special values are for.
+        """
+        if self.RUN_STAGE_AFTER not in self.run_conditions:
+            self.run_conditions[self.RUN_STAGE_AFTER] = {condition_label:value}
+            # Disable main by default
+            self.run_on_main(False)
+        else:
+            self.run_conditions[self.RUN_STAGE_AFTER][condition_label] = value
+
+
+
+    def run_on_error(self):
+        """
+        Set entry in run condition to run this measurement when an error occurs
+        """
+        self.run_conditions[self.RUN_STAGE_ERROR] = {}
     
     
             
