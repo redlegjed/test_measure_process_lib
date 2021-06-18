@@ -74,6 +74,7 @@ import inspect
 import numpy as np
 import pandas as pd
 import xarray as xr
+from xarray.core.utils import V
 # from xarray.core.utils import V
 
 from .tmpl_support import ObjDict,debugPrintout
@@ -82,7 +83,9 @@ from .tmpl_storage import json_to_dataset
 #================================================================
 #%% Constants
 #================================================================
-
+# Operation type labels for the running order
+OP_MEAS = 'MEASUREMENT'
+OP_COND = 'CONDITION'
  
 #================================================================
 #%% Decorator Functions
@@ -646,7 +649,12 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         self.log_section_separator = '='*40
         self.log_sub_section_separator = '-'*40
 
+        # Running order
+        # Internal list of all the steps in complete test sequence
+        self._running_order = []
+
         # Setup conditions and measurement objects
+        # =========================================
         self.define_setup_conditions()
         self.define_measurements()
 
@@ -665,7 +673,6 @@ class AbstractTestManager(abc.ABC,CommonUtility):
     #----------------------------------------------------------------
     #%% Run methods
     #----------------------------------------------------------------
-
     @test_time
     def run(self,conditions=None):
         """
@@ -691,21 +698,19 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         ValueError
             If supplied conditions are the wrong format
         """
+
         # Setup
         # ==============================
         self.clear_all_results()
 
-        # Get conditions
-        if not conditions:
-            conditions_table = self.conditions_table
-        else:
-            conditions_table = conditions
-            # TODO check over conditions input
-        
-        if not isinstance(conditions_table,list):
-            raise ValueError('Supplied conditions should be a list of dicts with format {cond_name:cond_value}')
-    
-        self.df_conditions = pd.DataFrame(conditions_table)
+        self.make_running_order(conditions)
+
+        if len(self._running_order)==0:
+            self.log('Nothing in the running order - aborting')
+            return
+
+        # Storage for keeping a log of the current conditions
+        current_cond = {label:None for label in self.conditions_table[0]}
 
         # Main sequence
         # ==============================
@@ -716,67 +721,23 @@ class AbstractTestManager(abc.ABC,CommonUtility):
             # Startup stage
             # ==============================
             self.pre_process()
-            # run startup stage measurements
-            self.run_meas_on_startup()
 
-            # Main measurement loop
+            # Main test
             # ==============================
-            nCond = len(conditions_table)
-            self.cond_index = 0
+            for line in self._running_order:
+                # Set conditions
+                if line.operation==OP_COND:
+                    print(self.log_condition_separator)
+                    self.conditions[line.label].setpoint = line.arguments
 
-            # Initialise last conditions log
-            # - use first column of conditions table to make a template
-            last_cond = {label:None for label in self.conditions_table[0]}
-
-            # Loop through conditions
-            for self.cond_index,current_cond in enumerate(self.conditions_table):
-                print(self.log_condition_separator)
-
+                    # Update current conditions log
+                    current_cond[line.label] = line.arguments
                 
-                # Setup conditions stage
-                # ------------------------------
-                # Make a dict for keeping track of conditions incrementally
-                accum_cond = {}
+                # Run measurements
+                if line.operation==OP_MEAS:
+                    ok = self.meas[line.label].run(conditions=line.arguments)
+                    assert ok, f'Measurement [{line.label}] failed at conditions {line.arguments}'
 
-                # Loop through current set of conditions
-                for cond_label in self.conditions:
-                    # set individual condition
-                    # - but only if the condition is different
-                    name = self.conditions[cond_label].name
-
-                    # Accumulate conditions for measurements
-                    accum_cond[name] = current_cond[name]
-
-                    # Set condition if it is not the same as the last value
-                    if current_cond[name]!=last_cond[name]:
-                        self.conditions[cond_label].setpoint = current_cond[name]
-
-                        # Loop through measurements at this condition
-                        # - measurements are given the accumulated conditions
-                        #   for setting coordinates in their ds_results datasets
-                        self.run_meas_on_setup(name,conditions=accum_cond)
-
-                    
-                # Main measurements
-                # ------------------------------
-                # Loop through measurements that don't have a specific 
-                # run_condition
-                self.run_main_meas(conditions=current_cond)
-
-
-                # Teardown after individual conditions
-                # -------------------------------------
-                self.run_after_meas(conditions=current_cond)
-                # Store last conditions
-                last_cond = current_cond
-
-
-            self.log(self.log_section_separator)
-
-            # Teardown after all measurements are done
-            # ======================================
-            self.run_meas_on_teardown()
-            
 
             # Post processing
             # ==============================
@@ -801,10 +762,201 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         if self.last_error!='':
             self.log('Test finished with errors - check last_error property')
 
+    
+    def make_running_order(self,conditions=None):
+        """
+        Construct the test sequence running order.
+        This creates an internal list (self._running_order) with every step
+        in the sequence. The run() method takes this list and executes it 
+        line by line.
+
+        This method does the hard work of sorting out the running order leaving
+        the run() method with a simpler task.
+
+        To view a tabular version of the running order use the property
+        self.df_running_order. This is a pandas DataFrame representation of
+        the running order that is easier to read.
+
+        Parameters
+        ----------
+        conditions : list of dict, optional
+            list of dict of conditions, by default None
+            Conditions are specified as key value pairs
+            e.g.
+                conditions = [dict(temperature_degC=34,humidity=50)]
+                conditions = [{'temperature_degC':34,'humidity':50}]
+                conditions = [{'temperature_degC':40,'humidity':50}]
+                conditions = [
+                    {'temperature_degC':25,'humidity':50},
+                    {'temperature_degC':40,'wavelength_nm':1560},
+                    ]
+
+
+        Raises
+        ------
+        ValueError
+            If supplied conditions are the wrong format
+        """
+        # Setup
+        # ==============================
+
+        # Get conditions
+        if not conditions:
+            conditions_table = self.conditions_table
+        else:
+            conditions_table = conditions
+            # TODO check over conditions input
+        
+        if not isinstance(conditions_table,list):
+            raise ValueError('Supplied conditions should be a list of dicts with format {cond_name:cond_value}')
+    
+        self.df_conditions = pd.DataFrame(conditions_table)
+
+        self.log('Generating the sequence running order')
+
+
+        # Startup stage
+        # ==============================
+        # run startup stage measurements
+        self.run_meas_on_startup()
+
+
+        # Main measurement loop
+        # ==============================
+        nCond = len(conditions_table)
+        self.cond_index = 0
+
+        # Initialise last conditions log
+        # - use first column of conditions table to make a template
+        last_cond = {label:None for label in self.conditions_table[0]}
+
+        # Loop through conditions
+        for self.cond_index,current_cond in enumerate(self.conditions_table):
+
+            # Setup conditions stage
+            # ------------------------------
+            # Make a dict for keeping track of conditions incrementally
+            accum_cond = {}
+
+            # Loop through current set of conditions
+            for cond_label in self.conditions:
+                # set individual condition
+                # - but only if the condition is different
+                name = self.conditions[cond_label].name
+
+                # Accumulate conditions for measurements
+                accum_cond[name] = current_cond[name]
+
+                # Set condition if it is not the same as the last value
+                if current_cond[name]!=last_cond[name]:
+                    self.add_to_running_order(OP_COND,cond_label,current_cond[name])
+                    # self.conditions[cond_label].setpoint = current_cond[name]
+
+                    # Loop through measurements at this condition
+                    # - measurements are given the accumulated conditions
+                    #   for setting coordinates in their ds_results datasets
+                    self.run_meas_on_setup(name,conditions=accum_cond)
+
+                
+            # Main measurements
+            # ------------------------------
+            # Loop through measurements that don't have a specific 
+            # run_condition
+            self.run_main_meas(conditions=current_cond)
+
+
+            # Teardown after individual conditions
+            # -------------------------------------
+            self.run_after_meas(conditions=current_cond)
+            # Store last conditions
+            last_cond = current_cond
+
+
+        # Teardown after all measurements are done
+        # ======================================
+        self.run_meas_on_teardown()
+        
+        self.log('\tRunning order done')
+            
+
+
+    def add_to_running_order(self,operation,label,arguments):
+        """
+        Convenience function for adding a row to the internal running
+        order list.
+        Checks over the inputs to make sure they work.
+
+        Parameters
+        ----------
+        operation : str
+            String describing type of operation 'MEASUREMENT' or 'CONDITION'
+        label : str
+            Label of measurement in self.meas or condition in self.conditions
+        arguments : single value or dict
+            For conditions this is usually a single value for the setpoint
+            For measurements this is a dictionary of conditions
+        """
+        assert operation in [OP_COND,OP_MEAS], f'Running list operation [{operation}] is unknown. Should be [{OP_MEAS},{OP_COND}]'
+
+        if operation==OP_COND:
+            assert label in self.conditions, f'Running list: Unknown conditions label [{label}]'
+            assert not hasattr(arguments,'__len__'), f'Running list: conditions arguments should be single values not lists [{arguments}]'
+
+        if operation==OP_MEAS:
+            assert label in self.meas, f'Running list: Unknown measurement label [{label}]'
+            assert hasattr(arguments,'keys'), f'Running list: measurement arguments is not dict-like [{arguments}]'
+
+
+        self._running_order.append(ObjDict(operation=operation,
+                                            label=label,
+                                            arguments=copy.deepcopy(arguments)))
+        # Note: the deepcopy is needed to stop it storing references that can
+        # be updated later in the code
+
+    @property
+    def df_running_order(self):
+        """
+        Return the running order as a pandas DataFrame object
+        Useful for displaying the running order in tabular form
+
+        Returns
+        -------
+        DataFrame
+            Table of running order with columns:
+            * Operation: either MEASUREMENT or CONDITION
+            * Label : label of measurement or condition
+            * <condition1> : Value of first condtion
+            *     :
+            * <conditionN> : Value of last condtion
+        """
+        if len(self._running_order)==0:
+            raise ValueError('Running order has not been generated yet. Try make_running_order() method.')
+
+        rows = []
+
+
+        for line in self._running_order:
+            standard_cols = {'Operation':line.operation,'Label':line.label}
+            cond_cols = {k:None for k in self.conditions}
+
+            if line.operation==OP_COND:
+                if line.label in cond_cols:
+                    cond_cols[line.label] = line.arguments
+
+            if line.operation==OP_MEAS:
+                for k,v in line.arguments.items():
+                    if k in cond_cols:
+                        cond_cols[k] = v
+
+            rows.append(standard_cols | cond_cols)
+
+        return pd.DataFrame(rows)
+            
+
 
     def run_meas_on_startup(self):
         """
-        Run any measurements that are done in the startup stage
+        Add to running order measurements that are done in the startup stage
         This is before any conditions have been set.
         Can be used for turning on instruments, power supplies etc.
         """
@@ -814,13 +966,12 @@ class AbstractTestManager(abc.ABC,CommonUtility):
                 # Ignore anything that does not run in this stage
                 continue
 
-            ok = self.meas[meas_label].run()
-            assert ok, f'Measurement [{meas_label}] failed when run at Startup stage'
-
+            self.add_to_running_order(OP_MEAS,meas_label,{})
+            
     
     def run_meas_on_teardown(self):
         """
-        Run any measurements that are done in the teardown stage
+        Add to running order measurements that are done in the teardown stage
         This is before any conditions have been set.
         Can be used for turning off instruments, power supplies etc.
         """
@@ -830,13 +981,12 @@ class AbstractTestManager(abc.ABC,CommonUtility):
                 # Ignore anything that does not run in this stage
                 continue
 
-            ok = self.meas[meas_label].run()
-            assert ok, f'Measurement [{meas_label}] failed when run at Teardown stage'
-
+            self.add_to_running_order(OP_MEAS,meas_label,{})
+            
 
     def run_main_meas(self,conditions={'default':0}):
         """
-        Run any measurements that are done in the Main stage
+        Add to running order any measurements that are done in the Main stage
         This is the default mode of operation
 
         Parameters
@@ -853,15 +1003,14 @@ class AbstractTestManager(abc.ABC,CommonUtility):
                 # Ignore anything that does not run in this stage
                 continue
 
-            ok = self.meas[meas_label].run(conditions=conditions)
-            assert ok, f'Measurement [{meas_label}] failed at Main stage with conditions {conditions}'
-
+            self.add_to_running_order(OP_MEAS,meas_label,conditions)
+            
 
 
 
     def run_meas_on_setup(self,condition_label,conditions={'default':0}):
         """
-        Run only measurements at the Setup stage for specified condition
+        Add to running order measurements at the Setup stage for specified condition
         Measurements are checked to see if they are configured to run for
         the specified condition. If so then they are further checked to see
         for what values of the condition they should be run.
@@ -905,13 +1054,12 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
             # Run individual measurement
             # - supply conditions for setting coordinates in ds_results dataset
-            ok = self.meas[meas_label].run(conditions=conditions)
-            assert ok, f'Measurement [{meas_label}] failed at Setup stage with conditions {conditions}'
-
+            self.add_to_running_order(OP_MEAS,meas_label,conditions)
+            
 
     def run_after_meas(self,conditions={'default':0}):
         """
-        Run only measurements at the After stage for specified condition
+        Add to running order measurements at the After stage for specified condition
         Measurements are checked to see if they are configured to run for
         the specified condition. If so then they are further checked to see
         for what values of the condition they should be run.
@@ -944,9 +1092,8 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
             # Run individual measurement
             # - supply conditions for setting coordinates in ds_results dataset
-            ok = self.meas[meas_label].run(conditions=conditions)
-            assert ok, f'Measurement [{meas_label}] failed at After stage with conditions {conditions}'
-
+            self.add_to_running_order(OP_MEAS,meas_label,conditions)
+            
 
 
 
@@ -954,6 +1101,9 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         """
         Run any measurements that are done when an error occurs.
         This is useful for safe powering down and cleanup.
+
+        This is the only one of the run_* methods that does not add to
+        the running order and actually runs the measurement.
 
         Parameters
         ----------
@@ -1587,7 +1737,7 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
     def run(self,conditions={'default':0},**kwargs):
         """
         Run measurement sequence at specified conditions 
-        This method will run the sequence insided a try/except block to
+        This method will run the sequence inside a try/except block to
         catch errors.
         Error messages will be reported in self.last_error
 
