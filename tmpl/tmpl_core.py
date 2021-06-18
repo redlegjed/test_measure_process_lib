@@ -1488,7 +1488,7 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
 
     
     """
-    name = 'default_measurement_name'
+    name = ''
 
     # Special conditions
     COND_EACH = 'EACH'
@@ -1565,6 +1565,9 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
 
         # Run custom initialisation
         self.initialise()
+
+        if self.name=='':
+            self.name = self.__class__.__name__
         
         
     def initialise(self):
@@ -1902,7 +1905,7 @@ class AbstractSetupConditions(abc.ABC,CommonUtility):
 
     
     """
-    name = 'default_condition_name'
+    name = ''
 
     def __init__(self,resources,**kwargs):
         """

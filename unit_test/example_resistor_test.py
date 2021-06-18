@@ -167,7 +167,7 @@ class HumidityConditions(tmpl.AbstractSetupConditions):
 
     @setpoint.setter
     def setpoint(self,value):
-        self.log(f'Setpoint = {value} degC')
+        self.log(f'Setpoint = {value} %')
         self._setpoint = value
         # Use set_humidity, which is automatically available
         # from resources
@@ -185,16 +185,16 @@ class VoltageSweeper(tmpl.AbstractMeasurement):
     def initialise(self):
 
         # Set up the voltage values to sweep over
-        self.voltage_sweep = np.linspace(0,1,10)
+        self.config.voltage_sweep = np.linspace(0,1,10)
         
 
     def meas_sequence(self):
         
         #  Do the measurement
         
-        current = np.zeros(self.voltage_sweep.shape)
+        current = np.zeros(self.config.voltage_sweep.shape)
 
-        for index,V in enumerate(self.voltage_sweep):
+        for index,V in enumerate(self.config.voltage_sweep):
             # Set voltage
             self.voltage_supply.set_voltage(V,self.resistor)
 
@@ -203,14 +203,14 @@ class VoltageSweeper(tmpl.AbstractMeasurement):
 
         
         # Store the data
-        self.store_coords('swp_voltage',self.voltage_sweep)
+        self.store_coords('swp_voltage',self.config.voltage_sweep)
         self.store_data_var('current_A',current,coords=['swp_voltage'])
 
         # Process
         self.process_results()
 
         # Debug point
-        print('finished sweep')
+        self.log('finished sweep')
 
 
     @tmpl.with_results(data_vars=['current_A'])
@@ -221,8 +221,35 @@ class VoltageSweeper(tmpl.AbstractMeasurement):
 
         self.store_data_var('resistance_ohms',[resistance_ohms])
 
-        
+# Measurement class that runs every time the temperature changes
+class Stabilise(tmpl.AbstractMeasurement):
 
+    def initialise(self):
+        self.run_on_setup('temperature_degC')
+
+    def meas_sequence(self):
+        self.log('Stabilising')
+
+
+# Measurement classes that run at start and end of test sequence
+class TurnOn(tmpl.AbstractMeasurement):
+
+    def initialise(self):
+        self.run_on_startup(True)
+
+
+    def meas_sequence(self):
+        self.log('TurnOn measurement')
+
+
+class TurnOff(tmpl.AbstractMeasurement):
+
+    def initialise(self):
+        self.run_on_teardown(True)
+
+
+    def meas_sequence(self):
+        self.log('TurnOff measurement')
 #================================================================
 #%% Test Manager class
 #================================================================
@@ -246,7 +273,10 @@ class ExampleTestSequence(tmpl.AbstractTestManager):
         """
 
         # Setup links to all the measurements
+        self.add_measurement(TurnOn)
+        self.add_measurement(Stabilise)
         self.add_measurement(VoltageSweeper)
+        self.add_measurement(TurnOff)
 
 
     def initialise(self):
@@ -262,11 +292,12 @@ class ExampleTestSequence(tmpl.AbstractTestManager):
 #================================================================
  
 if __name__ == '__main__':
-    # Run something
-    print('Run')
+    # Run a full test sequence
 
+    # Define resistor model
     res1 = ResistorModel(100,tolerance_pc=1.0)
 
+    # Setup resources
     resources = {
         'set_temperature':set_temperature,
         'set_humidity': set_humidity,
@@ -274,4 +305,6 @@ if __name__ == '__main__':
         'resistor':res1,
         }
 
+    # Create and run the test sequence
     test = ExampleTestSequence(resources)
+    test.run()
