@@ -812,6 +812,9 @@ class AbstractTestManager(abc.ABC,CommonUtility):
     
         self.df_conditions = pd.DataFrame(conditions_table)
 
+        # Clear running order
+        self._running_order = []
+
         self.log('Generating the sequence running order')
 
 
