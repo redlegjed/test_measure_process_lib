@@ -628,6 +628,8 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         # Information
         self.information = ObjDict()
 
+        # Local data storage
+        self.local_data = ObjDict()
         
 
         # Utilities
@@ -1705,6 +1707,9 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
         # Configuration data
         self.config = ObjDict()
 
+        # Local data storage
+        self.local_data = ObjDict()
+
         # logging
         self.log = debugPrintout(self)
         self.last_error = ''
@@ -2096,6 +2101,9 @@ class AbstractSetupConditions(abc.ABC,CommonUtility):
 
         # Configuration settings
         self.config = kwargs.get('config',ObjDict())
+
+        # Local data storage
+        self.local_data = ObjDict()
 
         # logging
         self.log = debugPrintout(self)
