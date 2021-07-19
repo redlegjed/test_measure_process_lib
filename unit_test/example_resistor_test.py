@@ -305,6 +305,8 @@ if __name__ == '__main__':
         'resistor':res1,
         }
 
+    config_custom = {'param1':1,'param2':2}
+
     # Create and run the test sequence
-    test = ExampleTestSequence(resources)
+    test = ExampleTestSequence(resources,config=config_custom)
     test.run()

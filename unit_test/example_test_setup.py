@@ -236,7 +236,7 @@ class ShutdownTestboard(tmpl.AbstractMeasurement):
         self.tb = self.get_resource('testboard')
 
         # Set this measurement to execute in the teardown stage
-        self.run_condition = self.RUN_COND_TEARDOWN
+        self.run_condition = self.RUN_STAGE_TEARDOWN
 
 
     def meas_sequence(self):
@@ -254,7 +254,7 @@ class StartupTestboard(tmpl.AbstractMeasurement):
         self.tb = self.get_resource('testboard')
 
         # Set this measurement to execute in the startup stage
-        self.run_condition = self.RUN_COND_STARTUP
+        self.run_condition = self.RUN_STAGE_STARTUP
 
 
     def meas_sequence(self):
@@ -360,3 +360,4 @@ if __name__ == '__main__':
         }
 
     test = ExampleTestSequence(resources)
+    test.run()

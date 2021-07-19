@@ -614,7 +614,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         self.make_resources_into_properties(resources)
 
         # Configuration settings
-        self.config = kwargs.get('config',ObjDict())
+        self.config = ObjDict(**kwargs.get('config',{}))
         
         # Test condition objects
         self.conditions = ObjDict()
@@ -1699,7 +1699,7 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
         self.make_resources_into_properties(resources)
 
         # Configuration settings
-        self.config = kwargs.get('config',ObjDict())
+        self.config = ObjDict(**kwargs.get('config',{}))
 
         # Services
         self.services = ObjDict()
@@ -2100,7 +2100,7 @@ class AbstractSetupConditions(abc.ABC,CommonUtility):
         self.services = ObjDict()
 
         # Configuration settings
-        self.config = kwargs.get('config',ObjDict())
+        self.config = ObjDict(**kwargs.get('config',{}))
 
         # Local data storage
         self.local_data = ObjDict()
