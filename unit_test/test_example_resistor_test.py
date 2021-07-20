@@ -18,6 +18,7 @@ import unittest
 import numpy as np
 import pandas as pd
 import xarray as xr
+from xarray.core.utils import V
 
 basepath = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(basepath)
@@ -48,14 +49,14 @@ class TestExampleSequence(unittest.TestCase):
     def setUp(self):
         res1 = ResistorModel(100,tolerance_pc=1.0)
 
-        resources = {
+        self.resources = {
             'set_temperature':set_temperature,
             'set_humidity': set_humidity,
             'voltage_supply':VoltageSupply(),
             'resistor':res1,
             }
 
-        self.testseq = ExampleTestSequence(resources)
+        self.testseq = ExampleTestSequence(self.resources)
  
  
     def tearDown(self):
@@ -189,6 +190,17 @@ class TestExampleSequence(unittest.TestCase):
             os.remove(data_filename_json)
 
         
+    def test_custom_config(self):
+        """
+        Test adding custom config parameters to test sequence
+        """
+
+        custom_config = {'param1':1,'param2':2}
+        seq = ExampleTestSequence(self.resources,config=custom_config)
+
+        for k,v in custom_config.items():
+            self.assertTrue(k in seq.config,msg=f'Test parameter [{k}] not in config dict')
+            self.assertEqual(seq.config[k],v,msg=f'Test parameter [{k}] does not have correct value [{v}]')
 
         
 
@@ -211,10 +223,11 @@ if __name__ == '__main__':
         # suite.addTest(TestExampleSequence('test_dummy'))
         # suite.addTest(TestExampleSequence('test_got_conditions_and_meas'))
         # suite.addTest(TestExampleSequence('test_conditions_table'))
-        suite.addTest(TestExampleSequence('test_running_default_conditions'))
+        # suite.addTest(TestExampleSequence('test_running_default_conditions'))
         # suite.addTest(TestExampleSequence('test_stacking_multiple_runs'))
         # suite.addTest(TestExampleSequence('test_save_results'))
         # suite.addTest(TestExampleSequence('test_save_and_load_results'))
+        suite.addTest(TestExampleSequence('test_custom_config'))
         
         
         runner = unittest.TextTestRunner()

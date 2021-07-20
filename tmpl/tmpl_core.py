@@ -567,6 +567,33 @@ class CommonUtility():
         self.ds_results = json_to_dataset(filename)
 
 
+    #----------------------------------------------------------------
+    #%% Config management
+    #----------------------------------------------------------------
+    def set_custom_config(self,custom_config={}):
+        """
+        Add custom data to object config dict
+
+        Parameters
+        ----------
+        custom_config : dict, optional
+            Dict-like with custom key,value pairs, by default {}
+        """
+
+        # Input validation
+        # ==============================
+        if not hasattr(self,'config'):
+            return
+
+        if custom_config=={}:
+            return
+
+        # Write custom values into config ObjDict
+        # =========================================
+        for key,value in custom_config.items():
+            self.config[key] = value
+
+
 
  
 #================================================================
@@ -614,7 +641,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         self.make_resources_into_properties(resources)
 
         # Configuration settings
-        self.config = ObjDict(**kwargs.get('config',{}))
+        self.config = ObjDict()
         
         # Test condition objects
         self.conditions = ObjDict()
@@ -665,6 +692,9 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
         # Run custom setup
         self.initialise()
+
+        # Add in any custom config parameters
+        self.set_custom_config(kwargs.get('config',{}))
 
         
 
@@ -1698,9 +1728,6 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
         self.resources = resources
         self.make_resources_into_properties(resources)
 
-        # Configuration settings
-        self.config = ObjDict(**kwargs.get('config',{}))
-
         # Services
         self.services = ObjDict()
 
@@ -1723,6 +1750,9 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
 
         # Run custom initialisation
         self.initialise()
+
+        # Add in any custom config parameters
+        self.set_custom_config(kwargs.get('config',{}))
 
         if self.name=='':
             self.name = self.__class__.__name__
@@ -2100,7 +2130,7 @@ class AbstractSetupConditions(abc.ABC,CommonUtility):
         self.services = ObjDict()
 
         # Configuration settings
-        self.config = ObjDict(**kwargs.get('config',{}))
+        self.config = ObjDict()
 
         # Local data storage
         self.local_data = ObjDict()
@@ -2113,6 +2143,9 @@ class AbstractSetupConditions(abc.ABC,CommonUtility):
 
         # Custom initialisation
         self.initialise()
+
+        # Add in any custom config parameters
+        self.set_custom_config(kwargs.get('config',{}))
 
 
     def __repr__(self):
