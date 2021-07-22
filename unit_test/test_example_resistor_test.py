@@ -180,9 +180,19 @@ class TestExampleSequence(unittest.TestCase):
         new_seq = ExampleTestSequence({},offline_mode=True)
         new_seq.load(data_filename_json)
 
-        # Compare datasets
+        # Compare datasets for test managers
         self.assertTrue(self.testseq.ds_results.equals(new_seq.ds_results),
-            msg='Reloaded Results data is not equal')
+            msg='Reloaded Results data for test manager is not equal')
+
+        # Compare datasets for measurements
+        for meas_name in self.testseq.meas:
+            if len(self.testseq.meas[meas_name].ds_results.data_vars)==0:
+                continue
+
+            print(meas_name)
+            self.assertTrue(self.testseq.meas[meas_name].ds_results.equals(new_seq.meas[meas_name].ds_results),
+                msg=f'Reloaded Results data for meas[{meas_name}] is not equal')
+
 
 
         # Clean up
@@ -226,8 +236,8 @@ if __name__ == '__main__':
         # suite.addTest(TestExampleSequence('test_running_default_conditions'))
         # suite.addTest(TestExampleSequence('test_stacking_multiple_runs'))
         # suite.addTest(TestExampleSequence('test_save_results'))
-        # suite.addTest(TestExampleSequence('test_save_and_load_results'))
-        suite.addTest(TestExampleSequence('test_custom_config'))
+        suite.addTest(TestExampleSequence('test_save_and_load_results'))
+        # suite.addTest(TestExampleSequence('test_custom_config'))
         
         
         runner = unittest.TextTestRunner()

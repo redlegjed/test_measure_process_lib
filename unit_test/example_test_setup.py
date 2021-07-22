@@ -226,6 +226,31 @@ class AxisSweeper(tmpl.AbstractMeasurement):
                                 coords={'axis':axis,xlabel:None})
 
 
+class ServiceTester(tmpl.AbstractMeasurement):
+
+    def initialise(self):
+        #  Break out test resources
+        self.station = self.get_resource('station')
+        self.tb = self.get_resource('testboard')
+
+
+
+    def meas_sequence(self):
+        
+        axes = ['X','Y']
+        results = []
+
+        for ax in axes:
+            # Call function from another measurement class
+            results.append(self.services.example_service(ax))
+
+        # Store the data
+        xlabel = 'service_test_axes'
+        ylabel = 'service_test_results'
+        self.store_coords(xlabel,axes)
+        self.store_data_var(ylabel,results,coords={xlabel:None})
+
+
 
 class ShutdownTestboard(tmpl.AbstractMeasurement):
     name = 'Shutdown_Testboard'
@@ -331,6 +356,7 @@ class ExampleTestSequence(tmpl.AbstractTestManager):
         self.add_measurement(MeasActualTemperature)
         self.add_measurement(PressureSweeper)
         self.add_measurement(AxisSweeper)
+        self.add_measurement(ServiceTester)
         self.add_measurement(ShutdownTestboard)
 
 
