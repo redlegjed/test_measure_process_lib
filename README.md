@@ -97,3 +97,221 @@ test.meas.MeasureVolume.run()
 ```
 
 Note in the last two cases where the measurement is run individually, specifiying the conditions merely includes the conditions as coordinates in the results Dataset. _Measurement_ classes _do not_ set their own conditions, that is only done by _SetupConditions_ classes.
+
+## Creating a measurement sequence
+
+A measurement sequence consists of a _TestManager_ class to run the overall sequence, any number of _SetupConditions_ classes and any number of _Measurement_ classes.
+
+Let's take a simple example, the measurement of resistance of a resistor.
+
+```
++--------------+
+|   voltage    |
+|   source     +-----+
+|              |     |
++--------------+     |
+                     |
+                     |
+                   +-+-+
+                   |   |
+                   |   |
+                   | R |    Resistor to measure
+                   |   |
+                   |   |
+                   |   |
+                   +-+-+
+                     |
+                     |
+                +----+-----+
+                |          |
+                | Ammeter  |
+                |          |
+                +----+-----+
+                     |
+                     |
+                 --------- Ground
+                   -----
+                    ---
+
+```
+We have two pieces of test equipment in this measurement: the voltage source and the ammeter. The measurement is simply to set a voltage, measure the current, and calculate the resistance from Ohm's law :
+
+Voltage = Resistance x Current
+
+In this measurement we have one setup condition, voltage, one measurement, current and one processing step, resistance.
+
+Let's assume that the voltage source and ammeter are controlled through the objects *voltage_source* and *ammeter*. These two objects will be supplied as _resources_ to the _TestManager_, _SetupConditions_ and _Measurement_ classes e.g.
+
+```python
+resources = {'voltage_source':voltage_source, 'ammeter':ammeter}
+```
+All classes will automatically have the *voltage_source* and *ammeter* objects available as properties.
+
+### Setup conditions
+
+First we'll setup the voltage source. This is our only setup condition and it will be done using a _SetupConditions_ class. _SetupConditions_ classes inherit from the abstract class _AbstractSetupConditions_. They require one method and two properties to be defined:
+
+* _initialise_ : Perform any initialisation, usually setting defaults for the property _values_.
+* _setpoint_ : Property that is used to set/get the condition set point value
+* _actual_ : Property that returns the actual value of the condition, e.g. the actual voltage rather than the setpoint
+
+The complete class definition is shown here:
+
+```python
+class Voltage(tmpl.AbstractSetupConditions):
+
+    def initialise(self):
+        """
+        Initialise default values and any other setup
+        """
+
+        # Set default values
+        self.values = [3.0]
+
+        
+    @property
+    def actual(self):
+        """
+        Return actual measured voltage
+        """
+        return self.voltage_source.actual_voltage_V
+
+    @property
+    def setpoint(self):
+        """
+        Get/Set the output voltage of the voltage source
+        """
+        return self.voltage_source.voltage_set_V
+
+    @setpoint.setter
+    def setpoint(self,value):
+        self.log(f'Set Voltage source to {value}V') # printout
+        self.voltage_source.voltage_set_V = value
+        
+```
+
+### Measurements
+
+Next the central measurement class is defined. Measurement classes inherit from the _AbstractMeasurement_ class. The only method that _needs_ to be defined is *meas_sequence()*. This is generally the top level function of a specific measurement procedure. Any number of extra methods can be added to the class to support *meas_sequence()*, but when a measurement is executed it basically calls the *meas_sequence()* method.
+
+In this case the measurement is simply to read the ammeter and store the reading, which can be done in the *meas_sequence()*. The resistance, however, is derived from the ammeter reading and the setpoint of the voltage source. Since this is "processing" rather than measurement it is good practice to do this in another method. This ensures that the real measurement, the ammeter reading, is done even if the processing step crashes. In this case the processing function could be re-run later to debug it, without re-running the measurement.
+
+```python
+class CurrentMeasure(tmpl.AbstractMeasurement):
+           
+
+    def meas_sequence(self):
+        """
+        Mandatory method for Measurement classes
+
+        Performs the actual measurement and stores data.
+        """
+        #  Measure current with ammeter
+        current = self.ammeter.current_A
+
+        # Store the data
+        self.store_data_var('current_A',current)
+
+        # Process
+        self.process_results()
+
+
+    @tmpl.with_results(data_vars=['current_A'])
+    def process_results(self):
+        """
+        Calculate resistance using measured current and voltage source
+        setting.
+        """
+
+        # Get voltage from current conditions
+        Voltage = self.current_conditions['Voltage']
+
+        # Get current measured at the last conditions
+        current_A = self.current_results.current_A
+        resistance_ohms = Voltage/current_A
+
+        self.store_data_var('resistance_ohms',[resistance_ohms])
+```
+The *process_results()* method uses the *tmpl.with_results* [decorator](https://wiki.python.org/moin/PythonDecorators#What_is_a_Decorator) to ensure that there is always an entry stored called *current_A*. If *process_results()* were to be executed before *meas_sequence()* then an error would be thrown because *current_A* had not been created. The *tmpl.with_results* decorator is not mandatory it is a convenience that avoids having to add boilerplate code such as :
+
+```python
+assert 'current_A' in self.ds_results
+# use decorator instead: @tmpl.with_results(data_vars=['current_A'])
+```
+Note also that *tmpl.with_results()* can have a list of names passed to it if more than one value has been measured and stored.
+
+
+### Test manager
+
+Now that the setup conditions and measurement have been defined, all that remains is to assemble the top level test sequence class. Again this is inherited from an abstract class: *AbstractTestManager*
+
+```python
+class SimpleResistanceMeasurement(tmpl.AbstractTestManager):
+
+    def define_setup_conditions(self):
+        """
+        Add the setup conditions here in the order that they should be set
+        """
+
+        # Add setup conditions using class name
+        self.add_setup_condition(Voltage)
+        
+
+    def define_measurements(self):
+        """
+        Add measurements here in the order of execution
+        """
+
+        # Setup links to all the measurements using class name
+        self.add_measurement(CurrentMeasure)
+        
+```
+
+The test manager requires two methods to be defined:
+
+* *define_setup_conditions()* : This method is a list of calls to *self.add_setup_condition(\<class name>)*. This method takes the name of the SetupConditions class defined previously. In this case there is only one setup condition, Voltage, but if there are multiple SetupConditions classes they are all added here *in the order that they should be set*.
+* *define_measurements()* : Similarly measurement classes are added using their class names using the *self.add_measurement(\<class name>)*. Again the order here dictates the order in which the measurements will be executed.
+
+### Running the test
+
+With the classes defined the test can be run by supplying the required resources to the test manager class:
+
+```python
+import tmpl
+
+# Make the instrument objects
+R = tmpl.examples.ResistorModel(10e3)
+vs = tmpl.examples.VoltageSupply(R)
+am = tmpl.examples.Ammeter(R)
+
+# Make resources
+resources = {'voltage_source':vs, 'ammeter':am}
+
+# Create test manager
+test = SimpleResistanceMeasurement(resources)
+
+# Run the test
+test.run()
+```
+the output should look like this:
+
+```
+Run
+@ SimpleResistanceMeasurement | Generating the sequence running order
+@ SimpleResistanceMeasurement | 	Running order done
+@ SimpleResistanceMeasurement | <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+@ SimpleResistanceMeasurement | Running SimpleResistanceMeasurement
+@ SimpleResistanceMeasurement | Generating the sequence running order
+@ SimpleResistanceMeasurement | 	Running order done
+------------------------------------------------------------
+@ Voltage                   | Set Voltage source to 3.0V
+@ CurrentMeasure            | <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+@ CurrentMeasure            | Running CurrentMeasure
+@ CurrentMeasure            | CurrentMeasure	Time taken: 0.003s 
+@ CurrentMeasure            | >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+@ SimpleResistanceMeasurement | ========================================
+@ SimpleResistanceMeasurement | SimpleResistanceMeasurement	Time taken: 0.006s 
+@ SimpleResistanceMeasurement | >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+```
+
+

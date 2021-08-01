@@ -11,3 +11,4 @@ from .tmpl_support import *
 from .tmpl_storage import *
 from .tmpl_core import *
 # from .example_test_setup import *
+from .examples import *

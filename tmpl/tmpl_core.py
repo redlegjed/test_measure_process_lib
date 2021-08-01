@@ -790,7 +790,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
     
     """
-    name = 'default_test_manager_name'
+    name = ''
 
     def __init__(self,resources={},**kwargs) -> None:
         """
@@ -870,6 +870,9 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         # Add in any custom config parameters
         self.set_custom_config(kwargs.get('config',{}))
 
+        if self.name=='':
+            self.name = self.__class__.__name__
+        
         
 
 
@@ -1139,7 +1142,8 @@ class AbstractTestManager(abc.ABC,CommonUtility):
             * <conditionN> : Value of last condtion
         """
         if len(self._running_order)==0:
-            raise ValueError('Running order has not been generated yet. Try make_running_order() method.')
+            # raise ValueError('Running order has not been generated yet. Try make_running_order() method.')
+            self.make_running_order()
 
         rows = []
 
@@ -2292,6 +2296,10 @@ class AbstractSetupConditions(abc.ABC,CommonUtility):
 
         # Add in any custom config parameters
         self.set_custom_config(kwargs.get('config',{}))
+
+        if self.name=='':
+            self.name = self.__class__.__name__
+        
 
 
     def __repr__(self):
