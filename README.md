@@ -296,7 +296,6 @@ test.run()
 the output should look like this:
 
 ```
-Run
 @ SimpleResistanceMeasurement | Generating the sequence running order
 @ SimpleResistanceMeasurement | 	Running order done
 @ SimpleResistanceMeasurement | <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -314,4 +313,91 @@ Run
 @ SimpleResistanceMeasurement | >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ```
 
+### Running order
+
+Internally TMPL generates a list of functions to call when the *run()* method is called. It can be useful to view this running order before actually running the test sequence. The property *df_running_order* displays this in a [pandas](https://pandas.pydata.org/pandas-docs/stable/) DataFrame for a convenient tabular printout.
+
+Here's the running order of the resistance measurement example:
+
+```python
+>>> test.df_running_order
+
+     Operation           Label  Voltage
+0    CONDITION         Voltage      3.0
+1  MEASUREMENT  CurrentMeasure      3.0
+```
+It shows that the test sequence consists of two steps, the first step is a *CONDITION* operation, i.e. setting the voltage. The second step is a *MEASUREMENT*, i.e. reading the Ammeter.
+
+### Results data
+
+The whole point of the TMPL library is to get experimental data into [xarray](http://xarray.pydata.org/en/stable/) Dataset format. Once a test sequence has been run, all the data collected will be available from the test manager object in the property *ds_results*. *ds_results* is an xarray Dataset object. Here's the result of the simple resistance measurement:
+
+```python
+>>> test.ds_results # Display results from test sequence
+
+<xarray.Dataset>
+Dimensions:          (Voltage: 1)
+Coordinates:
+  * Voltage          (Voltage) float64 3.0
+Data variables:
+    current_A        (Voltage) float64 0.0002963
+    resistance_ohms  (Voltage) float64 1.013e+04
+
+```
+
+The data can be stored and re-loaded in JSON format
+
+```python
+# Save to JSON
+test.save('my_data.json')
+
+# Load from JSON
+test.load('my_data.json')
+
+```
+This stores the *ds_results* Dataset into JSON format, which can be loaded back in later. Loading previously measured data can be useful for testing new processing functions.
+
+#### Individual Measurement data
+
+The *ds_results* property of a test manager class, e.g. *test*, scoops up all the data measured in individual measurement class object and puts it into one Dataset. However the individual measurement data can be accessed in the same way. All TMPL class objects have a *ds_results* property and all can be saved and loaded in the same way.
+
+So for the resistor measurement example we can access the data from the measurement class, *CurrentMeasure* like this:
+
+```python
+>>> test.meas.CurrentMeasure.ds_results
+
+<xarray.Dataset>
+Dimensions:          (Voltage: 1)
+Coordinates:
+  * Voltage          (Voltage) float64 3.0
+Data variables:
+    current_A        (Voltage) float64 0.0002963
+    resistance_ohms  (Voltage) float64 1.013e+04
+```
+It looks exactly the same as *test.ds_results*, because *CurrentMeasure* is the only measurement class in this test sequence. It can also be saved and loaded in the same manner.
+
+```python
+# Save to JSON
+test.meas.CurrentMeasure.save('my_data.json')
+
+# Load from JSON
+test.meas.CurrentMeasure.load('my_data.json')
+
+```
+
+### Dataset extra features
+
+TMPL adds some extra features to Datasets for easy storing of the data. It registers a [dataset_accessor](http://xarray.pydata.org/en/stable/internals/extending-xarray.html), which adds the *save* property to the Dataset. The *save* property has several functions for saving the Dataset into different formats as shown here:
+
+```python
+# Save Dataset to JSON
+test.ds_results.save.to_json(filename)
+
+# Save Dataset to JSON string
+jstr = test.ds_results.save.to_json_str()
+
+# Save Dataset to Excel spreadsheet
+test.ds_results.save.to_excel(filename)
+
+```
 
