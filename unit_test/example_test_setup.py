@@ -234,7 +234,7 @@ class ServiceTester(tmpl.AbstractMeasurement):
         self.tb = self.get_resource('testboard')
 
 
-
+    tmpl.with_services(services=['example_service'])
     def meas_sequence(self):
         
         axes = ['X','Y']

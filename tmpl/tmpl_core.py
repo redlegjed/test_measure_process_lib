@@ -239,6 +239,70 @@ def service(func):
     return func
 
 
+def with_services(services=[]):
+    """
+    Decorator function
+    Checks if there specific services available
+    If not then it throws an error
+
+    Examples
+    --------
+    Check that specific services exist
+
+    @with_services(services=['read_pressure'])
+    def myfunction(self):
+        ...
+        self.services.read_pressure()
+
+
+    Parameters
+    ----------
+    services : list of str
+        List of services that must be available
+
+
+    """    
+
+    # Make sure inputs are lists
+    if isinstance(services,str):
+        coords = [services]
+
+
+    # Create the decorator function
+    def decorator(func):
+        """
+        Decorator function to be returned
+
+        Parameters
+        ----------
+        func : function reference
+            The actual function to be decorated
+        """
+        # Wrapper function that does all the work                                                                                                                                # 
+        def wrapper(self,*arg,**kwargs):    
+            # Check ds_results
+            # ==============================   
+            if not hasattr(self,'services'):
+                raise ValueError('This object has no "services" property')      
+
+            
+            missing_services = [c for c in services if c not in self.services]
+    
+            if missing_services!=[]:
+                raise ValueError(f'Test sequence is missing services: {missing_services}')
+            
+            # Run the actual function
+            # ==============================
+            res = func(self,*arg,**kwargs)  
+                                                            
+            return res    
+
+        # Documentation
+        wrapper.__name__ = func.__name__
+        wrapper.__doc__ = func.__doc__                                                                                      
+        return wrapper
+
+    return decorator
 
 
 #================================================================
