@@ -233,10 +233,10 @@ if __name__ == '__main__':
         # suite.addTest(TestExampleSequence('test_dummy'))
         # suite.addTest(TestExampleSequence('test_got_conditions_and_meas'))
         # suite.addTest(TestExampleSequence('test_conditions_table'))
-        # suite.addTest(TestExampleSequence('test_running_default_conditions'))
+        suite.addTest(TestExampleSequence('test_running_default_conditions'))
         # suite.addTest(TestExampleSequence('test_stacking_multiple_runs'))
         # suite.addTest(TestExampleSequence('test_save_results'))
-        suite.addTest(TestExampleSequence('test_save_and_load_results'))
+        # suite.addTest(TestExampleSequence('test_save_and_load_results'))
         # suite.addTest(TestExampleSequence('test_custom_config'))
         
         

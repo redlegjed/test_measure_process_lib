@@ -486,10 +486,20 @@ class CommonUtility():
             self.ds_results[name].loc[filtered_coords] = data_values[0]
             return
 
+        # Special case of 1D vectors
+        # The req_shape will be (N,) whereas the data_values shape will be (N,1) 
+        # or (1,N). In this case we need to squeeze out the extra dimension
+        same_num_elements = np.product(data_values.shape)==np.product(req_shape)
+        different_shapes = data_values.shape!=req_shape
+
+        if same_num_elements and different_shapes:
+            data_values = data_values.squeeze()
+
+
         # General case
         # - array has more than one value
         if data_values.shape!=req_shape:
-            raise ValueError(f'The data array being entered for [{name}] must have a shape [{req_shape}] to satisfy coordinates {coordinates}')
+            raise ValueError(f'The data array being entered for [{name}/{data_values.shape}] must have a shape [{req_shape}] to satisfy coordinates {coordinates}')
 
         # Insert data at selected coordinates
         self.ds_results[name].loc[filtered_coords] = data_values
