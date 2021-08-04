@@ -296,8 +296,6 @@ test.run()
 the output should look like this:
 
 ```
-@ SimpleResistanceMeasurement | Generating the sequence running order
-@ SimpleResistanceMeasurement | 	Running order done
 @ SimpleResistanceMeasurement | <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 @ SimpleResistanceMeasurement | Running SimpleResistanceMeasurement
 @ SimpleResistanceMeasurement | Generating the sequence running order
