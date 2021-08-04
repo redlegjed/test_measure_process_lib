@@ -558,6 +558,12 @@ class CommonUtility():
         if same_num_elements and different_shapes:
             data_values = data_values.squeeze()
 
+        # Special case of input array dimensions being transposed compared to
+        # the equivalent Dataset dimensions
+        same_shape_when_transposed = data_values.T.shape == req_shape
+
+        if same_shape_when_transposed:
+            data_values = data_values.T
 
         # General case
         # - array has more than one value
