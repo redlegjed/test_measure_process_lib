@@ -935,6 +935,9 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         # Internal list of all the steps in complete test sequence
         self._running_order = []
 
+        # Add in any custom config parameters
+        self.set_custom_config(custom_config=kwargs.get('config',{}))
+
         # Setup conditions and measurement objects
         # =========================================
         self.define_setup_conditions()
@@ -946,8 +949,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         # Run custom setup
         self.initialise()
 
-        # Add in any custom config parameters
-        self.set_custom_config(kwargs.get('config',{}))
+        
 
         if self.name=='':
             self.name = self.__class__.__name__
@@ -1220,9 +1222,9 @@ class AbstractTestManager(abc.ABC,CommonUtility):
             *     :
             * <conditionN> : Value of last condtion
         """
-        if len(self._running_order)==0:
+        # if len(self._running_order)==0:
             # raise ValueError('Running order has not been generated yet. Try make_running_order() method.')
-            self.make_running_order()
+        self.make_running_order()
 
         rows = []
 
@@ -1630,7 +1632,8 @@ class AbstractTestManager(abc.ABC,CommonUtility):
             else:
                 cond_name = cond_class.name
 
-        self.conditions[cond_name]= cond_class(self.resources)
+        self.conditions[cond_name]= cond_class(self.resources,config=self.config)
+
 
     #----------------------------------------------------------------
     #%% Measurement methods
@@ -1664,7 +1667,8 @@ class AbstractTestManager(abc.ABC,CommonUtility):
             else:
                 meas_name = meas_class.name
 
-        self.meas[meas_name] = meas_class(self.resources)
+        self.meas[meas_name] = meas_class(self.resources,config=self.config)
+
 
     #----------------------------------------------------------------
     #%% Service handling methods
@@ -1981,7 +1985,7 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
         self.initialise()
 
         # Add in any custom config parameters
-        self.set_custom_config(kwargs.get('config',{}))
+        self.set_custom_config(custom_config=kwargs.get('config',{}))
 
         if self.name=='':
             self.name = self.__class__.__name__
