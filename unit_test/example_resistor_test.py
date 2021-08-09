@@ -206,15 +206,12 @@ class VoltageSweeper(tmpl.AbstractMeasurement):
         self.store_coords('swp_voltage',self.config.voltage_sweep)
         self.store_data_var('current_A',current,coords=['swp_voltage'])
 
-        # Process
-        self.process_results()
-
         # Debug point
         self.log('finished sweep')
 
 
     @tmpl.with_results(data_vars=['current_A'])
-    def process_results(self):
+    def process(self):
 
         p=self.current_results.current_A.polyfit('swp_voltage',1)
         resistance_ohms = p.polyfit_coefficients.sel(degree=1).values

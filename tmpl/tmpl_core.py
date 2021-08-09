@@ -2062,7 +2062,24 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
         except Exception as err:
             success = False
             self.last_error = traceback.format_exc()
-            print(f'Measurement[{self.name}] has thrown an error')
+            print(f'Measurement sequence for[{self.name}] has thrown an error')
+            print('*'*40)
+            traceback.print_exc()
+            print('*'*40)
+        
+        # Failed on running sequence, exit cleanly
+        if not success:
+            return success
+
+        # Run processing
+        # ==============================
+        self.last_error = ''
+        try:
+            self.process()
+        except Exception as err:
+            success = False
+            self.last_error = traceback.format_exc()
+            print(f'Measurement processing for[{self.name}] has thrown an error')
             print('*'*40)
             traceback.print_exc()
             print('*'*40)
@@ -2080,6 +2097,14 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
         The user is free to put anything in this method.
         """
         raise NotImplemented('Measurement sequence method not implemented')
+
+
+    def process(self):
+        """
+        Optional processing method. If this function exists it will be
+        run after meas_sequence().
+        """
+        pass
 
 
     def __repr__(self):

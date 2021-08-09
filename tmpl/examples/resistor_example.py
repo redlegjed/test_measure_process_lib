@@ -71,7 +71,15 @@ class ResistorModel():
         Return current through resistor at current conditions
         """
         return self.voltage/self.resistance_ohms
+
+    @property
+    def voltage_diff_V(self):
+        """
+        Return voltage difference across resistor at current conditions
+        """
+        return self.resistance_ohms*self.current_A
  
+
 #================================================================
 #%% Virtual Test instrument classes
 #================================================================
@@ -123,7 +131,7 @@ class Ammeter():
     Example virtual test instrument class for ammeter
 
     >>> resistor = ResistorModel()
-    >>> supply = Ammeter(resistor)
+    >>> ammeter = Ammeter(resistor)
     """
 
     def __init__(self,resistor) -> None:
@@ -134,3 +142,38 @@ class Ammeter():
         return self.resistor.current_A
 
 
+class Voltmeter():
+    """
+    Example virtual test instrument class for Voltmeter 
+
+    >>> resistor = ResistorModel()
+    >>> voltmeter = Voltmeter(resistor)
+    """
+
+    def __init__(self,resistor) -> None:
+        self.resistor = resistor
+
+    @property
+    def voltage_V(self):
+        return self.resistor.voltage_diff_V
+
+
+class EnvironmentalChamber():
+    """
+    Example virtual test instrument class for Environmental chamber
+    Enables setting temperature and humidity on resistor
+
+    >>> resistor = ResistorModel()
+    >>> chamber = EnvironmentalChamber(resistor)
+    """
+
+    def __init__(self,resistor) -> None:
+        self.resistor = resistor
+
+    @property
+    def temperature_degC(self):
+        return self.resistor.temperature_degC
+
+    @property
+    def humidity_pc(self):
+        return self.resistor.humidity_pc

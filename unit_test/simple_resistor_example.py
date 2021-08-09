@@ -77,12 +77,9 @@ class CurrentMeasure(tmpl.AbstractMeasurement):
         # Store the data
         self.store_data_var('current_A',current)
 
-        # Process
-        self.process_results()
-
 
     @tmpl.with_results(data_vars=['current_A'])
-    def process_results(self):
+    def process(self):
         """
         Calculate resistance using measured current and voltage source
         setting.
