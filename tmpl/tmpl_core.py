@@ -1214,6 +1214,9 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         """
         Return the running order as a pandas DataFrame object
         Useful for displaying the running order in tabular form
+        
+        If a measurement or condition has been disabled it will not
+        appear on the running order table.
 
         Returns
         -------
@@ -1237,10 +1240,14 @@ class AbstractTestManager(abc.ABC,CommonUtility):
             cond_cols = {k:None for k in self.conditions}
 
             if line.operation==OP_COND:
+                if not self.conditions[line.label].enable:
+                    continue
                 if line.label in cond_cols:
                     cond_cols[line.label] = line.arguments
 
             if line.operation==OP_MEAS:
+                if not self.meas[line.label].enable:
+                    continue
                 for k,v in line.arguments.items():
                     if k in cond_cols:
                         cond_cols[k] = v
