@@ -111,7 +111,10 @@ def test_time(func):
         res = func(self,*arg,**kwargs)  
 
         self.test_time_s = time.time()-t                                                                                            
-        self.log(f"{self.name}\tTime taken: %.3fs " % (self.test_time_s))  
+        if self.test_time_s < 60:
+            self.log(f"{self.name}\tTime taken: %.3f s " % (self.test_time_s))  
+        else:
+            self.log(f"{self.name}\tTime taken: %.3f min " % (self.test_time_s/60))  
         self.log('>'*40)                                                  
         return res    
 
