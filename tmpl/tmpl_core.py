@@ -115,7 +115,8 @@ def test_time(func):
             self.log(f"{self.name}\tTime taken: %.3f s " % (self.test_time_s))  
         else:
             self.log(f"{self.name}\tTime taken: %.3f min " % (self.test_time_s/60))  
-        self.log('>'*40)                                                  
+        self.log('>'*40)          
+        print('') # spacer                                        
         return res    
 
     # Documentation
@@ -1679,6 +1680,9 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
         self.meas[meas_name] = meas_class(self.resources,config=self.config)
 
+        # Add link to TestManager ds_results
+        self.meas[meas_name]._ds_results_global = self.link_to_ds_results
+
 
     #----------------------------------------------------------------
     #%% Service handling methods
@@ -1815,6 +1819,23 @@ class AbstractTestManager(abc.ABC,CommonUtility):
                 # Otherwise put info in as attribute
                 self.ds_results.attrs[key] = [value]
 
+    def link_to_ds_results(self):
+        """
+        Convenience method for accessing all results from a Measurement object
+
+        This method is given to every Measurement object when they are created
+        using add_measurement.
+
+        Returns
+        -------
+        xarray Dataset
+            Top level TestManager ds_results property
+        """
+
+        if not hasattr(self,'ds_results'):
+            return None
+
+        return self.ds_results
 
     #----------------------------------------------------------------
     #%% Mandatory methods (Abstract definitions)
@@ -1963,6 +1984,10 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
 
         # Dataset initialisation
         self.ds_results = None
+
+        # Link to TestManager data
+        # - TestManager must populate this with a link to a function
+        self._ds_results_global = None
 
         # Storage for current conditions
         self.current_conditions = {}
@@ -2321,6 +2346,25 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
         Set entry in run condition to run this measurement when an error occurs
         """
         self.run_conditions[self.RUN_STAGE_ERROR] = {}
+
+    #----------------------------------------------------------------
+    #%% Dataset access
+    #----------------------------------------------------------------
+    @property
+    def ds_results_global(self):
+        """
+        Access global dataset of test manager
+
+        Returns
+        -------
+        xarray Dataset
+            Returns the test manager ds_results dataset
+        """
+
+        if self._ds_results_global is None:
+            return None
+
+        return self._ds_results_global()
     
     
             

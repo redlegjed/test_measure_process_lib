@@ -212,12 +212,10 @@ class CurrentMeasure(tmpl.AbstractMeasurement):
         # Store the data
         self.store_data_var('current_A',current)
 
-        # Process
-        self.process_results()
 
 
     @tmpl.with_results(data_vars=['current_A'])
-    def process_results(self):
+    def process(self):
         """
         Calculate resistance using measured current and voltage source
         setting.
@@ -232,7 +230,9 @@ class CurrentMeasure(tmpl.AbstractMeasurement):
 
         self.store_data_var('resistance_ohms',[resistance_ohms])
 ```
-The *process_results()* method uses the *tmpl.with_results* [decorator](https://wiki.python.org/moin/PythonDecorators#What_is_a_Decorator) to ensure that there is always an entry stored called *current_A*. If *process_results()* were to be executed before *meas_sequence()* then an error would be thrown because *current_A* had not been created. The *tmpl.with_results* decorator is not mandatory it is a convenience that avoids having to add boilerplate code such as :
+The *process()* method is called automatically after the *meas_setup()* method if it is present.
+
+The *process()* method uses the *tmpl.with_results* [decorator](https://wiki.python.org/moin/PythonDecorators#What_is_a_Decorator) to ensure that there is always an entry stored called *current_A*. If *process_results()* were to be executed before *meas_sequence()* then an error would be thrown because *current_A* had not been created. The *tmpl.with_results* decorator is not mandatory it is a convenience that avoids having to add boilerplate code such as :
 
 ```python
 assert 'current_A' in self.ds_results
@@ -328,7 +328,7 @@ It shows that the test sequence consists of two steps, the first step is a *COND
 
 ### Results data
 
-The whole point of the TMPL library is to get experimental data into [xarray](http://xarray.pydata.org/en/stable/) Dataset format. Once a test sequence has been run, all the data collected will be available from the test manager object in the property *ds_results*. *ds_results* is an xarray Dataset object. Here's the result of the simple resistance measurement:
+The whole point of the TMPL library is to get experimental data into [xarray](http://xarray.pydata.org/en/stable/) Dataset format. Once a test sequence has been run, all the data collected will be available from the test manager object in the property *ds_results*. *ds_results* is an [xarray Dataset](http://xarray.pydata.org/en/stable/user-guide/data-structures.html#dataset) object. Here's the result of the simple resistance measurement:
 
 ```python
 >>> test.ds_results # Display results from test sequence
@@ -399,3 +399,324 @@ test.ds_results.save.to_excel(filename)
 
 ```
 
+## More advanced example
+
+The simple resistance measurement was good for demonstrating the basic operation of TMPL. Now we will look at a more advanced example. It is still based on measuring the resistance of a resistor but this time we will make the measurement more sophisticated in the following ways.
+
+* Instead of using the setting of the voltage source for the voltage value, we will use a dedicated voltmeter across the resistor.
+* Rather than calculating resistance from single values of voltage and resistance we will sweep the voltage and measure the current. We can then fit a line to these measurements and obtain resistance from the slope of the line.
+* We also want to measure the resistance variation against environmental conditions so we will put it in a chamber that can vary the temperature and humidity.
+
+Here's a diagram of the new setup:
+```
++--------------+
+|   voltage    |
+|   source     +-----+
+|              |     |
++--------------+     |
+                     +----------------------+
+                     |                      |
+           +---------------+         +------+------+
+           |         |     |         |             |
+ Chamber   |       +-+-+   |         |             |
+           |       |   |   |         |             |
+    +------+       | R |   |         | Voltmeter   |
+    | Temp |       |   |   |         |             |
+    +------+       |   |   |         |             |
+    | Hum  |       +-+-+   |         +-------+-----+
+    +------+         |     |                 |
+           +---------------+                 |
+                     |                       |
+                     +-----------------------+
+                     |
+                +----+-----+
+                | Ammeter  |
+                |          |
+                +----+-----+
+                     |
+                     |
+                 +-------+ Ground
+                   +---+
+                    +-+
+
+```
+
+Now our representation in TMPL will be:
+
+* Setup condition:
+  - Temperature
+  - Humidity
+  - Voltage source setpoint
+* Measurements:
+  - Current (from Ammeter)
+  - Voltage across resistor (from Voltmeter)
+
+First we'll need more resources for the new equipment: an environmental chamber for setting temperature and humidity, plus a voltmeter.
+
+
+```python
+resources = {'chamber':chamber_object,
+            'voltage_source':voltage_source_object, 
+            'ammeter':ammeter_object,
+            'voltmeter':voltmeter_object}
+```
+These will be given to the test manager class.
+
+### Setup conditions
+
+We now need some new setup condition classes for temperature and humidity. These will make use of the chamber *temperature_degC* and *humidity_pc* properties like this:
+
+```python
+class Temperature(tmpl.AbstractSetupConditions):
+
+    def initialise(self):
+        """
+        Initialise default values and any other setup
+        """
+
+        # Set default values
+        self.values = [25,35,45]
+
+    @property
+    def actual(self):
+        return self.chamber.temperature_degC
+
+    @property
+    def setpoint(self):
+        return self.chamber.temperature_setpoint_degC
+
+    @setpoint.setter
+    def setpoint(self,value):
+        self.chamber.temperature_setpoint_degC = value
+
+
+class Humidity(tmpl.AbstractSetupConditions):
+
+    def initialise(self):
+        """
+        Initialise default values and any other setup
+        """
+
+        # Set default values
+        self.values = [55,85]
+
+    @property
+    def actual(self):
+        return self.chamber.humidity_degC
+
+    @property
+    def setpoint(self):
+        return self.chamber.humidity_setpoint_degC
+
+    @setpoint.setter
+    def setpoint(self,value):
+        self.chamber.humidity_setpoint_degC = value
+
+
+```
+
+This time we are not going to use the voltage source as a setup condition because we want to sweep the voltage.
+
+### Measurements
+
+The main measurement in this example will be a sweep of the voltage source setpoint. During this sweep the current from the ammeter and the voltage from the voltmeter will be measured. This requires a new measurement class to be created.
+
+```python
+
+class VoltageSweeper(tmpl.AbstractMeasurement):
+
+    def initialise(self):
+
+        # Set up the voltage values to sweep over
+        self.config.voltage_sweep = np.linspace(0,1,10)
+        
+
+    def meas_sequence(self):
+        
+        #  Do the measurement
+        
+        current = np.zeros(self.config.voltage_sweep.shape)
+        voltage = np.zeros(self.config.voltage_sweep.shape)
+
+        for index,V in enumerate(self.config.voltage_sweep):
+            # Set voltage
+            self.voltage_source.voltage_set_V=V
+
+            # Measure current
+            current[index] = self.ammeter.current_A
+
+            # Measure voltage across resistor
+            voltage[index] = self.voltmeter.voltage_V
+
+        
+        # Store the data
+        self.store_coords('swp_voltage',self.config.voltage_sweep)
+        self.store_data_var('current_A',current,coords=['swp_voltage'])
+        self.store_data_var('voltage_diff_V',voltage,coords=['swp_voltage'])
+
+
+    @tmpl.with_results(data_vars=['current_A','voltage_diff_V'])
+    def process(self):
+
+        volts = self.current_results.voltage_diff_V.values
+        amps = self.current_results.current_A.values
+
+        # Fit line to amps vs volts, get resistance from slope
+        fit_coefficients=np.polyfit(amps,volts,1)
+        resistance_ohms = fit_coefficients[0] # slope
+
+        self.store_data_var('resistance_ohms',[resistance_ohms])
+
+```
+This measurement is more detailed than the previous example. Measurement classes can have an _initialise()_ method where configuration parameters can be defined. In this case we are defining the voltage values that going to be swept over in the line:
+
+```python
+self.config.voltage_sweep = np.linspace(0,1,10)
+```
+Every TMPL class has a _config_ dictionary that can be used to store any kind of data. It is a special dictionary defined in TMPL called an _ObjDict_, where elements can be added by using the dot notation to assign values. The standard _dict_ way can also be used. We could equally have used:
+
+```python
+self.config['voltage_sweep'] = np.linspace(0,1,10)
+```
+Measurements are just normal classes so you can define your own properties as well. Using the _config_ dict just organises the data under one roof.
+
+The mandatory *meas_setup()* is now a loop that follows the sequence:
+* Set voltage
+* Measure current
+* Measure voltage across resistor
+
+Where the two measurements are stored in 1 dimensional arrays.
+
+The last part of the *meas_setup()* method stores the data. The current and measured voltage are functions of the *voltage_sweep* values. To capture this relationship we need to make *voltage_sweep* into a coordinate in addition to the setup conditions of temperature and humidity. This is done by explicitly storing *voltage_sweep* as a coordinate and indicating in *store_data_vars()* that it is a coordinate.
+
+```python
+# Store the data
+self.store_coords('swp_voltage',self.config.voltage_sweep)
+self.store_data_var('current_A',current,coords=['swp_voltage'])
+self.store_data_var('voltage_diff_V',voltage,coords=['swp_voltage'])
+```
+In order to do this the data being stored must be the same shaped array as the coordinate. In this case everything is a 1D array.
+
+The *process()* method operates just as before. It requires that the current and voltage have been measured. If they have then it will fit a line to the data and get the resistance from the slope of that line.
+
+### Test manager
+
+Now we can assemble the setup condition and measurement into a *TestManager* class. This follows the same pattern as before:
+
+```python
+class AdvancedResistanceMeasurement(tmpl.AbstractTestManager):
+
+    def define_setup_conditions(self):
+        """
+        Add the setup conditions here in the order that they should be set
+        """
+
+        # Add setup conditions using class name
+        self.add_setup_condition(Temperature)
+        self.add_setup_condition(Humidity)
+
+    def define_measurements(self):
+        """
+        Add measurements here in the order of execution
+        """
+
+        # Setup links to all the measurements using class name
+        self.add_measurement(VoltageSweeper)
+```
+
+Set up the *TestManager* object:
+
+```python
+import tmpl
+
+# Setup resources
+R = tmpl.examples.ResistorModel(10e3)
+vs = tmpl.examples.VoltageSupply(R)
+am = tmpl.examples.Ammeter(R)
+vm = tmpl.examples.Voltmeter(R)
+chamber = tmpl.examples.EnvironmentalChamber(R)
+resources = {'voltage_source':vs, 'ammeter':am,'voltmeter':vm,'chamber':chamber}
+
+# Create test manager 
+test = AdvancedResistanceMeasurement(resources)
+```
+
+
+We can see the running order again:
+```python
+>>> test.df_running_order
+@ AdvancedResistanceMeasurement | Generating the sequence running order
+@ AdvancedResistanceMeasurement | 	Running order done
+      Operation           Label  Temperature  Humidity
+0     CONDITION     Temperature         25.0       NaN
+1     CONDITION        Humidity          NaN      55.0
+2   MEASUREMENT  VoltageSweeper         25.0      55.0
+3     CONDITION        Humidity          NaN      85.0
+4   MEASUREMENT  VoltageSweeper         25.0      85.0
+5     CONDITION     Temperature         35.0       NaN
+6     CONDITION        Humidity          NaN      55.0
+7   MEASUREMENT  VoltageSweeper         35.0      55.0
+8     CONDITION        Humidity          NaN      85.0
+9   MEASUREMENT  VoltageSweeper         35.0      85.0
+10    CONDITION     Temperature         45.0       NaN
+11    CONDITION        Humidity          NaN      55.0
+12  MEASUREMENT  VoltageSweeper         45.0      55.0
+13    CONDITION        Humidity          NaN      85.0
+14  MEASUREMENT  VoltageSweeper         45.0      85.0
+```
+
+and run the test:
+
+```python
+>>> test.run()
+Run
+@ AdvancedResistanceMeasurement | Generating the sequence running order
+@ AdvancedResistanceMeasurement | 	Running order done
+@ AdvancedResistanceMeasurement | <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+@ AdvancedResistanceMeasurement | Running AdvancedResistanceMeasurement
+@ AdvancedResistanceMeasurement | Generating the sequence running order
+@ AdvancedResistanceMeasurement | 	Running order done
+------------------------------------------------------------
+------------------------------------------------------------
+@ VoltageSweeper            | <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+@ VoltageSweeper            | Running VoltageSweeper
+@ VoltageSweeper            | finished sweep
+@ VoltageSweeper            | VoltageSweeper	Time taken: 0.008 s 
+@ VoltageSweeper            | >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+------------------------------------------------------------
+@ VoltageSweeper            | <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+@ VoltageSweeper            | Running VoltageSweeper
+@ VoltageSweeper            | finished sweep
+@ VoltageSweeper            | VoltageSweeper	Time taken: 0.008 s 
+@ VoltageSweeper            | >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+------------------------------------------------------------
+------------------------------------------------------------
+@ VoltageSweeper            | <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+@ VoltageSweeper            | Running VoltageSweeper
+@ VoltageSweeper            | finished sweep
+@ VoltageSweeper            | VoltageSweeper	Time taken: 0.007 s 
+@ VoltageSweeper            | >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+------------------------------------------------------------
+@ VoltageSweeper            | <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+@ VoltageSweeper            | Running VoltageSweeper
+@ VoltageSweeper            | finished sweep
+@ VoltageSweeper            | VoltageSweeper	Time taken: 0.008 s 
+@ VoltageSweeper            | >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+------------------------------------------------------------
+------------------------------------------------------------
+@ VoltageSweeper            | <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+@ VoltageSweeper            | Running VoltageSweeper
+@ VoltageSweeper            | finished sweep
+@ VoltageSweeper            | VoltageSweeper	Time taken: 0.008 s 
+@ VoltageSweeper            | >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+------------------------------------------------------------
+@ VoltageSweeper            | <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+@ VoltageSweeper            | Running VoltageSweeper
+@ VoltageSweeper            | finished sweep
+@ VoltageSweeper            | VoltageSweeper	Time taken: 0.007 s 
+@ VoltageSweeper            | >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+@ AdvancedResistanceMeasurement | ========================================
+@ AdvancedResistanceMeasurement | AdvancedResistanceMeasurement	Time taken: 0.049 s 
+@ AdvancedResistanceMeasurement | >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+```

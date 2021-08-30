@@ -174,6 +174,26 @@ class EnvironmentalChamber():
     def temperature_degC(self):
         return self.resistor.temperature_degC
 
+
     @property
     def humidity_pc(self):
         return self.resistor.humidity_pc
+
+
+
+    @property
+    def temperature_setpoint_degC(self):
+        return self.resistor.temperature_degC
+
+    @temperature_setpoint_degC.setter
+    def temperature_setpoint_degC(self,value):
+        self.resistor.temperature_degC = value
+
+    @property
+    def humidity_setpoint_pc(self):
+        return self.resistor.humidity_pc
+
+
+    @humidity_setpoint_pc.setter
+    def humidity_setpoint_pc(self,value):
+        self.resistor.humidity_pc = value
