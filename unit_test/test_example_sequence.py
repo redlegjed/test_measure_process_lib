@@ -46,7 +46,7 @@ class TestExampleSequence(unittest.TestCase):
     def setUp(self):
         resources = {
             'station':ExampleStation(),
-            'testboard':ExampleTestboard()
+            'tb':ExampleTestboard()
             }
 
         self.testseq = ExampleTestSequence(resources)
@@ -182,9 +182,35 @@ class TestExampleSequence(unittest.TestCase):
         if os.path.exists(data_filename_json):
             os.remove(data_filename_json)
 
+
+    def test_config_replace(self):
+        """
+        Test replacing a config item
+        """
+        label = 'change_me'
+        value = 'changed'
+        self.testseq.config_replace(label,value)
+
+        # Check conditions
+        # ==============================
+        for cond in self.testseq.conditions:
+            if label in self.testseq.conditions[cond].config:
+                self.assertTrue(label in self.testseq.conditions[cond].config,
+                            msg=f'Config not replaced for condition [{cond}]')
+
+                self.assertTrue(self.testseq.conditions[cond].config[label]==value,
+                            msg=f'Config value not replaced for condition [{cond}]')
+
+        # Check measurements
+        # ==============================
+        for meas in self.testseq.meas:
+            if label in self.testseq.meas[meas].config:
+                self.assertTrue(label in self.testseq.meas[meas].config,
+                            msg=f'Config not replaced for meas [{meas}]')
         
 
-        
+                self.assertTrue(self.testseq.meas[meas].config[label]==value,
+                            msg=f'Config value not replaced for meas[{meas}]')
 
 
 
@@ -205,11 +231,11 @@ if __name__ == '__main__':
         # suite.addTest(TestExampleSequence('test_dummy'))
         # suite.addTest(TestExampleSequence('test_got_conditions_and_meas'))
         # suite.addTest(TestExampleSequence('test_conditions_table'))
-        suite.addTest(TestExampleSequence('test_running_default_conditions'))
+        # suite.addTest(TestExampleSequence('test_running_default_conditions'))
         # suite.addTest(TestExampleSequence('test_stacking_multiple_runs'))
         # suite.addTest(TestExampleSequence('test_save_results'))
         # suite.addTest(TestExampleSequence('test_save_and_load_results'))
-        
+        suite.addTest(TestExampleSequence('test_config_replace'))
         
         runner = unittest.TextTestRunner()
         runner.run(suite)

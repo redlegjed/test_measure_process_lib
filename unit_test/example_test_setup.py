@@ -114,8 +114,6 @@ class MeasActualTemperature(tmpl.AbstractMeasurement):
 
     def initialise(self):
         #  Break out test resources
-        self.station = self.get_resource('station')
-        self.tb = self.get_resource('testboard')
 
         # Set this measurement to execute after temperature condition has
         # been set
@@ -144,9 +142,7 @@ class PressureSweeper(tmpl.AbstractMeasurement):
 
     def initialise(self):
         #  Break out test resources
-        self.station = self.get_resource('station')
-        self.tb = self.get_resource('testboard')
-
+        self.config.change_me = ''
 
     def meas_sequence(self):
         
@@ -202,11 +198,9 @@ class AxisSweeper(tmpl.AbstractMeasurement):
 
     def initialise(self):
         #  Break out test resources
-        self.station = self.get_resource('station')
-        self.tb = self.get_resource('testboard')
+        self.config.change_me = ''
 
-
-
+        
     def meas_sequence(self):
         
         axes = ['X','Y']
@@ -230,8 +224,7 @@ class ServiceTester(tmpl.AbstractMeasurement):
 
     def initialise(self):
         #  Break out test resources
-        self.station = self.get_resource('station')
-        self.tb = self.get_resource('testboard')
+        self.config.change_me = ''
 
 
     tmpl.with_services(services=['example_service'])
@@ -257,8 +250,6 @@ class ShutdownTestboard(tmpl.AbstractMeasurement):
 
     def initialise(self):
         #  Break out test resources
-        self.station = self.get_resource('station')
-        self.tb = self.get_resource('testboard')
 
         # Set this measurement to execute in the teardown stage
         self.run_condition = self.RUN_STAGE_TEARDOWN
@@ -275,8 +266,6 @@ class StartupTestboard(tmpl.AbstractMeasurement):
 
     def initialise(self):
         #  Break out test resources
-        self.station = self.get_resource('station')
-        self.tb = self.get_resource('testboard')
 
         # Set this measurement to execute in the startup stage
         self.run_condition = self.RUN_STAGE_STARTUP
@@ -296,7 +285,7 @@ class TemperatureConditions(tmpl.AbstractSetupConditions):
 
     def initialise(self):
         #  Break out test resources
-        self.station = self.get_resource('station')
+        # self.station = self.get_resource('station')
 
         # Set default values
         self.values = [25,35,45]
@@ -320,7 +309,7 @@ class HumidityConditions(tmpl.AbstractSetupConditions):
 
     def initialise(self):
         #  Break out test resources
-        self.station = self.get_resource('station')
+        # self.station = self.get_resource('station')
 
         # Set default values
         self.values = [55,60,70]
@@ -382,7 +371,7 @@ if __name__ == '__main__':
 
     resources = {
         'station':ExampleStation(),
-        'testboard':ExampleTestboard()
+        'tb':ExampleTestboard()
         }
 
     test = ExampleTestSequence(resources)

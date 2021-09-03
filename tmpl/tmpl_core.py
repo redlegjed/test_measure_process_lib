@@ -1838,6 +1838,79 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         return self.ds_results
 
     #----------------------------------------------------------------
+    #%% Config methods
+    #----------------------------------------------------------------
+    def config_replace(self,label,data):
+        """
+        Replace a value in config property of all conditions and measurements.
+
+        This will only replace the data if the label already exists in the
+        config dict. It will not add a new item to the config. For that use
+        config_set()
+
+        Example
+        -------
+
+        >>> test.config_replace('voltage_range',new_voltage_range)
+
+        Parameters
+        ----------
+        label : str
+            Key label in config dict
+        data : any
+            Any data that can be stored in a config dict. Generally something
+            that is JSON serialisable
+        """
+
+        # Replace in conditions
+        # ==============================
+        for cond in self.conditions:
+            if label in self.conditions[cond].config:
+                self.conditions[cond].config[label] = data
+
+
+        # Replace in Measurements
+        # ==============================
+        for meas in self.meas:
+            if label in self.meas[meas].config:
+                self.meas[meas].config[label] = data
+
+
+    def config_set(self,label,data):
+        """
+        Set a value in config property of all conditions and measurements.
+
+        This adds the label,data item to all config dicts regardless of whether
+        it existed before or not. If replacing existing keys with new data is 
+        required then use config_replace()
+
+
+        Example
+        -------
+
+        >>> test.config_replace('voltage_range',new_voltage_range)
+
+        Parameters
+        ----------
+        label : str
+            Key label in config dict
+        data : any
+            Any data that can be stored in a config dict. Generally something
+            that is JSON serialisable
+        """
+
+        # Add to all conditions
+        # ==============================
+        for cond in self.conditions:
+            self.conditions[cond].config[label] = data
+
+
+        # Add to all Measurements
+        # ==============================
+        for cond in self.meas:
+            self.meas[cond].config[label] = data
+
+    #----------------------------------------------------------------
     #%% Mandatory methods (Abstract definitions)
     #----------------------------------------------------------------
 
