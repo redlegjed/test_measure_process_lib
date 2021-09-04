@@ -75,7 +75,7 @@ class TestExampleSequence(unittest.TestCase):
             self.assertTrue(cond_name in self.testseq.conditions,
                 msg=f'Setup conditions [{cond_name}] failed to be loaded')
 
-        meas_names = ['press_sweep','axis_sweep']
+        meas_names = ['PressureSweep','AxisSweep']
         for meas_name in meas_names:
             self.assertTrue(meas_name in self.testseq.meas,
                 msg=f'Meas [{meas_name}] failed to be loaded')
@@ -228,13 +228,13 @@ if __name__ == '__main__':
     else:
         suite = unittest.TestSuite()
 
-        # suite.addTest(TestExampleSequence('test_dummy'))
-        # suite.addTest(TestExampleSequence('test_got_conditions_and_meas'))
-        # suite.addTest(TestExampleSequence('test_conditions_table'))
-        # suite.addTest(TestExampleSequence('test_running_default_conditions'))
-        # suite.addTest(TestExampleSequence('test_stacking_multiple_runs'))
-        # suite.addTest(TestExampleSequence('test_save_results'))
-        # suite.addTest(TestExampleSequence('test_save_and_load_results'))
+        suite.addTest(TestExampleSequence('test_dummy'))
+        suite.addTest(TestExampleSequence('test_got_conditions_and_meas'))
+        suite.addTest(TestExampleSequence('test_conditions_table'))
+        suite.addTest(TestExampleSequence('test_running_default_conditions'))
+        suite.addTest(TestExampleSequence('test_stacking_multiple_runs'))
+        suite.addTest(TestExampleSequence('test_save_results'))
+        suite.addTest(TestExampleSequence('test_save_and_load_results'))
         suite.addTest(TestExampleSequence('test_config_replace'))
         
         runner = unittest.TextTestRunner()
