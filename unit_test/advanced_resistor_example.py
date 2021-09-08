@@ -157,6 +157,28 @@ class VoltageSweeper(tmpl.AbstractMeasurement):
 
         self.store_data_var('resistance_ohms',[resistance_ohms])
 
+
+class PostProcess(tmpl.AbstractMeasurement):
+    """
+    Post processing class - executed at the end
+
+    """
+
+    def initialise(self):
+        self.run_on_teardown(True)
+
+    def meas_sequence(self):
+        pass
+    
+    def process(self):
+        
+        # Pull all results data to check it's there
+        ds = self.ds_results_global
+        print(ds)
+
+        # TODO Process data
+
+
 #================================================================
 #%% Test Manager class
 #================================================================
@@ -178,6 +200,7 @@ class AdvancedResistanceMeasurement(tmpl.AbstractTestManager):
 
         # Setup links to all the measurements using class name
         self.add_measurement(VoltageSweeper)
+        self.add_measurement(PostProcess)
  
 #================================================================
 #%% Runner

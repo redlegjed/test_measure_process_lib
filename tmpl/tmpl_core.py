@@ -1831,9 +1831,8 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         xarray Dataset
             Top level TestManager ds_results property
         """
-
-        if not hasattr(self,'ds_results'):
-            return None
+        # Update results from all measurements
+        self.get_results()
 
         return self.ds_results
 
