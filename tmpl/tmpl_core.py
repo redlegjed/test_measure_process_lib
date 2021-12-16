@@ -593,6 +593,8 @@ class CommonUtility():
         ------
         
         """
+        # Convert to array
+        values = np.asarray(values)
 
         if self.ds_results is None:
             self.ds_results = xr.Dataset()
