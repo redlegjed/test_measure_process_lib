@@ -62,6 +62,7 @@ Run measurement without specifiying conditions
 #================================================================
 # Standard library
 import os, time
+import datetime
 import abc
 import traceback
 import itertools
@@ -946,6 +947,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
         # Setup conditions and measurement objects
         # =========================================
+        self.add_measurement(Timestamp)
         self.define_setup_conditions()
         self.define_measurements()
 
@@ -1821,6 +1823,11 @@ class AbstractTestManager(abc.ABC,CommonUtility):
                 # Otherwise put info in as attribute
                 self.ds_results.attrs[key] = [value]
 
+        # Remove default coordinate, if present
+        if 'default' in self.ds_results.coords:
+            self.ds_results = self.ds_results.drop_dims('default')
+
+
     def link_to_ds_results(self):
         """
         Convenience method for accessing all results from a Measurement object
@@ -2610,9 +2617,22 @@ class AbstractSetupConditions(abc.ABC,CommonUtility):
     
  
 #================================================================
-#%% Runner
+#%% Timestamp measurement
 #================================================================
  
-if __name__ == '__main__':
-    # Run something
-    print('Run')
+class Timestamp(AbstractMeasurement):
+    """
+    Built in measurement class that adds a timestamp coordinate to
+    ds_results.
+
+    """
+    def initialise(self):
+        self.run_on_startup(True)
+
+        self.config.format = "%Y-%m-%d %Hh%Mm%S"
+
+    def meas_sequence(self):
+        # Make timestamp
+        dd = datetime.datetime.now()
+
+        self.store_coords('timestamp',[dd.strftime(self.config.format)])
