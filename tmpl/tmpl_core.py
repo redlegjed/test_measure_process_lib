@@ -1753,7 +1753,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
             meas.services = self.services
 
         for cond in self.conditions.values():
-            self.services = self.services
+            cond.services = self.services
 
 
     
