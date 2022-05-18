@@ -1,3 +1,4 @@
 {
-    "python.pythonPath": "/home/redlegjed/anaconda3/envs/py_data_analysis/bin/python"
+    "python.pythonPath": "/home/redlegjed/anaconda3/envs/py_data_analysis/bin/python",
+    "esbonio.sphinx.confDir": ""
 }
