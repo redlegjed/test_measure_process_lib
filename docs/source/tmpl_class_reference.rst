@@ -1,7 +1,11 @@
 Class Reference
 ===============
 
-This section describes the classes used by TMPL.
+Setting up a test sequence in TMPL requires creating three types of class:
+
+* *Measurement* : These classes take the measurements, they are responsible for communicating with test equipment, acquiring the measurement data and storing it. A test sequence may have multiple *Measurement* classes attached to it. *Measure* classes always inherit from the *AbstractMeasurement* class defined by TMPL.
+* *SetupCondition* : Classes that set the conditions under which measurements are made, e.g. temperature, voltage etc. They also interface with test equipment to set one specific condition, e.g. settting a temperature chamber to the required temperature. They always inherit from the *AbstractSetupCondition* class.
+* *TestManager* : This class manages the test sequence. It contains multiple *Measurement* and *SetupCondition* classes that it puts together in a sequence. It is responsible for running this test sequence and collecting the data from all the individual *Measurement* and *SetupCondition* classes. 
 
 TestManager Class
 -----------------
@@ -42,7 +46,7 @@ Definition
             self.add_measurement(Resistance)
 
 
-*define_setup_conditions* consists of multiple calls to a method of *AbstractTestManager*, *add_setup_condition*. This takes as its argument a *SetupCondition* class. *SetupCondition* classes are described below in detail, but they contain the code that sets a single test condition, like temperature, humidity, voltage etc. The order that *SetupCondition* classes are added inside *define_setup_conditions* is important. It defines the order in which each condition is set. In the example below temperature is set first then humidity. This means that when the test is run, the first condition to be set will be temperature, then humidity. *SetupCondition* classes usually define a range of values for their specific condition. For example the *Temperature* class might define two temperatures, 25 and 40 degC, while the *Humidity* class might define three levels: 45,55,65 %. When the test sequence is run the *TestManager* class will extract all the values of temperature and humidity. It will then form a loop based on the order of *add_setup_condition* calls. So in this example the loop will run through the conditions in this order:
+*define_setup_conditions* consists of multiple calls to a method of *AbstractTestManager*, *add_setup_condition*. This takes as its argument a *SetupCondition* class. *SetupCondition* classes are described below in detail, but they contain the code that sets a single test condition, like temperature, humidity, voltage etc. The order that *SetupCondition* classes are added inside *define_setup_conditions* is important. It defines the order in which each condition is set. In the example above temperature is set first then humidity. This means that when the test is run, the first condition to be set will be temperature, then humidity. *SetupCondition* classes usually define a range of values for their specific condition. For example the *Temperature* class might define two temperatures, 25 and 40 degC, while the *Humidity* class might define three levels: 45,55,65 %. When the test sequence is run the *TestManager* class will extract all the values of temperature and humidity. It will then form a loop based on the order of *add_setup_condition* calls. So in this example the loop will run through the conditions in this order:
 
 * Temperature: 25
 
@@ -77,6 +81,8 @@ The other mandatory method required by *AbstractTestManager* is *define_measurem
         * Measure: Voltage
         * Measure: Current
         * Measure: Resistance
+
+.. _running-test-sequence:
 
 Running the test sequence
 ++++++++++++++++++++++++++
@@ -122,7 +128,80 @@ When a *TestManager* object is created, it also creates objects for all the setu
 
 SetupCondition Class
 --------------------
-TODO
+
+Definition
+++++++++++
+
+*SetupCondition* classes are responsible for setting and querying one specific condition. They all inherit from the *AbstractSetupCondition* class. This requires two mandatory properties: *actual* and *setpoint*, for reading the *actual* value of the condition and setting the value of the condition. *actual* and *setpoint* appear as properties of the *SetupCondition* class but usually they are *methods* that use the Python *@property* decorator to appear as properties. This is because querying and setting the condition usually requires interfacing to test equipment.
+
+The code below shows an example of the definition of a *SetupCondition* class:
+
+.. code-block:: python
+
+    class Temperature(tmpl.AbstractSetupConditions):
+        """
+        Set the temperature on the chamber.
+
+        Assumes that there is a property called "chamber" that
+        provides read/write control of the temperature.
+        """
+
+        def initialise(self):
+            """
+            Initialise default values and any other setup
+            """
+
+            # Set default values
+            self.values = [25,35,45]
+
+        @property
+        def actual(self):
+            """
+            Read the current chamber temperature
+            """
+            return self.chamber.temperature_degC
+
+        @property
+        def setpoint(self):
+            """
+            Read the current chamber setpoint temperature
+            """
+            return self.chamber.temperature_setpoint_degC
+
+        @setpoint.setter
+        def setpoint(self,value):
+            """
+            Set a new temperature on the chamber
+            """
+            self.chamber.temperature_setpoint_degC = value
+
+The *Temperature* class defines the required property/methods *actual* and *setpoint* using a temperature *chamber* object. *chamber* is an object that was supplied to the *TestManager* when it was created as a *resource* (see :ref:`running-test-sequence`). The *TestManager* will make all the objects passed in through *resources* available as properties in the *SetupCondition* objects.
+
+The *Temperature* class definition above also includes a recommended method, *initialise*. *initialise* is intended for any custom initialisation required for setting the specific condition. It is also useful for defining the default range of *values* that the condition will take during the test sequence. In this example *initialise* is setting the *values* object to [25,35,45]. So by default, when the complete test sequence is run it will be performed at [25,35,45] degC. 
+
+*SetupCondition* classes have a property, *values*, that is a list of the *setpoint* values that will be used in the test sequence when it is run. The *SetupCondition* class definition usually sets a default list for *values*. This can be customised later by direct access to the *values* property. When a *TestManager* runs the test sequence, it will scan each *SetupCondition* object in it's memory and extract the *values* list. It will then use these to build a table of test conditions that need to be set before performing each measurement.
+
+
+Setting/Querying setup conditions
+++++++++++++++++++++++++++++++++++
+
+*SetupCondition* objects are created inside the *TestManager*. Once created they are available through the *TestManager* object. They can be used independently to set or query conditions without running in a test sequence.
+
+.. code-block:: python
+
+    # Condition is available through the 'conditions' property of TestManager object
+    test_seq.conditions.Temperature
+
+    # Read actual temperature
+    test_seq.conditions.Temperature.actual
+
+    # Read current setpoint
+    test_seq.conditions.Temperature.setpoint
+
+    # Set condition
+    test_seq.conditions.Temperature.setpoint = 34.5
+
+
 
 Measurement Class
 ------------------
