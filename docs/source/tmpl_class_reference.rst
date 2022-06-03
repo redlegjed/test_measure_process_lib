@@ -92,7 +92,7 @@ Running the test sequence
 .. code-block:: python
 
     # Get test instrument objects
-    resources = {'ohmmeter':ohmmeter_object,'chamber':chamber_object}
+    resources = {'ammeter':ammeter_object,'voltmeter':voltmeter_object,'chamber':chamber_object}
 
     # Create test sequence object
     test_seq = ResistanceMeasureSequence(resources)
@@ -103,7 +103,7 @@ Running the test sequence
     # Store test data
     test_seq.save(filename)
 
-Test code usually needs *resources*. This can be anything, the obvious examples are objects that allow access to test instruments, as illustrated in the example above. The *resources* dictionary that is passed in as the main argument of the *TestManager* class will be made available to all *SetupCondition* and *Measurement* classes so they can use them in their own methods. The dictionary keys should adhere to Python variable naming conventions because they will be made into properties of the *TestManager*, *SetupCondition* and *Measurement* classes. In our example all our classes will have *.ohmmeter* and *.chamber* properties.
+Test code usually needs *resources*. This can be anything, the obvious examples are objects that allow access to test instruments, as illustrated in the example above. The *resources* dictionary that is passed in as the main argument of the *TestManager* class will be made available to all *SetupCondition* and *Measurement* classes so they can use them in their own methods. The dictionary keys should adhere to Python variable naming conventions because they will be made into properties of the *TestManager*, *SetupCondition* and *Measurement* classes. In our example all our classes will have *.ammeter*, *.voltmeter* and *.chamber* properties.
 
 Once a *TestManager* object has been created, the sequence can be run with the *run* method. The sequence will then execute, printing out each condition and measurement as they run.
 
@@ -205,7 +205,114 @@ Setting/Querying setup conditions
 
 Measurement Class
 ------------------
+
+Definition
++++++++++++
+
+*Measurement* classes are responsible for executing the code that takes a specific measurement or multiple measurements. They inherit from the *AbstractMeasurement* class. *Measurement* classes require one mandatory method, *meas_sequence*. This can either contain all the measurement code or, more usually, it can be the top level that calls other class methods in a sequence. The example below shows a simple *Measurement* class for reading electrical current from an ammeter.
+
+.. code-block:: python
+
+    class Current(tmpl.AbstractMeasurement):
+        """
+        Measure current with ammeter
+
+        """
+            
+        def meas_sequence(self):
+            """
+            Mandatory method for Measurement classes
+
+            Performs the actual measurement and stores data.
+            """
+            #  Measure current with ammeter
+            current = self.ammeter.current_A
+
+            # Store the data
+            self.store_data_var('current_A',current)
+
+
+In the example the *Current* class only has the mandatory *meas_sequence* method. It also assumes there is a property *ammeter* available, which should have been passed in as a *resource* to the *TestManager*. The *ammeter* object is used to measure the electrical current. How it does this will depend on how the object has been defined outside TMPL. In this case it is assumed that it has a property *current_A* that returns a single value.
+
+The next line stores the measured value into the class internal storage. This will be discussed in more detail in :ref:`Storing data <label-storing-data>` below.
+
+
+Initialisation and configuration
+++++++++++++++++++++++++++++++++
+
+*Measurement* classes can also have an optional *initialise* method, similar to *SetupCondition* classes. This is generally used to define configuration options for the measurement. The example below shows a revised *Current* class that uses the *initialise* method to define some configuration values for the *ammeter*.
+
+
+.. code-block:: python
+
+    class Current(tmpl.AbstractMeasurement):
+        """
+        Measure current with ammeter
+
+        """
+        def initialise(self):
+            """
+            Set configuration options
+            """
+            self.config.ammeter_range_A = 2.5
+            self.config.ammeter_averages = 8
+
+            
+        def meas_sequence(self):
+            """
+            Mandatory method for Measurement classes
+
+            Performs the actual measurement and stores data.
+            """
+            # Setup
+            self.configure_ammeter()
+
+            #  Measure current with ammeter
+            current = self.ammeter.current_A
+
+            # Store the data
+            self.store_data_var('current_A',current)
+
+
+        def configure_ammeter(self):
+            """
+            Setup the ammeter with configuration options
+            """
+            self.ammeter.range = self.config.ammeter_range_A
+            self.ammeter.averages = self.config.ammeter_averages
+
+*Measurement* classes have a property, *config*, which is basically a dictionary that can be used to store any kind of data. This data is only accessed by the user defined methods. None of the internal workings of the *AbstractMeasurement* class use it.
+
+*config* is an internal *TMPL* class called *ObjDict*. It is a dictionary where the keys are also properties. Thus data can be added in two ways:
+
+.. code-block:: python
+
+    # property style access
+    self.config.ammeter_range_A = 2.5
+
+    # Dict style access
+    self.config['ammeter_range_A'] = 2.5
+
+*config* is also available from the *Measurement* object once it has been created by the *TestManager*. *Measurement* objects are available from the *TestManager* through the *.meas* property.
+
+.. code-block:: python
+
+    # Create test sequence object
+    test_seq = ResistanceMeasureSequence(resources)
+
+    # Change Current measurement configuration
+    test_seq.meas.Current.config.ammeter_averages = 16
+
+
+
+
+.. _label-storing-data:
+
+Storing measurement data
++++++++++++++++++++++++++
+
 TODO
+
 
 Results data
 ------------
