@@ -311,6 +311,103 @@ Initialisation and configuration
 Storing measurement data
 +++++++++++++++++++++++++
 
+Data variables
+^^^^^^^^^^^^^^
+
+*Measurement* classes store data into a property called *.ds_results*. This is an `xarray <http://xarray.pydata.org/en/stable/>`_ *Dataset* object. TMPL classes all have helper methods for storing data to Datasets. The simplest way to store data directly into *.ds_results* is to use the *store_data_var* method as seen in the examples above.
+
+.. code-block:: python
+
+    # Store the data
+    self.store_data_var('current_A',current)
+
+
+
+xarray *Datasets* have two main components: *coordinates* and *data variables*. *coordinates* are the independent variables, e.g. *x*, and *data variables* and dependent variables, e.g. *y = f(x)*. In the case of a *Measurement* class the independent variables are the *SetupConditions*. When *store_data_var* is called, it automatically makes a *data variable* in the *.ds_results* *Dataset* that has *coordinates* of the current *SetupConditions*. So in the example above, if the *SetupConditions* is *Temperature*, then the *current_A* *data variable* will have *Temperature*  as its *coordinate*. When the test sequence has been run *.ds_results* can be displayed. The standard *xarray* printout will show that *current_A* has a coordinate *Temperature*.
+
+
+.. code-block:: python
+
+    >>> test_seq.meas.Current.ds_results
+    <xarray.Dataset>
+    Dimensions:      (timestamp: 1, Temperature: 3)
+    ...
+    Coordinates:
+    * timestamp    (timestamp) <U19 '2022-06-05 00h34m05'
+    * Temperature  (Temperature) int64 25 35 45
+    Data variables:
+        current_A    (Temperature) float64 0.0 0.0 0.0
+
+In this example the *Temperature* *SetupCondition* had default values of 25,35 & 45, so the *Current* measurement has been run at all those conditions. In each case the measured value was 0.0 as displayed in the printout.
+
+Note the *timestamp* coordinate is added automatically by TMPL.
+
+
+Coordinates and data variables
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Measurements will usually be more complicated than recording a single value. Frequently the measurement will have its own independent variables. The following *Measurement* class illustrates this by implementing a voltage sweep on the resistor. This requires stepping the voltage across the resistor over an array of values and recording the corresponding current for each voltage. In this case voltage is also an independent variable even though it is not a *SetupCondition*. The measurement also reads back the voltage from a *voltmeter* object that has been passed in as a *resource*.
+
+.. code-block:: python
+
+    class VoltageSweeper(tmpl.AbstractMeasurement):
+
+        def initialise(self):
+
+            # Set up the voltage values to sweep over
+            self.config.voltage_sweep = np.linspace(0,1,10)
+            
+
+        def meas_sequence(self):
+            
+            #  Do the measurement
+            
+            current = np.zeros(self.config.voltage_sweep.shape)
+            voltage = np.zeros(self.config.voltage_sweep.shape)
+
+            for index,V in enumerate(self.config.voltage_sweep):
+                # Set voltage
+                self.voltage_source.voltage_set_V=V
+
+                # Measure current
+                current[index] = self.ammeter.current_A
+
+                # Measure voltage across resistor
+                voltage[index] = self.voltmeter.voltage_V
+
+            
+            # Store the data
+            self.store_coords('swp_voltage',self.config.voltage_sweep)
+            self.store_data_var('current_A',current,coords=['swp_voltage'])
+            self.store_data_var('voltage_diff_V',voltage,coords=['swp_voltage'])
+
+            # Debug point
+            self.log('finished sweep')
+
+The *current_A* and *voltage_diff_V* data variables are also dependent on the voltage being swept as well as the current conditions. To record this dependency the sweep voltage must be stored as a *coordinate* using the *store_coords* method. This takes a label and array or list as the input arguments. In this case it will create a new *coordinate* called *swp_voltage* that will appear in *.ds_results*.
+
+To indicate that *current_A* and *voltage_diff_V* are also functions of the sweep voltage the optional argument *coords* is used with the *store_data_var* method. This takes a list of *coordinate* labels as its input. It can also take a dictionary, but that will be discussed later.
+
+Now if *.ds_results* is printed the dependencies of the data variables can be seen:
+
+.. code-block:: python
+
+    >>> test_seq.meas.Current.ds_results
+    <xarray.Dataset>
+    Dimensions:          (timestamp: 1, Temperature: 3, swp_voltage: 10)
+    Coordinates:
+    * timestamp        (timestamp) <U19 '2022-06-05 01h21m43'
+    * Temperature      (Temperature) int64 25 35 45
+    * swp_voltage      (swp_voltage) float64 0.0 0.1111 0.2222 ... 0.8889 1.0
+    Data variables:
+        current_A        (Temperature, swp_voltage) float64 0.0 ... 9.857e-05
+        voltage_diff_V   (Temperature, swp_voltage) float64 0.0 0.1111 ... 1.0
+
+As well at *Temperature* the sweep voltage has been added as a *coordinate*. It is an array of 10 points, more than the *Dataset* printout will display. The data variables: *current_A* and *voltage_diff_V* now show the dependency as well.
+
+
+Specifying individual coordinate values
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 TODO
 
 
