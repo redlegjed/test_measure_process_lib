@@ -3,7 +3,7 @@ Class Reference
 
 Setting up a test sequence in TMPL requires creating three types of class:
 
-* *Measurement* : These classes take the measurements, they are responsible for communicating with test equipment, acquiring the measurement data and storing it. A test sequence may have multiple *Measurement* classes attached to it. *Measure* classes always inherit from the *AbstractMeasurement* class defined by TMPL.
+* *Measurement* : These classes take the measurements, they are responsible for communicating with test equipment, acquiring the measurement data and storing it. A test sequence may have multiple *Measurement* classes attached to it. *Measurement* classes always inherit from the *AbstractMeasurement* class defined by TMPL.
 * *SetupCondition* : Classes that set the conditions under which measurements are made, e.g. temperature, voltage etc. They also interface with test equipment to set one specific condition, e.g. settting a temperature chamber to the required temperature. They always inherit from the *AbstractSetupCondition* class.
 * *TestManager* : This class manages the test sequence. It contains multiple *Measurement* and *SetupCondition* classes that it puts together in a sequence. It is responsible for running this test sequence and collecting the data from all the individual *Measurement* and *SetupCondition* classes. 
 
@@ -65,7 +65,15 @@ The other mandatory method required by *AbstractTestManager* is *define_measurem
 * Temperature: 25
 
     * Humidity: 45
+
+        * Measure: Voltage
+        * Measure: Current
+        * Measure: Resistance
     * Humidity: 55
+
+        * Measure: Voltage
+        * Measure: Current
+        * Measure: Resistance
     * Humidity: 65
 
         * Measure: Voltage
@@ -75,7 +83,15 @@ The other mandatory method required by *AbstractTestManager* is *define_measurem
 * Temperature: 40
     
     * Humidity: 45
+
+        * Measure: Voltage
+        * Measure: Current
+        * Measure: Resistance
     * Humidity: 55
+
+        * Measure: Voltage
+        * Measure: Current
+        * Measure: Resistance
     * Humidity: 65
 
         * Measure: Voltage
@@ -304,6 +320,7 @@ Initialisation and configuration
     test_seq.meas.Current.config.ammeter_averages = 16
 
 
+This kind of access from the top level *TestManager* allows measurement configurations to be a adjusted without changing the code inside the *Measurement* class.
 
 
 .. _label-storing-data:

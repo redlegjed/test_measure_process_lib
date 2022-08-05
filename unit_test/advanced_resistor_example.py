@@ -191,7 +191,7 @@ class AdvancedResistanceMeasurement(tmpl.AbstractTestManager):
 
         # Add setup conditions using class name
         self.add_setup_condition(Temperature)
-        self.add_setup_condition(Humidity)
+        # self.add_setup_condition(Humidity)
 
     def define_measurements(self):
         """
