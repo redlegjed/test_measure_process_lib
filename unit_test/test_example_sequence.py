@@ -92,6 +92,21 @@ class TestExampleSequence(unittest.TestCase):
             print(cond)
         # just see if it works for now
 
+    def test_running_order(self):
+        """
+        Check the table works
+        """
+        self.testseq.make_running_order()
+        print(self.testseq._running_order)
+        # just see if it works for now
+
+    def test_df_running_order(self):
+        """
+        Check the table works
+        """
+        df = self.testseq.df_running_order
+        print(df)
+        # just see if it works for now
 
     def test_running_default_conditions(self):
 
@@ -232,6 +247,8 @@ if __name__ == '__main__':
         suite.addTest(TestExampleSequence('test_got_conditions_and_meas'))
         suite.addTest(TestExampleSequence('test_conditions_table'))
         suite.addTest(TestExampleSequence('test_running_default_conditions'))
+        suite.addTest(TestExampleSequence('test_running_order'))
+        suite.addTest(TestExampleSequence('test_df_running_order'))
         suite.addTest(TestExampleSequence('test_stacking_multiple_runs'))
         suite.addTest(TestExampleSequence('test_save_results'))
         suite.addTest(TestExampleSequence('test_save_and_load_results'))

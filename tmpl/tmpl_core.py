@@ -947,9 +947,13 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
         # Setup conditions and measurement objects
         # =========================================
+        self.add_setup_condition(Iteration)
         self.add_measurement(Timestamp)
         self.define_setup_conditions()
         self.define_measurements()
+
+        # Disable iteration by default
+        self.conditions.Iteration.enable = False
 
         # Scan for services
         self.get_services()
@@ -1129,10 +1133,10 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
         # Initialise last conditions log
         # - use first column of conditions table to make a template
-        last_cond = {label:None for label in self.conditions_table[0]}
+        last_cond = {label:None for label in conditions_table[0]}
 
         # Loop through conditions
-        for self.cond_index,current_cond in enumerate(self.conditions_table):
+        for self.cond_index,current_cond in enumerate(conditions_table):
 
             # Setup conditions stage
             # ------------------------------
@@ -1144,6 +1148,10 @@ class AbstractTestManager(abc.ABC,CommonUtility):
                 # set individual condition
                 # - but only if the condition is different
                 name = self.conditions[cond_label].name
+
+                # Ignore if condition is disabled
+                if not self.conditions[cond_label].enable:
+                    continue
 
                 # Accumulate conditions for measurements
                 accum_cond[name] = current_cond[name]
@@ -1609,10 +1617,12 @@ class AbstractTestManager(abc.ABC,CommonUtility):
                 {'temperature_degC': 1.2, 'humidity_pc': 2.2, 'pressure_Kpa': 3.2},
             ]
         """
+        # Filter out any disabled conditions
+        active_conditions = [c for c in self.conditions.values() if c.enable==True]
 
         # Get all conditions into a list of dicts
-        cond_labels = [c.name for c in self.conditions.values()]
-        cond_values = itertools.product(*[c.values for c in self.conditions.values()])
+        cond_labels = [c.name for c in active_conditions ]
+        cond_values = itertools.product(*[c.values for c in active_conditions] )
         cond_table = [{k:v for k,v in zip(cond_labels,m)} for m in cond_values]
 
         return cond_table
@@ -2613,11 +2623,49 @@ class AbstractSetupConditions(abc.ABC,CommonUtility):
     # TODO Entry of list of setpoints
 
     
+#================================================================
+#%% Built-in conditions
+#================================================================
+class Iteration(AbstractSetupConditions):
+    """
+    Iteration condition
+    This is a built-in condition that can be used to automatically iterate
+    a measurement sequence for repeatability measurements. By default it
+    it disabled. It can be enabled by:
 
-    
+    >>> test_seq.conditions.Iteration.enable = True
+
+    """
+
+    def initialise(self):
+        """
+        Initialise default values and any other setup
+        """
+
+        # Set default values
+        self.values = [0]
+
+        self._setpoint = self.values[0]
+
+
+    @property
+    def actual(self):
+        return self._setpoint
+
+    @property
+    def setpoint(self):
+        return self._setpoint
+
+    @setpoint.setter
+    def setpoint(self,value):
+        self.log(f'Iteration = {value} ')
+        self._setpoint = value
+        return self._setpoint
+
+
  
 #================================================================
-#%% Timestamp measurement
+#%% Built-in measurements
 #================================================================
  
 class Timestamp(AbstractMeasurement):

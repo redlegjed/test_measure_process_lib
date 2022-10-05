@@ -9,12 +9,16 @@ Example used in README.md
 #%% Imports
 #================================================================
 # Standard library
-import os, time
+import os, time, sys
 #from collections import OrderedDict
  
 # Third party libraries
 import numpy as np
 import pandas as pd
+
+basepath = os.path.dirname(os.path.dirname(__file__))
+sys.path.append(basepath)
+print(basepath)
 
 import tmpl
  
