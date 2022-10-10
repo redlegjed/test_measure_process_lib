@@ -1,9 +1,9 @@
 '''
 Testing the Measurement class
 ================================================================
-Unit tests to verify the functionality of classes derived from
-AbstractMeasurement
+Unit tests for running test sequences and related functions.
 
+This is the first sanity check to run when testing any changes.
 '''
  
  
