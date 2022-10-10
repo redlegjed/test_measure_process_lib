@@ -1663,7 +1663,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
     #----------------------------------------------------------------
     #%% Measurement methods
     #----------------------------------------------------------------
-    def add_measurement(self,meas_class,meas_name=''):
+    def add_measurement(self,meas_class,meas_name='',run_state=None):
         """
         Add measurement class
         This takes a class (not an instance) and creates an instance from it
@@ -1685,6 +1685,17 @@ class AbstractTestManager(abc.ABC,CommonUtility):
             Name to be used to reference measuremEnt. This will appear
             as a key in the self.meas dict.
             If nothing is specified then the class name is used.
+        
+        run_state : str or list of str or dict
+            Specify which state this measurement should run in.
+            The options are:
+                * str : Name of state ['startup','teardown','main']
+                * list : List of states, same names as for str
+                * dict : This is primarily for the 'setup' and 'after' states
+                         where a condition needs to be specified.
+                         Here the format would be {'setup':'<Condition name>'}
+                         or {'after':'<Condition name>'}
+
         """
         if meas_name=='':
             if meas_class.name == '':
@@ -1696,6 +1707,41 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
         # Add link to TestManager ds_results
         self.meas[meas_name]._ds_results_global = self.link_to_ds_results
+
+        if run_state is None:
+            return
+
+        if isinstance(run_state,str):
+            run_state = [run_state]
+
+        # Go through the state names and set Measurement flags
+        for state_name in run_state:
+            state = state_name.upper()
+
+            if state == self.RUN_STAGE_STARTUP:
+                self.meas[meas_name].run_on_startup(True)
+
+            elif state == self.RUN_STAGE_TEARDOWN:
+                self.meas[meas_name].run_on_teardown(True)
+                
+            elif state == self.RUN_STAGE_ERROR:
+                self.meas[meas_name].run_on_error(True)
+
+            elif state == self.RUN_STAGE_SETUP:
+                if not hasattr(run_state,'keys'):
+                    raise ValueError(f'Measurement [{meas_name}] is being set run during a specific condition, but the condition has not been specified in a dict')
+
+                self.meas[meas_name].run_on_setup(run_state[state_name])
+                # TODO specifiy specific value of condition
+
+            elif state == self.RUN_STAGE_AFTER:
+                raise NotImplementedError(f'Measurement [{meas_name}] is being set run during "After" state - this is not implemented yet')
+                # TODO implement this
+
+            else:
+                raise ValueError(f'Measurement [{meas_name}] is being set run in non-existent state [{state}]')
+            
+
 
 
     #----------------------------------------------------------------
@@ -2432,11 +2478,23 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
 
 
 
-    def run_on_error(self):
+    def run_on_error(self,enable):
         """
         Set entry in run condition to run this measurement when an error occurs
+        
+        Parameters
+        ----------
+        enable : bool
+            True - enable Measurement condition
+            False - remove Measurement condition
         """
-        self.run_conditions[self.RUN_STAGE_ERROR] = {}
+        if enable:
+            self.run_conditions[self.RUN_STAGE_ERROR] = {}
+            # Disable main by default
+            self.run_on_main(False)
+        else:
+            if self.RUN_STAGE_ERROR in self.run_conditions:
+                self.run_conditions.pop(self.RUN_STAGE_ERROR)
 
     #----------------------------------------------------------------
     #%% Dataset access
