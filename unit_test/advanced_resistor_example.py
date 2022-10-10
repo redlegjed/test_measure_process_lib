@@ -1,7 +1,7 @@
 '''
-Simple Resistor test from README
+Advanced Resistor test from README
 ================================================================
-Example used in README.md
+Example used in main README.md
 '''
  
  
