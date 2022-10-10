@@ -3,6 +3,10 @@ Example of test class setup using test_measure_process library
 ================================================================
 Define a full set of classes using the TMPL library
 
+These classes use station & testboard classes to perform measurements.
+
+* Tests services
+
 '''
  
  

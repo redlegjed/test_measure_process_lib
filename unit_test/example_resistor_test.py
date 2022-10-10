@@ -180,6 +180,11 @@ class HumidityConditions(tmpl.AbstractSetupConditions):
 # Has a standard format defined by AbstractMeasurement
 
 class VoltageSweeper(tmpl.AbstractMeasurement):
+    """
+    Example of a Measurement that adds its own coordinates and has
+    a process method
+
+    """
     name = 'VoltageSweep'
 
     def initialise(self):
