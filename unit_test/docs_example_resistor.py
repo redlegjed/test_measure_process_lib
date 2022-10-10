@@ -1,8 +1,8 @@
 
 '''
-Simple Resistor test from README
+Documentation Example code
 ================================================================
-Example used in README.md
+Example code used in Class reference section of documentation
 '''
  
  
