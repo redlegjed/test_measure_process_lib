@@ -917,6 +917,11 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
         # Local data storage
         self.local_data = ObjDict()
+
+
+        # Control flags
+        # ==============================
+        self.remove_default_condition = False
         
 
         # Utilities
@@ -1880,7 +1885,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
                 self.ds_results.attrs[key] = [value]
 
         # Remove default coordinate, if present
-        if 'default' in self.ds_results.coords:
+        if self.remove_default_condition and 'default' in self.ds_results.coords:
             self.ds_results = self.ds_results.drop_dims('default')
 
 
