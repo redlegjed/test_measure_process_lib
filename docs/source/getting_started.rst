@@ -8,6 +8,8 @@ TMPL is a modular framework for running sequences of measurements and packaging 
 
 The framework is designed to store data in the `xarray <http://xarray.pydata.org/en/stable/>`_ Dataset class. This provides a convenient structure for storing multi-dimensional data that can be easily visualised using libraries like `Holoviews <http://holoviews.org/index.html>`_ or its offshoot `hvplot <https://hvplot.holoviz.org/index.html>`_.
 
+TMPL works by defining small modular classes for making individual measurements that can be combined together to make larger test sequences. The data acquired in each individual measurement can be 'scooped' up into one combined Dataset at the end of the test sequence for storing and analysis.
+
 How it works
 -------------
 
@@ -159,3 +161,38 @@ Running the test sequence will activate a loop where each iteration will set one
     14  MEASUREMENT      Resistance         45.0      85.0
 
 *df_running_order* displays a table showing the order of operations during the test sequence. It shows when each condition is set and when each measurement is taken. Temperature was defined first in *define_setup_conditions*, so it is set first, then humidity. We have two humidity conditions for each temperature. The resistance measurement is performed after setting humidity. Then the next temperature is set and the cycle repeats.
+
+
+Automatic code generation
+---------------------------
+
+To make it easier to create TMPL code there is an automatic code generation feature. This enables you to create a python module file (i.e. a .py file) with template code for the TMPL classes. 
+
+The following code shows how to generate a module file:
+
+.. code-block:: python
+
+    import tmpl
+
+    # Make lists of all the classes
+    cond = ['Temperature','Humidity','Pressure']
+    meas = ['VoltageSweep','CurrentSweep','PostProcess']
+    managers = ['Calibrate','MainMeasure']
+
+    # Give the module a name (full path accepted as well)
+    name = 'BigExperiment.py'
+
+    # Generate the code
+    tmpl.make_module(name,conditions=cond,meas=meas,seq=seq)
+
+    # Alternatively generate the code into a text string
+    code_text = tmpl.make_module(name,conditions=cond,meas=meas,seq=managers,return_text=True)
+
+Basically you give the *tmpl.make_module()* function lists of the names of the *SetupCondition, Measurement* and *TestManager* classes that you want in your file. It will then generate template code for each class and insert it into the file together with a standard doc string and imports.
+
+Note that the order of the *SetupCondition* and *Measurement* class names will be used in the *TestManager* classes as the order in which conditions and measurements are executed. If this is not desired then they can be manually changed in the file later.
+
+
+
+
+

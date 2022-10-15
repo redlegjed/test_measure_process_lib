@@ -10,5 +10,6 @@ from one import
 from .tmpl_support import *
 from .tmpl_storage import *
 from .tmpl_core import *
+from .tmp_code_generator import make_condition, make_manager, make_measurement, make_module
 # from .example_test_setup import *
 from .examples import *
