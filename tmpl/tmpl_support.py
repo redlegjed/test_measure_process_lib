@@ -159,12 +159,14 @@ class debugPrintout:
     # Types of printout
     dbg_levels = ['none','brief','verbose']
     
-    def __init__(self,objectInstance = None,level='verbose'):
+    def __init__(self,objectInstance = None,level='verbose',class_prefix='@',str_prefix='>'):
         
         # Global verbosity level for this object
         
         self.verbosity_level = level
         self.objectInstance = objectInstance
+        self.class_prefix = class_prefix
+        self.str_prefix = str_prefix
         
     def __repr__(self):
         """
@@ -213,10 +215,10 @@ class debugPrintout:
         # ----------------------
         if isinstance(self.objectInstance,str):
             caller = self.objectInstance
-            printout = '> {0:25} | {1:10s}'.format(caller,message)
+            printout = self.str_prefix + ' {0:25} | {1:10s}'.format(caller,message)
         else:
             caller = self.objectInstance.__class__.__name__
-            printout = '@ {0:25} | {1:10s}'.format(caller,message)
+            printout = self.class_prefix + ' {0:25} | {1:10s}'.format(caller,message)
             
         print(printout)
         

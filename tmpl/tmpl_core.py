@@ -937,7 +937,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
             self.resources['offline_mode'] = self.offline_mode
 
         # Logging
-        self.log = debugPrintout(self)
+        self.log = debugPrintout(self,class_prefix='[SEQ]')
         self.last_error = ''
         self.log_condition_separator = '-'*60
         self.log_section_separator = '='*40
@@ -2148,7 +2148,7 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
         self.local_data = ObjDict()
 
         # logging
-        self.log = debugPrintout(self)
+        self.log = debugPrintout(self,class_prefix='[M]')
         self.last_error = ''
         self.log_section_separator = '='*40
         self.log_sub_section_separator = '-'*40
@@ -2602,7 +2602,7 @@ class AbstractSetupConditions(abc.ABC,CommonUtility):
         self.local_data = ObjDict()
 
         # logging
-        self.log = debugPrintout(self)
+        self.log = debugPrintout(self,class_prefix="[C]")
         self.last_error = ''
         self.log_section_separator = '='*40
         self.log_sub_section_separator = '-'*40
