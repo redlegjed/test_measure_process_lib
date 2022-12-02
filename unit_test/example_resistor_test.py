@@ -113,6 +113,10 @@ class VoltageSupply():
 # that is defined by the AbstractSetupConditions class
 
 class TemperatureConditions(tmpl.AbstractSetupConditions):
+    """
+    Temperature setpoint condition
+
+    """
     name = 'temperature_degC'
 
     def initialise(self):
@@ -145,6 +149,10 @@ class TemperatureConditions(tmpl.AbstractSetupConditions):
 
 
 class HumidityConditions(tmpl.AbstractSetupConditions):
+    """
+    Humidity setpoint condition
+
+    """
     name = 'humidity_pc'
 
     def initialise(self):
@@ -225,6 +233,10 @@ class VoltageSweeper(tmpl.AbstractMeasurement):
 
 # Measurement class that runs every time the temperature changes
 class Stabilise(tmpl.AbstractMeasurement):
+    """
+    Wait for stabilisation
+
+    """
 
     def initialise(self):
         self.run_on_setup('temperature_degC')
@@ -235,6 +247,10 @@ class Stabilise(tmpl.AbstractMeasurement):
 
 # Measurement classes that run at start and end of test sequence
 class TurnOn(tmpl.AbstractMeasurement):
+    """
+    Turn on all equipment
+
+    """
 
     def initialise(self):
         self.run_on_startup(True)
@@ -245,6 +261,10 @@ class TurnOn(tmpl.AbstractMeasurement):
 
 
 class TurnOff(tmpl.AbstractMeasurement):
+    """
+    Turn off all equipment
+
+    """
 
     def initialise(self):
         self.run_on_teardown(True)
@@ -259,6 +279,19 @@ class TurnOff(tmpl.AbstractMeasurement):
 # It sets every combination of setup conditions and runs measurements at each
 
 class ExampleTestSequence(tmpl.AbstractTestManager):
+    """
+    Example test sequence
+
+    Runs a dummy measurement sequence over temperature and humidity conditions.
+
+    Measurement sequence is:
+
+    * Turn on equipment
+    * Wait for stabilisation
+    * Run a voltage sweep
+    * Turn off equipment
+
+    """
     name = 'ExampleResistorTest'
 
     def define_setup_conditions(self):

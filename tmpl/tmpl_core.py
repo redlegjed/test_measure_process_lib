@@ -62,6 +62,7 @@ Run measurement without specifiying conditions
 #================================================================
 # Standard library
 import os, time
+import pathlib
 import datetime
 import abc
 import traceback
@@ -1978,6 +1979,83 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         # ==============================
         for cond in self.meas:
             self.meas[cond].config[label] = data
+
+    #----------------------------------------------------------------
+    #%% Documentation methods
+    #----------------------------------------------------------------
+    def to_markdown(self,filename=None,exclude_cond=['Iteration'],exclude_meas=['Timestamp']):
+        """
+        Generate a markdown file containing a description of the test sequence.
+
+        Creates a description of the test sequence from the docstrings of all
+        setup conditions and measurements.
+
+        Can be returned as a string or written to a file
+
+        Parameters
+        ----------
+        filename : str, optional
+            path/filename to file where markdown is to be written, 
+            If None then the markdown will be returned as a string
+            by default None
+
+        exclude_cond: list of str
+            A list of condition names to exclude from markdown file
+
+        exclude_meas: list of str
+            A list of measurement names to exclude from markdwon file
+
+        Returns
+        -------
+        str or None
+            If no filename was given a string is returned with markdown text
+            Otherwise None
+        """
+
+        markdown = []
+
+        # Add title and overview description
+        doc = self.__doc__
+        if doc is None:
+            doc = 'No description of sequence'
+        doc_lines = [l.strip() for l in doc.split('\n')]
+        markdown += [f'# {self.name}'] + doc_lines + ['']
+
+        # Add Setup conditions descriptions as sub headings
+        markdown += ['','## Setup Conditions','']
+        for cond in self.conditions:
+            if cond in exclude_cond:
+                continue
+
+            if self.conditions[cond].enable:
+                doc = self.conditions[cond].__doc__
+                if doc is None:
+                    doc = 'No description'
+                doc_lines = [l.strip() for l in doc.split('\n')]
+                markdown += [f'### {cond}'] + doc_lines + ['']
+
+        # Add measurment descriptions
+        markdown += ['','## Measurements','']
+        for meas in self.meas:
+            if meas in exclude_meas:
+                continue
+
+            if self.meas[meas].enable:
+                doc = self.meas[meas].__doc__
+                if doc is None:
+                    doc = 'No description'
+                doc_lines = [l.strip() for l in doc.split('\n')]
+                markdown += [f'### {meas}']+ doc_lines +['']
+
+        # Make into one string
+        markdown_str = '\n'.join(markdown)
+
+        if filename is None:
+            return markdown_str
+
+        # Write to file
+        p = pathlib.Path(filename)
+        p.write_text(markdown_str)
 
     #----------------------------------------------------------------
     #%% Mandatory methods (Abstract definitions)
