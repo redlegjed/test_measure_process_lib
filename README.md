@@ -52,11 +52,11 @@ resources = {'chamber':chamber_object,
 test = TestManager_mymeas(resources)
 ```
 
-Setup conditions under which test is to be run can be defined by accessing the _SetupConditions_ objects directly through the _setup_ property.
+Setup conditions under which test is to be run can be defined by accessing the _SetupConditions_ objects directly through the _conditions_ property.
 
 ```python
-test.setup.temperature.values = [25,40,75]
-test.setup.pressure.values = [12,15,65]
+test.conditions.temperature.values = [25,40,75]
+test.conditions.pressure.values = [12,15,65]
 ```
 
 The measurements to run during the sequence can be enabled/disabled by direct access to the _Measurement_ objects through the _meas_ property.
