@@ -1,0 +1,290 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Getting Started &#8212; Test, Measure, Process Library 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Class Reference" href="tmpl_class_reference.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="tmpl_class_reference.html" title="Class Reference"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Getting Started</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading">¶</a></h1>
+<section id="what-is-tmpl">
+<h2>What is TMPL<a class="headerlink" href="#what-is-tmpl" title="Permalink to this heading">¶</a></h2>
+<p>TMPL is a modular framework for running sequences of measurements and packaging up the acquired data into a convenient form.</p>
+<p>The framework is designed to store data in the <a class="reference external" href="http://xarray.pydata.org/en/stable/">xarray</a> Dataset class. This provides a convenient structure for storing multi-dimensional data that can be easily visualised using libraries like <a class="reference external" href="http://holoviews.org/index.html">Holoviews</a> or its offshoot <a class="reference external" href="https://hvplot.holoviz.org/index.html">hvplot</a>.</p>
+<p>TMPL works by defining small modular classes for making individual measurements that can be combined together to make larger test sequences. The data acquired in each individual measurement can be ‘scooped’ up into one combined Dataset at the end of the test sequence for storing and analysis.</p>
+</section>
+<section id="how-it-works">
+<h2>How it works<a class="headerlink" href="#how-it-works" title="Permalink to this heading">¶</a></h2>
+<p>TMPL uses three types of class to define test sequences, test conditions and test measurements.</p>
+<p>At the top level is the <em>TestManager</em> class which defines the sequence of measurements to be performed and the conditions that can be set for all the measurements. The <em>TestManager</em> class is usually very simple like the example here:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tmpl</span>
+
+<span class="k">class</span> <span class="nc">ResistanceMeasureSequence</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractTestManager</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Measure resistance over temperature and humidity</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">define_setup_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add the setup conditions here in the order that they should be set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Add setup conditions using class name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_setup_condition</span><span class="p">(</span><span class="n">Temperature</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_setup_condition</span><span class="p">(</span><span class="n">Humidity</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">define_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add measurements here in the order of execution</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Setup links to all the measurements using class name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">Resistance</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here we are measuring the electrical Resistance at different temperatures and humidities. The <em>TestManager</em> class is declared based on the “template” class <em>AbstractTestManager</em>. Usually only two functions or methods need to be defined. <em>define_setup_conditions()</em> is used to set which test conditions are being set. The actual measurements are defined in the <em>define_measurements()</em> method.</p>
+<p>The <em>self.add_setup_condition()</em> and <em>self.add_measurement()</em> methods of the <em>TestManager</em> take either a <em>SetupCondition</em> or <em>Measurement</em> class. These are the classes that access test instrumentation to do the real work of the measurement sequence.</p>
+<p>A condition class might look like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Temperature</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractSetupConditions</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set the temperature on the chamber.</span>
+
+<span class="sd">    Assumes that there is a property called &quot;chamber&quot; that</span>
+<span class="sd">    provides read/write control of the temperature.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialise default values and any other setup</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Set default values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span><span class="mi">35</span><span class="p">,</span><span class="mi">45</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">actual</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read the current chamber temperature</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">chamber</span><span class="o">.</span><span class="n">temperature_degC</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read the current chamber setpoint temperature</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">chamber</span><span class="o">.</span><span class="n">temperature_setpoint_degC</span>
+
+    <span class="nd">@setpoint</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set a new temperature on the chamber</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chamber</span><span class="o">.</span><span class="n">temperature_setpoint_degC</span> <span class="o">=</span> <span class="n">value</span>
+</pre></div>
+</div>
+<p>This example is for setting the temperature. By default it will set 25, 35 &amp; 45 degC during the test sequence defined in the <em>TestManager</em> class. At each temperature all the measurements defined in <em>define_measurements()</em> will be run.</p>
+<p>The measurements themselves are another class such as this one for resistance.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Resistance</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simple resistance measurement using ohmmeter</span>
+
+<span class="sd">    Assumes there is property, &quot;ohmmeter&quot;, that gives read/write</span>
+<span class="sd">    access to the ohmmeter instrument.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Mandatory method for Measurement classes</span>
+
+<span class="sd">        Performs the actual measurement and stores data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#  Measure resistance with an ohmmeter</span>
+        <span class="n">resistance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ohmmeter</span><span class="o">.</span><span class="n">resistance_ohm</span>
+
+        <span class="c1"># Store the data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store_data_var</span><span class="p">(</span><span class="s1">&#39;resistance_ohm&#39;</span><span class="p">,</span><span class="n">resistance</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><em>Measurement</em> classes require one mandatory method <em>meas_sequence()</em>. This will be executed at each test condition defined in <em>define_setup_conditions()</em>. <em>Measurement</em> classes can have many more methods, but <em>meas_sequence()</em> is the top level.</p>
+<p>Once the <em>TestManager</em>, <em>SetupCondition</em> and <em>Measurement</em> classes are defined then the sequence object can be created and run.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get test instrument objects</span>
+<span class="n">resources</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ohmmeter&#39;</span><span class="p">:</span><span class="n">ohmmeter_object</span><span class="p">,</span><span class="s1">&#39;chamber&#39;</span><span class="p">:</span><span class="n">chamber_object</span><span class="p">}</span>
+
+<span class="c1"># Create test sequence object</span>
+<span class="n">test_seq</span> <span class="o">=</span> <span class="n">ResistanceMeasureSequence</span><span class="p">(</span><span class="n">resources</span><span class="p">)</span>
+
+<span class="c1"># Run the test</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+<span class="c1"># Store test data</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here test instrument objects are passed into the <em>TestManager</em> using a dictionary. The keys of the dictionary will be used to create a property in the <em>TestManager</em>, <em>SetupCondition</em> and <em>Measurement</em> classes. Thus ‘ohmmeter’ or ‘chamber’ can be accessed by any measurement or condition class without having to explicitly declare them.</p>
+<p>Running the test sequence will activate a loop where each iteration will set one of each defined condition and execute the <em>Resistance</em> measurement. The actual order of setup conditions and measurements can be displayed before actually running the sequence using the property <em>df_running_order</em></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">test_seq</span><span class="o">.</span><span class="n">df_running_order</span>
+
+<span class="go">@ ResistanceMeasureSequence | Generating the sequence running order</span>
+<span class="go">@ ResistanceMeasureSequence |       Running order done</span>
+<span class="go">    Operation           Label  Temperature  Humidity</span>
+<span class="go">0     CONDITION     Temperature         25.0       NaN</span>
+<span class="go">1     CONDITION        Humidity          NaN      55.0</span>
+<span class="go">2   MEASUREMENT      Resistance         25.0      55.0</span>
+<span class="go">3     CONDITION        Humidity          NaN      85.0</span>
+<span class="go">4   MEASUREMENT      Resistance         25.0      85.0</span>
+<span class="go">5     CONDITION     Temperature         35.0       NaN</span>
+<span class="go">6     CONDITION        Humidity          NaN      55.0</span>
+<span class="go">7   MEASUREMENT      Resistance         35.0      55.0</span>
+<span class="go">8     CONDITION        Humidity          NaN      85.0</span>
+<span class="go">9   MEASUREMENT      Resistance         35.0      85.0</span>
+<span class="go">10    CONDITION     Temperature         45.0       NaN</span>
+<span class="go">11    CONDITION        Humidity          NaN      55.0</span>
+<span class="go">12  MEASUREMENT      Resistance         45.0      55.0</span>
+<span class="go">13    CONDITION        Humidity          NaN      85.0</span>
+<span class="go">14  MEASUREMENT      Resistance         45.0      85.0</span>
+</pre></div>
+</div>
+<p><em>df_running_order</em> displays a table showing the order of operations during the test sequence. It shows when each condition is set and when each measurement is taken. Temperature was defined first in <em>define_setup_conditions</em>, so it is set first, then humidity. We have two humidity conditions for each temperature. The resistance measurement is performed after setting humidity. Then the next temperature is set and the cycle repeats.</p>
+</section>
+<section id="automatic-code-generation">
+<h2>Automatic code generation<a class="headerlink" href="#automatic-code-generation" title="Permalink to this heading">¶</a></h2>
+<p>To make it easier to create TMPL code there is an automatic code generation feature. This enables you to create a python module file (i.e. a .py file) with template code for the TMPL classes.</p>
+<p>The following code shows how to generate a module file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tmpl</span>
+
+<span class="c1"># Make lists of all the classes</span>
+<span class="n">cond</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Temperature&#39;</span><span class="p">,</span><span class="s1">&#39;Humidity&#39;</span><span class="p">,</span><span class="s1">&#39;Pressure&#39;</span><span class="p">]</span>
+<span class="n">meas</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;VoltageSweep&#39;</span><span class="p">,</span><span class="s1">&#39;CurrentSweep&#39;</span><span class="p">,</span><span class="s1">&#39;PostProcess&#39;</span><span class="p">]</span>
+<span class="n">managers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Calibrate&#39;</span><span class="p">,</span><span class="s1">&#39;MainMeasure&#39;</span><span class="p">]</span>
+
+<span class="c1"># Give the module a name (full path accepted as well)</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;BigExperiment.py&#39;</span>
+
+<span class="c1"># Generate the code</span>
+<span class="n">tmpl</span><span class="o">.</span><span class="n">make_module</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">conditions</span><span class="o">=</span><span class="n">cond</span><span class="p">,</span><span class="n">meas</span><span class="o">=</span><span class="n">meas</span><span class="p">,</span><span class="n">seq</span><span class="o">=</span><span class="n">seq</span><span class="p">)</span>
+
+<span class="c1"># Alternatively generate the code into a text string</span>
+<span class="n">code_text</span> <span class="o">=</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">make_module</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">conditions</span><span class="o">=</span><span class="n">cond</span><span class="p">,</span><span class="n">meas</span><span class="o">=</span><span class="n">meas</span><span class="p">,</span><span class="n">seq</span><span class="o">=</span><span class="n">managers</span><span class="p">,</span><span class="n">return_text</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Basically you give the <em>tmpl.make_module()</em> function lists of the names of the <em>SetupCondition, Measurement</em> and <em>TestManager</em> classes that you want in your file. It will then generate template code for each class and insert it into the file together with a standard doc string and imports.</p>
+<p>Note that the order of the <em>SetupCondition</em> and <em>Measurement</em> class names will be used in the <em>TestManager</em> classes as the order in which conditions and measurements are executed. If this is not desired then they can be manually changed in the file later.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/tmpl_dark_logo.png" alt="Logo"/>
+            </a></p>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Getting Started</a><ul>
+<li><a class="reference internal" href="#what-is-tmpl">What is TMPL</a></li>
+<li><a class="reference internal" href="#how-it-works">How it works</a></li>
+<li><a class="reference internal" href="#automatic-code-generation">Automatic code generation</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="installation.html"
+                          title="previous chapter">Installation</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="tmpl_class_reference.html"
+                          title="next chapter">Class Reference</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/getting_started.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="tmpl_class_reference.html" title="Class Reference"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="Installation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Getting Started</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2022, RedLegJed.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    </div>
+  </body>
+</html>

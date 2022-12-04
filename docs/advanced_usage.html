@@ -1,0 +1,172 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>TMPL Advanced usage &#8212; Test, Measure, Process Library 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Class Reference" href="tmpl_class_reference.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="tmpl_class_reference.html" title="Class Reference"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">TMPL Advanced usage</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="tmpl-advanced-usage">
+<h1>TMPL Advanced usage<a class="headerlink" href="#tmpl-advanced-usage" title="Permalink to this heading">¶</a></h1>
+<section id="sequence-states">
+<h2>Sequence states<a class="headerlink" href="#sequence-states" title="Permalink to this heading">¶</a></h2>
+<p>When a <em>TestManager</em> sequence is executed using the <em>run()</em> method it creates a loop. Before starting the loop a table of setup conditions is created. Each row of the table represents a combination of setup conditions. Each iteration of the loop is one row of the table. Within this loop there are particular states where <em>Measurement</em> classes can be executed. These states are <em>Startup</em>, <em>Setup</em>, <em>Main</em>, <em>After</em>, <em>Teardown</em> and <em>Error</em>. The sequence loop runs in the order below, with the states shown in <strong>bold</strong>.</p>
+<ul class="simple">
+<li><p>Build setup conditions table</p></li>
+<li><p><strong>Startup</strong> : Run anything that needs setting up</p></li>
+<li><dl class="simple">
+<dt>Load first set of conditions from table</dt><dd><ul>
+<li><p><strong>Setup</strong> stage</p></li>
+<li><dl class="simple">
+<dt>For each condition in the set</dt><dd><ul>
+<li><p>Set condition to current value</p></li>
+<li><p>Run any measurements for this condition</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p><strong>Main</strong> : Run main measurements</p></li>
+<li><p><strong>After</strong> : Run teardown for current set of conditions</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p><strong>Teardown</strong>: Run global teardown measurements, e.g. shutdown, store results</p></li>
+<li><p><strong>Error</strong> : Run when error occurs.</p></li>
+</ul>
+<p><em>Measurement</em> classes can be set to execute in one or more of these states using methods with the prefix <em>run_</em>.</p>
+<ul class="simple">
+<li><p><em>run_on_startup</em> : Run before any conditions have been set at the <strong>Startup</strong> state</p></li>
+<li><p><em>run_on_setup</em> : Run after a specific condition has been set in the <strong>Setup</strong> state</p></li>
+<li><p><em>run_on_main</em> : Run in the main loop. This is the default state and does not need to be explicitly set.</p></li>
+<li><p><em>run_after</em>: Run after all main measurements have been executed for one set of conditions.</p></li>
+<li><p><em>run_on_teardown</em>: Run at the end of the sequence. This is useful for shutting down.</p></li>
+<li><p><em>run_on_error</em>: Run when an error occurs</p></li>
+</ul>
+</section>
+<section id="sequencing">
+<h2>Sequencing<a class="headerlink" href="#sequencing" title="Permalink to this heading">¶</a></h2>
+<p>TODO</p>
+</section>
+<section id="processing">
+<h2>Processing<a class="headerlink" href="#processing" title="Permalink to this heading">¶</a></h2>
+<p>TODO</p>
+</section>
+<section id="customisation">
+<h2>Customisation<a class="headerlink" href="#customisation" title="Permalink to this heading">¶</a></h2>
+<p>TODO</p>
+</section>
+<section id="data">
+<h2>Data<a class="headerlink" href="#data" title="Permalink to this heading">¶</a></h2>
+<p>Where data is stored across TMPL objects</p>
+<ul class="simple">
+<li><p><em>config</em>: static</p></li>
+<li><p><em>local_data</em>: local to measurements and conditions</p></li>
+<li><p><em>global_data</em>: available to all measurements and conditions</p></li>
+</ul>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/tmpl_dark_logo.png" alt="Logo"/>
+            </a></p>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">TMPL Advanced usage</a><ul>
+<li><a class="reference internal" href="#sequence-states">Sequence states</a></li>
+<li><a class="reference internal" href="#sequencing">Sequencing</a></li>
+<li><a class="reference internal" href="#processing">Processing</a></li>
+<li><a class="reference internal" href="#customisation">Customisation</a></li>
+<li><a class="reference internal" href="#data">Data</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="tmpl_class_reference.html"
+                          title="previous chapter">Class Reference</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/advanced_usage.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="tmpl_class_reference.html" title="Class Reference"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">TMPL Advanced usage</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2022, RedLegJed.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    </div>
+  </body>
+</html>
