@@ -919,6 +919,8 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         # Local data storage
         self.local_data = ObjDict()
 
+        # Global data storage
+        self.global_data = ObjDict()
 
         # Control flags
         # ==============================
@@ -1665,6 +1667,9 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
         self.conditions[cond_name]= cond_class(self.resources,config=self.config)
 
+        # Add link to TestManager ds_results and global_data
+        self.conditions[cond_name]._ds_results_global = self.link_to_ds_results
+        self.conditions[cond_name]._global_data_link = self.link_to_global_data
 
     #----------------------------------------------------------------
     #%% Measurement methods
@@ -1711,8 +1716,9 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
         self.meas[meas_name] = meas_class(self.resources,config=self.config)
 
-        # Add link to TestManager ds_results
+        # Add link to TestManager ds_results and global_data
         self.meas[meas_name]._ds_results_global = self.link_to_ds_results
+        self.meas[meas_name]._global_data_link = self.link_to_global_data
 
         if run_state is None:
             return
@@ -1906,6 +1912,23 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         self.get_results()
 
         return self.ds_results
+
+
+    def link_to_global_data(self):
+        """
+        Convenience method for accessing global data from SetupConditions or
+        measurement objects.
+
+        This method is given to every SetupCondtion and Measurement object
+        when they are created using add_measurement.
+
+        Returns
+        -------
+        ObjDict
+            Return test manager 'global_data' property
+        """
+
+        return self.global_data
 
     #----------------------------------------------------------------
     #%% Config methods
@@ -2208,6 +2231,7 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
         # Link to TestManager data
         # - TestManager must populate this with a link to a function
         self._ds_results_global = None
+        self._global_data_link = None
 
         # Storage for current conditions
         self.current_conditions = {}
@@ -2580,7 +2604,7 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
                 self.run_conditions.pop(self.RUN_STAGE_ERROR)
 
     #----------------------------------------------------------------
-    #%% Dataset access
+    #%% Data access
     #----------------------------------------------------------------
     @property
     def ds_results_global(self):
@@ -2600,6 +2624,17 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
     
     
             
+    @property
+    def global_data(self):
+        """
+        Access global data for entire test sequence
+
+        Returns
+        -------
+        ObjDict
+            global data dictionary
+        """
+        return self._global_data_link()
 
 #================================================================
 #%% Setup conditions class
@@ -2679,6 +2714,11 @@ class AbstractSetupConditions(abc.ABC,CommonUtility):
         # Local data storage
         self.local_data = ObjDict()
 
+        # Link to TestManager data
+        # - TestManager must populate this with a link to a function
+        self._ds_results_global = None
+        self._global_data_link = None
+
         # logging
         self.log = debugPrintout(self,class_prefix="[C]")
         self.last_error = ''
@@ -2699,7 +2739,42 @@ class AbstractSetupConditions(abc.ABC,CommonUtility):
     def __repr__(self):
         return f'SetupCondition[{self.name}]'
 
+    #----------------------------------------------------------------
+    #%% Data access
+    #----------------------------------------------------------------
+
+    @property
+    def global_data(self):
+        """
+        Access global data for entire test sequence
+
+        Returns
+        -------
+        ObjDict
+            global data dictionary
+        """
+        return self._global_data_link()
     
+    @property
+    def ds_results_global(self):
+        """
+        Access global dataset of test manager
+
+        Returns
+        -------
+        xarray Dataset
+            Returns the test manager ds_results dataset
+        """
+
+        if self._ds_results_global is None:
+            return None
+
+        return self._ds_results_global()
+
+    #----------------------------------------------------------------
+    #%% User defined methods
+    #----------------------------------------------------------------
+
     def initialise(self):
         """
         Custom initialisation function.

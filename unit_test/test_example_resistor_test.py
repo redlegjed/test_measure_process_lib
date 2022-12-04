@@ -214,7 +214,72 @@ class TestExampleSequence(unittest.TestCase):
 
         
 
+    def test_global_data_passing(self):
+        """
+        Test global data can be read/written from all TMPL objects
+        """
 
+        # Make the Test manager
+        seq = ExampleTestSequence(self.resources)
+
+
+        # Test manager -> Meas, Conditions
+        # ----------------------------------
+        # Put global data into test manager
+        seq.global_data.test_01 = 1
+
+        # Read from meas object
+        self.assertTrue('test_01' in seq.meas.VoltageSweep.global_data,
+                msg='Measurement does not have test_01 in global data')
+
+        self.assertEqual(seq.meas.VoltageSweep.global_data.test_01,1,
+            msg='Measurement does not have correct value in global data for test_01')
+
+        # Read from conditions object
+        self.assertTrue('test_01' in seq.conditions.humidity_pc.global_data,
+                msg='Condition does not have test_01 in global data')
+
+        self.assertEqual(seq.conditions.humidity_pc.global_data.test_01,1,
+            msg='Condition does not have correct value in global data for test_01')
+
+        # Meas -> TestManager,Conditions
+        # --------------------------------
+        # Put global data into measurement
+        seq.meas.VoltageSweep.global_data.test_02 = 2
+
+        # Read from conditions object
+        self.assertTrue('test_02' in seq.conditions.humidity_pc.global_data,
+                msg='Condition does not have test_02 in global data')
+
+        self.assertEqual(seq.conditions.humidity_pc.global_data.test_02,2,
+            msg='Condition does not have correct value in global data for test_02')
+
+        # Read from TestManager object
+        self.assertTrue('test_02' in seq.global_data,
+                msg='TestManager does not have test_02 in global data')
+
+        self.assertEqual(seq.global_data.test_02,2,
+            msg='TestManager does not have correct value in global data for test_02')
+
+        
+        # Conditions -> TestManager,Meas
+        # --------------------------------
+        # Put global data into measurement
+        seq.conditions.humidity_pc.global_data.test_03 = 3
+
+        # Read from meas object
+        self.assertTrue('test_03' in seq.meas.VoltageSweep.global_data,
+                msg='Measurement does not have test_03 in global data')
+
+        self.assertEqual(seq.meas.VoltageSweep.global_data.test_03,3,
+            msg='Measurement does not have correct value in global data for test_03')
+
+        # Read from TestManager object
+        self.assertTrue('test_03' in seq.global_data,
+                msg='TestManager does not have test_03 in global data')
+
+        self.assertEqual(seq.global_data.test_03,3,
+            msg='TestManager does not have correct value in global data for test_03')
 
 #================================================================
 #%% Runner
@@ -238,6 +303,7 @@ if __name__ == '__main__':
         suite.addTest(TestExampleSequence('test_save_results'))
         suite.addTest(TestExampleSequence('test_save_and_load_results'))
         suite.addTest(TestExampleSequence('test_custom_config'))
+        suite.addTest(TestExampleSequence('test_global_data_passing'))
         
         
         runner = unittest.TextTestRunner()

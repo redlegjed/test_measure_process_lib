@@ -45,3 +45,12 @@ TODO
 Customisation
 -------------
 TODO
+
+
+Data
+-----
+Where data is stored across TMPL objects
+
+* *config*: static
+* *local_data*: local to measurements and conditions
+* *global_data*: available to all measurements and conditions
