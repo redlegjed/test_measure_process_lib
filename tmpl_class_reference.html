@@ -1,0 +1,555 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Class Reference &#8212; Test, Measure, Process Library 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="TMPL Advanced usage" href="advanced_usage.html" />
+    <link rel="prev" title="Getting Started" href="getting_started.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="advanced_usage.html" title="TMPL Advanced usage"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="getting_started.html" title="Getting Started"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Class Reference</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="class-reference">
+<h1>Class Reference<a class="headerlink" href="#class-reference" title="Permalink to this heading">¶</a></h1>
+<p>Setting up a test sequence in TMPL requires creating three types of class:</p>
+<ul class="simple">
+<li><p><em>Measurement</em> : These classes take the measurements, they are responsible for communicating with test equipment, acquiring the measurement data and storing it. A test sequence may have multiple <em>Measurement</em> classes attached to it. <em>Measurement</em> classes always inherit from the <em>AbstractMeasurement</em> class defined by TMPL.</p></li>
+<li><p><em>SetupCondition</em> : Classes that set the conditions under which measurements are made, e.g. temperature, voltage etc. They also interface with test equipment to set one specific condition, e.g. settting a temperature chamber to the required temperature. They always inherit from the <em>AbstractSetupCondition</em> class.</p></li>
+<li><p><em>TestManager</em> : This class manages the test sequence. It contains multiple <em>Measurement</em> and <em>SetupCondition</em> classes that it puts together in a sequence. It is responsible for running this test sequence and collecting the data from all the individual <em>Measurement</em> and <em>SetupCondition</em> classes.</p></li>
+</ul>
+<section id="testmanager-class">
+<h2>TestManager Class<a class="headerlink" href="#testmanager-class" title="Permalink to this heading">¶</a></h2>
+<section id="definition">
+<h3>Definition<a class="headerlink" href="#definition" title="Permalink to this heading">¶</a></h3>
+<p><em>TestManager</em> classes are the top level class that combines all the setup conditions and measurements together into one sequence. They all inherit from the <em>AbstractTestManager</em> class. The <em>AbstractTestManager</em> class requires that two mandatory methods be defined: <em>define_setup_conditions</em> and <em>define_measurements</em>, as shown in the example <em>TestManager</em> class below.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tmpl</span>
+
+<span class="k">class</span> <span class="nc">ResistanceMeasureSequence</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractTestManager</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Measure resistance over temperature and humidity</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">define_setup_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add the setup conditions here in the order that they should be set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Add setup conditions using class name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_setup_condition</span><span class="p">(</span><span class="n">Temperature</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_setup_condition</span><span class="p">(</span><span class="n">Humidity</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">define_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add measurements here in the order of execution</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Setup links to all the measurements using class name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">Voltage</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">Current</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">Resistance</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><em>define_setup_conditions</em> consists of multiple calls to a method of <em>AbstractTestManager</em>, <em>add_setup_condition</em>. This takes as its argument a <em>SetupCondition</em> class. <em>SetupCondition</em> classes are described below in detail, but they contain the code that sets a single test condition, like temperature, humidity, voltage etc. The order that <em>SetupCondition</em> classes are added inside <em>define_setup_conditions</em> is important. It defines the order in which each condition is set. In the example above temperature is set first then humidity. This means that when the test is run, the first condition to be set will be temperature, then humidity. <em>SetupCondition</em> classes usually define a range of values for their specific condition. For example the <em>Temperature</em> class might define two temperatures, 25 and 40 degC, while the <em>Humidity</em> class might define three levels: 45,55,65 %. When the test sequence is run the <em>TestManager</em> class will extract all the values of temperature and humidity. It will then form a loop based on the order of <em>add_setup_condition</em> calls. So in this example the loop will run through the conditions in this order:</p>
+<ul>
+<li><p>Temperature: 25</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Humidity: 45</p></li>
+<li><p>Humidity: 55</p></li>
+<li><p>Humidity: 65</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Temperature: 40</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Humidity: 45</p></li>
+<li><p>Humidity: 55</p></li>
+<li><p>Humidity: 65</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>The other mandatory method required by <em>AbstractTestManager</em> is <em>define_measurements</em>. This operates in a similar way to <em>define_setup_conditions</em>, but this time it adds <em>Measurement</em> classes to the <em>TestManager</em>. The <em>add_measurement</em> method takes a <em>Measurement</em> class as its argument. The order in which the measurements are added will define the order in which they are executed. In the example the measurements are added in the order: Voltage, Current, Resistance. The <em>TestManager</em> class will remember that order and use it in combination with the conditions to generate a loop for executing the entire test sequence. The complete test sequence in our example will run in this order:</p>
+<ul>
+<li><p>Temperature: 25</p>
+<blockquote>
+<div><ul>
+<li><p>Humidity: 45</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Measure: Voltage</p></li>
+<li><p>Measure: Current</p></li>
+<li><p>Measure: Resistance</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Humidity: 55</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Measure: Voltage</p></li>
+<li><p>Measure: Current</p></li>
+<li><p>Measure: Resistance</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Humidity: 65</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Measure: Voltage</p></li>
+<li><p>Measure: Current</p></li>
+<li><p>Measure: Resistance</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Temperature: 40</p>
+<blockquote>
+<div><ul>
+<li><p>Humidity: 45</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Measure: Voltage</p></li>
+<li><p>Measure: Current</p></li>
+<li><p>Measure: Resistance</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Humidity: 55</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Measure: Voltage</p></li>
+<li><p>Measure: Current</p></li>
+<li><p>Measure: Resistance</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Humidity: 65</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Measure: Voltage</p></li>
+<li><p>Measure: Current</p></li>
+<li><p>Measure: Resistance</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</section>
+<section id="running-the-test-sequence">
+<span id="running-test-sequence"></span><h3>Running the test sequence<a class="headerlink" href="#running-the-test-sequence" title="Permalink to this heading">¶</a></h3>
+<p><em>TestManager</em> classes are used in the following way:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get test instrument objects</span>
+<span class="n">resources</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ammeter&#39;</span><span class="p">:</span><span class="n">ammeter_object</span><span class="p">,</span><span class="s1">&#39;voltmeter&#39;</span><span class="p">:</span><span class="n">voltmeter_object</span><span class="p">,</span><span class="s1">&#39;chamber&#39;</span><span class="p">:</span><span class="n">chamber_object</span><span class="p">}</span>
+
+<span class="c1"># Create test sequence object</span>
+<span class="n">test_seq</span> <span class="o">=</span> <span class="n">ResistanceMeasureSequence</span><span class="p">(</span><span class="n">resources</span><span class="p">)</span>
+
+<span class="c1"># Run the test</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+<span class="c1"># Store test data</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Test code usually needs <em>resources</em>. This can be anything, the obvious examples are objects that allow access to test instruments, as illustrated in the example above. The <em>resources</em> dictionary that is passed in as the main argument of the <em>TestManager</em> class will be made available to all <em>SetupCondition</em> and <em>Measurement</em> classes so they can use them in their own methods. The dictionary keys should adhere to Python variable naming conventions because they will be made into properties of the <em>TestManager</em>, <em>SetupCondition</em> and <em>Measurement</em> classes. In our example all our classes will have <em>.ammeter</em>, <em>.voltmeter</em> and <em>.chamber</em> properties.</p>
+<p>Once a <em>TestManager</em> object has been created, the sequence can be run with the <em>run</em> method. The sequence will then execute, printing out each condition and measurement as they run.</p>
+<p>When the sequence has finished any results that have been stored can be saved using the <em>save</em> method and passing a filename. This should include the full path because no assumption is made about the storage location.</p>
+</section>
+<section id="accessing-setup-conditions-and-measurements">
+<h3>Accessing setup conditions and measurements<a class="headerlink" href="#accessing-setup-conditions-and-measurements" title="Permalink to this heading">¶</a></h3>
+<p>When a <em>TestManager</em> object is created, it also creates objects for all the setup conditions and measurements using the <em>define_setup_conditions</em> and <em>define_measurements</em> methods. These objects are available from the <em>TestManager</em> object through the <em>.conditions</em> and <em>.meas</em> properties. For our example the objects would be available like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Setup condition objects accessed through &#39;conditions&#39; property</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">conditions</span><span class="o">.</span><span class="n">Temperature</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">conditions</span><span class="o">.</span><span class="n">Humidity</span>
+
+<span class="c1"># Measurement objects accessed through &#39;meas&#39; property</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">meas</span><span class="o">.</span><span class="n">Voltage</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">meas</span><span class="o">.</span><span class="n">Current</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">meas</span><span class="o">.</span><span class="n">Resistance</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="setupcondition-class">
+<h2>SetupCondition Class<a class="headerlink" href="#setupcondition-class" title="Permalink to this heading">¶</a></h2>
+<section id="id1">
+<h3>Definition<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
+<p><em>SetupCondition</em> classes are responsible for setting and querying one specific condition. They all inherit from the <em>AbstractSetupCondition</em> class. This requires two mandatory properties: <em>actual</em> and <em>setpoint</em>, for reading the <em>actual</em> value of the condition and setting the value of the condition. <em>actual</em> and <em>setpoint</em> appear as properties of the <em>SetupCondition</em> class but usually they are <em>methods</em> that use the Python <em>&#64;property</em> decorator to appear as properties. This is because querying and setting the condition usually requires interfacing to test equipment.</p>
+<p>The code below shows an example of the definition of a <em>SetupCondition</em> class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Temperature</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractSetupConditions</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set the temperature on the chamber.</span>
+
+<span class="sd">    Assumes that there is a property called &quot;chamber&quot; that</span>
+<span class="sd">    provides read/write control of the temperature.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialise default values and any other setup</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Set default values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span><span class="mi">35</span><span class="p">,</span><span class="mi">45</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">actual</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read the current chamber temperature</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">chamber</span><span class="o">.</span><span class="n">temperature_degC</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read the current chamber setpoint temperature</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">chamber</span><span class="o">.</span><span class="n">temperature_setpoint_degC</span>
+
+    <span class="nd">@setpoint</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set a new temperature on the chamber</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chamber</span><span class="o">.</span><span class="n">temperature_setpoint_degC</span> <span class="o">=</span> <span class="n">value</span>
+</pre></div>
+</div>
+<p>The <em>Temperature</em> class defines the required property/methods <em>actual</em> and <em>setpoint</em> using a temperature <em>chamber</em> object. <em>chamber</em> is an object that was supplied to the <em>TestManager</em> when it was created as a <em>resource</em> (see <a class="reference internal" href="#running-test-sequence"><span class="std std-ref">Running the test sequence</span></a>). The <em>TestManager</em> will make all the objects passed in through <em>resources</em> available as properties in the <em>SetupCondition</em> objects.</p>
+<p>The <em>Temperature</em> class definition above also includes a recommended method, <em>initialise</em>. <em>initialise</em> is intended for any custom initialisation required for setting the specific condition. It is also useful for defining the default range of <em>values</em> that the condition will take during the test sequence. In this example <em>initialise</em> is setting the <em>values</em> object to [25,35,45]. So by default, when the complete test sequence is run it will be performed at [25,35,45] degC.</p>
+<p><em>SetupCondition</em> classes have a property, <em>values</em>, that is a list of the <em>setpoint</em> values that will be used in the test sequence when it is run. The <em>SetupCondition</em> class definition usually sets a default list for <em>values</em>. This can be customised later by direct access to the <em>values</em> property. When a <em>TestManager</em> runs the test sequence, it will scan each <em>SetupCondition</em> object in it’s memory and extract the <em>values</em> list. It will then use these to build a table of test conditions that need to be set before performing each measurement.</p>
+</section>
+<section id="setting-querying-setup-conditions">
+<h3>Setting/Querying setup conditions<a class="headerlink" href="#setting-querying-setup-conditions" title="Permalink to this heading">¶</a></h3>
+<p><em>SetupCondition</em> objects are created inside the <em>TestManager</em>. Once created they are available through the <em>TestManager</em> object. They can be used independently to set or query conditions without running in a test sequence.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Condition is available through the &#39;conditions&#39; property of TestManager object</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">conditions</span><span class="o">.</span><span class="n">Temperature</span>
+
+<span class="c1"># Read actual temperature</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">conditions</span><span class="o">.</span><span class="n">Temperature</span><span class="o">.</span><span class="n">actual</span>
+
+<span class="c1"># Read current setpoint</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">conditions</span><span class="o">.</span><span class="n">Temperature</span><span class="o">.</span><span class="n">setpoint</span>
+
+<span class="c1"># Set condition</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">conditions</span><span class="o">.</span><span class="n">Temperature</span><span class="o">.</span><span class="n">setpoint</span> <span class="o">=</span> <span class="mf">34.5</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="measurement-class">
+<h2>Measurement Class<a class="headerlink" href="#measurement-class" title="Permalink to this heading">¶</a></h2>
+<section id="id2">
+<h3>Definition<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<p><em>Measurement</em> classes are responsible for executing the code that takes a specific measurement or multiple measurements. They inherit from the <em>AbstractMeasurement</em> class. <em>Measurement</em> classes require one mandatory method, <em>meas_sequence</em>. This can either contain all the measurement code or, more usually, it can be the top level that calls other class methods in a sequence. The example below shows a simple <em>Measurement</em> class for reading electrical current from an ammeter.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Current</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Measure current with ammeter</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Mandatory method for Measurement classes</span>
+
+<span class="sd">        Performs the actual measurement and stores data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#  Measure current with ammeter</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ammeter</span><span class="o">.</span><span class="n">current_A</span>
+
+        <span class="c1"># Store the data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store_data_var</span><span class="p">(</span><span class="s1">&#39;current_A&#39;</span><span class="p">,</span><span class="n">current</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In the example the <em>Current</em> class only has the mandatory <em>meas_sequence</em> method. It also assumes there is a property <em>ammeter</em> available, which should have been passed in as a <em>resource</em> to the <em>TestManager</em>. The <em>ammeter</em> object is used to measure the electrical current. How it does this will depend on how the object has been defined outside TMPL. In this case it is assumed that it has a property <em>current_A</em> that returns a single value.</p>
+<p>The next line stores the measured value into the class internal storage. This will be discussed in more detail in <a class="reference internal" href="#label-storing-data"><span class="std std-ref">Storing data</span></a> below.</p>
+</section>
+<section id="initialisation-and-configuration">
+<h3>Initialisation and configuration<a class="headerlink" href="#initialisation-and-configuration" title="Permalink to this heading">¶</a></h3>
+<p><em>Measurement</em> classes can also have an optional <em>initialise</em> method, similar to <em>SetupCondition</em> classes. This is generally used to define configuration options for the measurement. The example below shows a revised <em>Current</em> class that uses the <em>initialise</em> method to define some configuration values for the <em>ammeter</em>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Current</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Measure current with ammeter</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set configuration options</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ammeter_range_A</span> <span class="o">=</span> <span class="mf">2.5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ammeter_averages</span> <span class="o">=</span> <span class="mi">8</span>
+
+
+    <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Mandatory method for Measurement classes</span>
+
+<span class="sd">        Performs the actual measurement and stores data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Setup</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configure_ammeter</span><span class="p">()</span>
+
+        <span class="c1">#  Measure current with ammeter</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ammeter</span><span class="o">.</span><span class="n">current_A</span>
+
+        <span class="c1"># Store the data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store_data_var</span><span class="p">(</span><span class="s1">&#39;current_A&#39;</span><span class="p">,</span><span class="n">current</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">configure_ammeter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setup the ammeter with configuration options</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ammeter</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ammeter_range_A</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ammeter</span><span class="o">.</span><span class="n">averages</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ammeter_averages</span>
+</pre></div>
+</div>
+<p><em>Measurement</em> classes have a property, <em>config</em>, which is basically a dictionary that can be used to store any kind of data. This data is only accessed by the user defined methods. None of the internal workings of the <em>AbstractMeasurement</em> class use it.</p>
+<p><em>config</em> is an internal <em>TMPL</em> class called <em>ObjDict</em>. It is a dictionary where the keys are also properties. Thus data can be added in two ways:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># property style access</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ammeter_range_A</span> <span class="o">=</span> <span class="mf">2.5</span>
+
+<span class="c1"># Dict style access</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;ammeter_range_A&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.5</span>
+</pre></div>
+</div>
+<p><em>config</em> is also available from the <em>Measurement</em> object once it has been created by the <em>TestManager</em>. <em>Measurement</em> objects are available from the <em>TestManager</em> through the <em>.meas</em> property.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create test sequence object</span>
+<span class="n">test_seq</span> <span class="o">=</span> <span class="n">ResistanceMeasureSequence</span><span class="p">(</span><span class="n">resources</span><span class="p">)</span>
+
+<span class="c1"># Change Current measurement configuration</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">meas</span><span class="o">.</span><span class="n">Current</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ammeter_averages</span> <span class="o">=</span> <span class="mi">16</span>
+</pre></div>
+</div>
+<p>This kind of access from the top level <em>TestManager</em> allows measurement configurations to be a adjusted without changing the code inside the <em>Measurement</em> class.</p>
+</section>
+<section id="storing-measurement-data">
+<span id="label-storing-data"></span><h3>Storing measurement data<a class="headerlink" href="#storing-measurement-data" title="Permalink to this heading">¶</a></h3>
+<section id="data-variables">
+<h4>Data variables<a class="headerlink" href="#data-variables" title="Permalink to this heading">¶</a></h4>
+<p><em>Measurement</em> classes store data into a property called <em>.ds_results</em>. This is an <a class="reference external" href="http://xarray.pydata.org/en/stable/">xarray</a> <em>Dataset</em> object. TMPL classes all have helper methods for storing data to Datasets. The simplest way to store data directly into <em>.ds_results</em> is to use the <em>store_data_var</em> method as seen in the examples above.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Store the data</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">store_data_var</span><span class="p">(</span><span class="s1">&#39;current_A&#39;</span><span class="p">,</span><span class="n">current</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>xarray <em>Datasets</em> have two main components: <em>coordinates</em> and <em>data variables</em>. <em>coordinates</em> are the independent variables, e.g. <em>x</em>, and <em>data variables</em> and dependent variables, e.g. <em>y = f(x)</em>. In the case of a <em>Measurement</em> class the independent variables are the <em>SetupConditions</em>. When <em>store_data_var</em> is called, it automatically makes a <em>data variable</em> in the <em>.ds_results</em> <em>Dataset</em> that has <em>coordinates</em> of the current <em>SetupConditions</em>. So in the example above, if the <em>SetupConditions</em> is <em>Temperature</em>, then the <em>current_A</em> <em>data variable</em> will have <em>Temperature</em>  as its <em>coordinate</em>. When the test sequence has been run <em>.ds_results</em> can be displayed. The standard <em>xarray</em> printout will show that <em>current_A</em> has a coordinate <em>Temperature</em>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">test_seq</span><span class="o">.</span><span class="n">meas</span><span class="o">.</span><span class="n">Current</span><span class="o">.</span><span class="n">ds_results</span>
+<span class="go">&lt;xarray.Dataset&gt;</span>
+<span class="go">Dimensions:      (timestamp: 1, Temperature: 3)</span>
+<span class="gp">...</span>
+<span class="go">Coordinates:</span>
+<span class="go">* timestamp    (timestamp) &lt;U19 &#39;2022-06-05 00h34m05&#39;</span>
+<span class="go">* Temperature  (Temperature) int64 25 35 45</span>
+<span class="go">Data variables:</span>
+<span class="go">    current_A    (Temperature) float64 0.0 0.0 0.0</span>
+</pre></div>
+</div>
+<p>In this example the <em>Temperature</em> <em>SetupCondition</em> had default values of 25,35 &amp; 45, so the <em>Current</em> measurement has been run at all those conditions. In each case the measured value was 0.0 as displayed in the printout.</p>
+<p>Note the <em>timestamp</em> coordinate is added automatically by TMPL.</p>
+</section>
+<section id="coordinates-and-data-variables">
+<h4>Coordinates and data variables<a class="headerlink" href="#coordinates-and-data-variables" title="Permalink to this heading">¶</a></h4>
+<p>Measurements will usually be more complicated than recording a single value. Frequently the measurement will have its own independent variables. The following <em>Measurement</em> class illustrates this by implementing a voltage sweep on the resistor. This requires stepping the voltage across the resistor over an array of values and recording the corresponding current for each voltage. In this case voltage is also an independent variable even though it is not a <em>SetupCondition</em>. The measurement also reads back the voltage from a <em>voltmeter</em> object that has been passed in as a <em>resource</em>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">VoltageSweeper</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># Set up the voltage values to sweep over</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">voltage_sweep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1">#  Do the measurement</span>
+
+        <span class="n">current</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">voltage_sweep</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">voltage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">voltage_sweep</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span><span class="n">V</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">voltage_sweep</span><span class="p">):</span>
+            <span class="c1"># Set voltage</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">voltage_source</span><span class="o">.</span><span class="n">voltage_set_V</span><span class="o">=</span><span class="n">V</span>
+
+            <span class="c1"># Measure current</span>
+            <span class="n">current</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ammeter</span><span class="o">.</span><span class="n">current_A</span>
+
+            <span class="c1"># Measure voltage across resistor</span>
+            <span class="n">voltage</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">voltmeter</span><span class="o">.</span><span class="n">voltage_V</span>
+
+
+        <span class="c1"># Store the data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store_coords</span><span class="p">(</span><span class="s1">&#39;swp_voltage&#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">voltage_sweep</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store_data_var</span><span class="p">(</span><span class="s1">&#39;current_A&#39;</span><span class="p">,</span><span class="n">current</span><span class="p">,</span><span class="n">coords</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;swp_voltage&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store_data_var</span><span class="p">(</span><span class="s1">&#39;voltage_diff_V&#39;</span><span class="p">,</span><span class="n">voltage</span><span class="p">,</span><span class="n">coords</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;swp_voltage&#39;</span><span class="p">])</span>
+
+        <span class="c1"># Debug point</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s1">&#39;finished sweep&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <em>current_A</em> and <em>voltage_diff_V</em> data variables are also dependent on the voltage being swept as well as the current conditions. To record this dependency the sweep voltage must be stored as a <em>coordinate</em> using the <em>store_coords</em> method. This takes a label and array or list as the input arguments. In this case it will create a new <em>coordinate</em> called <em>swp_voltage</em> that will appear in <em>.ds_results</em>.</p>
+<p>To indicate that <em>current_A</em> and <em>voltage_diff_V</em> are also functions of the sweep voltage the optional argument <em>coords</em> is used with the <em>store_data_var</em> method. This takes a list of <em>coordinate</em> labels as its input. It can also take a dictionary, but that will be discussed later.</p>
+<p>Now if <em>.ds_results</em> is printed the dependencies of the data variables can be seen:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">test_seq</span><span class="o">.</span><span class="n">meas</span><span class="o">.</span><span class="n">Current</span><span class="o">.</span><span class="n">ds_results</span>
+<span class="go">&lt;xarray.Dataset&gt;</span>
+<span class="go">Dimensions:          (timestamp: 1, Temperature: 3, swp_voltage: 10)</span>
+<span class="go">Coordinates:</span>
+<span class="go">* timestamp        (timestamp) &lt;U19 &#39;2022-06-05 01h21m43&#39;</span>
+<span class="go">* Temperature      (Temperature) int64 25 35 45</span>
+<span class="go">* swp_voltage      (swp_voltage) float64 0.0 0.1111 0.2222 ... 0.8889 1.0</span>
+<span class="go">Data variables:</span>
+<span class="go">    current_A        (Temperature, swp_voltage) float64 0.0 ... 9.857e-05</span>
+<span class="go">    voltage_diff_V   (Temperature, swp_voltage) float64 0.0 0.1111 ... 1.0</span>
+</pre></div>
+</div>
+<p>As well at <em>Temperature</em> the sweep voltage has been added as a <em>coordinate</em>. It is an array of 10 points, more than the <em>Dataset</em> printout will display. The data variables: <em>current_A</em> and <em>voltage_diff_V</em> now show the dependency as well.</p>
+</section>
+<section id="specifying-individual-coordinate-values">
+<h4>Specifying individual coordinate values<a class="headerlink" href="#specifying-individual-coordinate-values" title="Permalink to this heading">¶</a></h4>
+<p>TODO</p>
+</section>
+</section>
+</section>
+<section id="results-data">
+<h2>Results data<a class="headerlink" href="#results-data" title="Permalink to this heading">¶</a></h2>
+<p>TODO</p>
+</section>
+<section id="modular-measurements">
+<h2>Modular Measurements<a class="headerlink" href="#modular-measurements" title="Permalink to this heading">¶</a></h2>
+<p>TODO</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/tmpl_dark_logo.png" alt="Logo"/>
+            </a></p>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Class Reference</a><ul>
+<li><a class="reference internal" href="#testmanager-class">TestManager Class</a><ul>
+<li><a class="reference internal" href="#definition">Definition</a></li>
+<li><a class="reference internal" href="#running-the-test-sequence">Running the test sequence</a></li>
+<li><a class="reference internal" href="#accessing-setup-conditions-and-measurements">Accessing setup conditions and measurements</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#setupcondition-class">SetupCondition Class</a><ul>
+<li><a class="reference internal" href="#id1">Definition</a></li>
+<li><a class="reference internal" href="#setting-querying-setup-conditions">Setting/Querying setup conditions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#measurement-class">Measurement Class</a><ul>
+<li><a class="reference internal" href="#id2">Definition</a></li>
+<li><a class="reference internal" href="#initialisation-and-configuration">Initialisation and configuration</a></li>
+<li><a class="reference internal" href="#storing-measurement-data">Storing measurement data</a><ul>
+<li><a class="reference internal" href="#data-variables">Data variables</a></li>
+<li><a class="reference internal" href="#coordinates-and-data-variables">Coordinates and data variables</a></li>
+<li><a class="reference internal" href="#specifying-individual-coordinate-values">Specifying individual coordinate values</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#results-data">Results data</a></li>
+<li><a class="reference internal" href="#modular-measurements">Modular Measurements</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="getting_started.html"
+                          title="previous chapter">Getting Started</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="advanced_usage.html"
+                          title="next chapter">TMPL Advanced usage</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/tmpl_class_reference.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="advanced_usage.html" title="TMPL Advanced usage"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="getting_started.html" title="Getting Started"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Class Reference</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2022, RedLegJed.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    </div>
+  </body>
+</html>
