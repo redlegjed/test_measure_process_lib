@@ -425,7 +425,7 @@ As well at *Temperature* the sweep voltage has been added as a *coordinate*. It 
 
 Specifying individual coordinate values
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TODO
+TODO - using coords = dictionary
 
 
 Results data
@@ -434,6 +434,5 @@ TODO
 
 Modular Measurements
 ---------------------
-TODO
-
+Since all *Measurement* and *SetupCondition* classes are defined independently, they can be used in different sequences as defined by *TestManager* classes. The intention is to be able to define libraries of *Measurement* and *SetupCondition* classes. These can be used to construct many different *TestManager* classes in a "mix and match" way. 
 

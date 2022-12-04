@@ -92,12 +92,30 @@
 </section>
 <section id="data">
 <h2>Data<a class="headerlink" href="#data" title="Permalink to this heading">¶</a></h2>
-<p>Where data is stored across TMPL objects</p>
+<p>TMPL objects have several internal data structures that can be used for static and temporary storage. These are the following:</p>
 <ul class="simple">
-<li><p><em>config</em>: static</p></li>
-<li><p><em>local_data</em>: local to measurements and conditions</p></li>
-<li><p><em>global_data</em>: available to all measurements and conditions</p></li>
+<li><p><em>config</em>: static storage, usually defined in the object’s <em>initialise</em> method. <em>config</em> is intended for configuration settings that are set once per sequence run.</p></li>
+<li><p><em>local_data</em>: storage structure local to measurements and conditions. This can be used to store temporary data that is local to a <em>Measurement</em> or <em>SetupCondition</em>.</p></li>
+<li><p><em>global_data</em>: temporary storage available to all measurements and conditions. <em>global_data</em> provides a way for different measurements and conditions in a sequence to pass data between each other. It should be used with care because relying on it will make objects less modular.</p></li>
 </ul>
+<p>All of these data structures are objects of the class <em>ObjDict</em>. This means they are basically dictionaries. They have all the same methods as a dictionary. The main difference is that the keys can be specified using the dot,’.’, notation. Some examples are shown below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set/get a flag</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">flag</span> <span class="o">=</span> <span class="n">test_seq</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">flag</span>
+
+<span class="c1"># Change number of averages in a measurement</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">meas</span><span class="o">.</span><span class="n">Current</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ammeter_averages</span> <span class="o">=</span> <span class="mi">16</span>
+
+<span class="c1"># Set global data in test sequence</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">global_data</span><span class="o">.</span><span class="n">my_name</span> <span class="o">=</span> <span class="s1">&#39;fred&#39;</span>
+
+<span class="c1"># Read back global data in measurement</span>
+<span class="n">name</span> <span class="o">=</span> <span class="n">test_seq</span><span class="o">.</span><span class="n">meas</span><span class="o">.</span><span class="n">Current</span><span class="o">.</span><span class="n">global_data</span><span class="o">.</span><span class="n">my_name</span>
+
+<span class="c1"># Set local data in measurement</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">meas</span><span class="o">.</span><span class="n">Current</span><span class="o">.</span><span class="n">local_data</span><span class="o">.</span><span class="n">timer_count</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
 </section>
 </section>
 

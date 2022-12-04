@@ -194,5 +194,46 @@ Note that the order of the *SetupCondition* and *Measurement* class names will b
 
 
 
+Automatic documentation generation
+----------------------------------
+The contents of the docstrings of TMPL objects can be used to generate documentation in markdown. This can be done simply by the following:
 
 
+.. code-block:: python
+
+    # Generate markdown text and save to file
+    test_seq.to_markdown('my_file.md')
+
+    # Dump markdown into a string
+    mkdwn = test_seq.to_markdown()
+
+
+The markdown file will be dependent on what is in the docstrings at the class level, i.e. what is written in triple quotes immediately after the *class* keyword. 
+
+.. code-block:: python
+
+    class Resistance(tmpl.AbstractMeasurement):
+        """
+        Simple resistance measurement using ohmmeter
+
+        Assumes there is property, "ohmmeter", that gives read/write
+        access to the ohmmeter instrument.
+        """
+        # Markdown will use text in triple quotes
+
+The format of the markdown file will be::
+
+    # <Name of TestManager class>
+    <TestManager docstring>
+
+    ## Setup conditions
+
+    ### <SetupCondition name>
+    <SetupCondition docstring>
+
+    ## Measurement
+
+    ### <Measurement name>
+    <Measurement docstring>
+
+Multiple SetupConditions and Measurements will appear as sub headings under each section.

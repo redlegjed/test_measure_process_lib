@@ -211,6 +211,44 @@
 <p>Basically you give the <em>tmpl.make_module()</em> function lists of the names of the <em>SetupCondition, Measurement</em> and <em>TestManager</em> classes that you want in your file. It will then generate template code for each class and insert it into the file together with a standard doc string and imports.</p>
 <p>Note that the order of the <em>SetupCondition</em> and <em>Measurement</em> class names will be used in the <em>TestManager</em> classes as the order in which conditions and measurements are executed. If this is not desired then they can be manually changed in the file later.</p>
 </section>
+<section id="automatic-documentation-generation">
+<h2>Automatic documentation generation<a class="headerlink" href="#automatic-documentation-generation" title="Permalink to this heading">¶</a></h2>
+<p>The contents of the docstrings of TMPL objects can be used to generate documentation in markdown. This can be done simply by the following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generate markdown text and save to file</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">to_markdown</span><span class="p">(</span><span class="s1">&#39;my_file.md&#39;</span><span class="p">)</span>
+
+<span class="c1"># Dump markdown into a string</span>
+<span class="n">mkdwn</span> <span class="o">=</span> <span class="n">test_seq</span><span class="o">.</span><span class="n">to_markdown</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The markdown file will be dependent on what is in the docstrings at the class level, i.e. what is written in triple quotes immediately after the <em>class</em> keyword.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Resistance</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simple resistance measurement using ohmmeter</span>
+
+<span class="sd">    Assumes there is property, &quot;ohmmeter&quot;, that gives read/write</span>
+<span class="sd">    access to the ohmmeter instrument.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Markdown will use text in triple quotes</span>
+</pre></div>
+</div>
+<p>The format of the markdown file will be:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># &lt;Name of TestManager class&gt;</span>
+<span class="o">&lt;</span><span class="n">TestManager</span> <span class="n">docstring</span><span class="o">&gt;</span>
+
+<span class="c1">## Setup conditions</span>
+
+<span class="c1">### &lt;SetupCondition name&gt;</span>
+<span class="o">&lt;</span><span class="n">SetupCondition</span> <span class="n">docstring</span><span class="o">&gt;</span>
+
+<span class="c1">## Measurement</span>
+
+<span class="c1">### &lt;Measurement name&gt;</span>
+<span class="o">&lt;</span><span class="n">Measurement</span> <span class="n">docstring</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Multiple SetupConditions and Measurements will appear as sub headings under each section.</p>
+</section>
 </section>
 
 
@@ -230,6 +268,7 @@
 <li><a class="reference internal" href="#what-is-tmpl">What is TMPL</a></li>
 <li><a class="reference internal" href="#how-it-works">How it works</a></li>
 <li><a class="reference internal" href="#automatic-code-generation">Automatic code generation</a></li>
+<li><a class="reference internal" href="#automatic-documentation-generation">Automatic documentation generation</a></li>
 </ul>
 </li>
 </ul>

@@ -8,3 +8,11 @@
 ```bash
 sphinx-build docs/source -W -b linkcheck -d docs/build/doctrees docs/build/html
 ```
+
+## Build
+
+Build the documentation from *test_measure_process_lib* with:
+
+```bash
+sphinx-build -b html doc_source docs
+```
