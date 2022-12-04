@@ -1,6 +1,6 @@
 # Test, Measure, Process library (TMPL)
 
-This library is a modular framework for running sequences of measurements. It is intended to provide a minimal boiler-plate code framework for writing measurement code in modules that can be linked together into test sequences. Although written for use in measurements the framework makes no assumptions about test equipment setup and is very generic. It could be used to make test sequences based on models or data analysis instead of actual measurements.
+This library is a modular framework for running sequences of lab measurements. It is intended to provide a minimal boiler-plate code framework for writing measurement code in modules that can be linked together into test sequences. Although written for use in lab measurements the framework makes no assumptions about test equipment setup and is very generic. It could be used to make test sequences based on models or data analysis instead of actual measurements.
 
 The framework is built around storing data in the [xarray](http://xarray.pydata.org/en/stable/) _Dataset_ class. This provides a convenient data structure for storing multi-dimensional data that can be easily visualised using libraries like [Holoviews](http://holoviews.org/index.html) or its offshoot [hvplot](https://hvplot.holoviz.org/index.html).
 
@@ -20,6 +20,8 @@ pip install -e <local_path>/test_measure_process_lib
 ```
 Note that this does not install the dependencies. This is in case another package manager, e.g. Anaconda, is being used. So they have to be manually installed.
 
+## Documentation
+This file gives basic descriptions of how to use TMPL, for more details consult [the full documentation](https://redlegjed.github.io/test_measure_process_lib/)
 
 
 ## Core classes
