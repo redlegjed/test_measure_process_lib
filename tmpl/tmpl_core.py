@@ -977,8 +977,111 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         
 
 
+    #----------------------------------------------------------------
+    #%% repr methods
+    #----------------------------------------------------------------
     def __repr__(self):
+        """
+        Top level representation method
+
+        Tries to print out a hierarchal representation of the TestManager,
+        if that fails it falls back to just the name.
+
+        Returns
+        -------
+        str
+            
+        """
+        try:
+            txt = self._repr_hierarchy()
+        except:
+            txt = f'TestManager[{self.name}]'
+
+        return txt
+
+
+    def _repr_basic(self):
+        """
+        Basic __repr__ string
+
+        Returns
+        -------
+        str
+            
+        """
         return f'TestManager[{self.name}]'
+
+
+    def _repr_hierarchy(self):
+        """
+        Print out the TestManager name and a hierarchy of conditons and
+        measurements.
+
+        for example:
+
+            TestManager[ExampleResistorTest]
+            * Conditions:
+                Iteration
+                temperature_degC
+                humidity_pc
+            * Measurements:
+                Timestamp
+                TurnOn
+                Stabilise
+                VoltageSweep
+                TurnOff
+
+        Returns
+        -------
+        str
+            
+        """
+
+        txt = [
+            f'TestManager[{self.name}]',
+            f'* Conditions:',
+            '\n'.join([f'\t{c}' for c in self.conditions]),
+            f'* Measurements:',
+            '\n'.join([f'\t{m}' for m in self.meas]),
+        ]
+
+        return '\n'.join(txt)
+
+
+    def _repr_html_(self):
+        """
+        Return HTML representation for Jupyter Lab notebooks
+
+        Returns
+        -------
+        str
+            HTML code
+        """
+
+        
+
+        html_cond = ['<ul>']
+        for cond in self.conditions:
+            if self.conditions[cond].enable:
+                html_cond += [f'<li>{cond}</li>']
+        html_cond += ['</ul>']
+
+        html_meas = ['<ul>']
+        for meas in self.meas:
+            if self.meas[meas].enable:
+                html_meas += [f'<li>{meas}</li>']
+        html_meas += ['</ul>']
+
+        html = [
+            f'<h1>TestManager[ {self.name} ]</h1>',
+            f'<h2>Setup Conditions:</h2>',
+            '\n'.join(html_cond),
+            f'<h2>Measurements:</h2>',
+            '\n'.join(html_meas),
+        ]
+
+        return '\n'.join(html)
+    
 
     #----------------------------------------------------------------
     #%% Run methods
