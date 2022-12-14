@@ -281,6 +281,22 @@ class TestExampleSequence(unittest.TestCase):
         self.assertEqual(seq.global_data.test_03,3,
             msg='TestManager does not have correct value in global data for test_03')
 
+    def test_global_config_precedence(self):
+        """
+        Test that global config data overwrites local config data
+        """
+        #  Make global config
+        global_config = {'voltage_sweep':np.linspace(0,20)}
+
+        # Make the Test manager
+        seq = ExampleTestSequence(self.resources,config=global_config)
+
+        # Check 'voltage_sweep' in measurement
+        self.assertTrue(max(seq.meas.VoltageSweep.config.voltage_sweep)==20,
+            msg='Global config did not overwrite local config')
+
+
+
 #================================================================
 #%% Runner
 #================================================================
@@ -295,15 +311,16 @@ if __name__ == '__main__':
     else:
         suite = unittest.TestSuite()
 
-        suite.addTest(TestExampleSequence('test_dummy'))
-        suite.addTest(TestExampleSequence('test_got_conditions_and_meas'))
-        suite.addTest(TestExampleSequence('test_conditions_table'))
-        suite.addTest(TestExampleSequence('test_running_default_conditions'))
-        suite.addTest(TestExampleSequence('test_stacking_multiple_runs'))
-        suite.addTest(TestExampleSequence('test_save_results'))
-        suite.addTest(TestExampleSequence('test_save_and_load_results'))
-        suite.addTest(TestExampleSequence('test_custom_config'))
-        suite.addTest(TestExampleSequence('test_global_data_passing'))
+        # suite.addTest(TestExampleSequence('test_dummy'))
+        # suite.addTest(TestExampleSequence('test_got_conditions_and_meas'))
+        # suite.addTest(TestExampleSequence('test_conditions_table'))
+        # suite.addTest(TestExampleSequence('test_running_default_conditions'))
+        # suite.addTest(TestExampleSequence('test_stacking_multiple_runs'))
+        # suite.addTest(TestExampleSequence('test_save_results'))
+        # suite.addTest(TestExampleSequence('test_save_and_load_results'))
+        # suite.addTest(TestExampleSequence('test_custom_config'))
+        # suite.addTest(TestExampleSequence('test_global_data_passing'))
+        suite.addTest(TestExampleSequence('test_global_config_precedence'))
         
         
         runner = unittest.TextTestRunner()

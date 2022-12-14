@@ -183,7 +183,7 @@ The following code shows how to generate a module file:
     name = 'BigExperiment.py'
 
     # Generate the code
-    tmpl.make_module(name,conditions=cond,meas=meas,seq=seq)
+    tmpl.make_module(name,conditions=cond,meas=meas,seq=managers)
 
     # Alternatively generate the code into a text string
     code_text = tmpl.make_module(name,conditions=cond,meas=meas,seq=managers,return_text=True)
