@@ -42,6 +42,156 @@
             
   <section id="tmpl-advanced-usage">
 <h1>TMPL Advanced usage<a class="headerlink" href="#tmpl-advanced-usage" title="Permalink to this heading">¶</a></h1>
+<p>This page describes some of the more advanced features of TMPL.</p>
+<ul class="simple">
+<li><p><em>Data</em>: Where data can be stored in TMPL objects</p></li>
+<li><p><em>Processing</em> : How to add processing to a <em>Measurement</em> class using the <em>process()</em> method</p></li>
+<li><p><em>Customisation</em>: Using custom configuration for <em>Measurements</em></p></li>
+<li><p><em>Services</em> : Make common functions available to all objects in a test sequence</p></li>
+<li><p><em>Sequencing</em> : How to make <em>Measurements</em> execute only under certain conditions or stages of the sequence</p></li>
+</ul>
+<section id="data">
+<h2>Data<a class="headerlink" href="#data" title="Permalink to this heading">¶</a></h2>
+<p>TMPL objects have several internal data structures that can be used for static and temporary storage. These are the following:</p>
+<ul class="simple">
+<li><p><em>config</em>: static storage, usually defined in the object’s <em>initialise</em> method. <em>config</em> is intended for configuration settings that are set once per sequence run.</p></li>
+<li><p><em>local_data</em>: storage structure local to measurements and conditions. This can be used to store temporary data that is local to a <em>Measurement</em> or <em>SetupCondition</em>.</p></li>
+<li><p><em>global_data</em>: temporary storage available to all measurements and conditions. <em>global_data</em> provides a way for different measurements and conditions in a sequence to pass data between each other. It should be used with care because relying on it will make objects less modular.</p></li>
+</ul>
+<p>All of these data structures are objects of the class <em>ObjDict</em>. This means they are basically dictionaries. They have all the same methods as a dictionary. The main difference is that the keys can be specified using the dot,’.’, notation. Some examples are shown below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set/get a flag</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">flag</span> <span class="o">=</span> <span class="n">test_seq</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">flag</span>
+
+<span class="c1"># Change number of averages in a measurement</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">meas</span><span class="o">.</span><span class="n">Current</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ammeter_averages</span> <span class="o">=</span> <span class="mi">16</span>
+
+<span class="c1"># Set global data in test sequence</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">global_data</span><span class="o">.</span><span class="n">my_name</span> <span class="o">=</span> <span class="s1">&#39;fred&#39;</span>
+
+<span class="c1"># Read back global data in measurement</span>
+<span class="n">name</span> <span class="o">=</span> <span class="n">test_seq</span><span class="o">.</span><span class="n">meas</span><span class="o">.</span><span class="n">Current</span><span class="o">.</span><span class="n">global_data</span><span class="o">.</span><span class="n">my_name</span>
+
+<span class="c1"># Set local data in measurement</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">meas</span><span class="o">.</span><span class="n">Current</span><span class="o">.</span><span class="n">local_data</span><span class="o">.</span><span class="n">timer_count</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</section>
+<section id="processing">
+<h2>Processing<a class="headerlink" href="#processing" title="Permalink to this heading">¶</a></h2>
+<p>TODO</p>
+</section>
+<section id="customisation">
+<h2>Customisation<a class="headerlink" href="#customisation" title="Permalink to this heading">¶</a></h2>
+<p>TODO</p>
+</section>
+<section id="services">
+<h2>Services<a class="headerlink" href="#services" title="Permalink to this heading">¶</a></h2>
+<p>Services are functions that can be accessed by any of the TMPL objects. For example a service might be a function to convert metres into centimetres called <em>m_to_cm</em>. This would be called from inside a TMPL object like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">length_cm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">m_to_cm</span><span class="p">(</span><span class="n">length_m</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Services can be added in the following ways:</p>
+<ul class="simple">
+<li><p>Adding in the <em>define_services()</em> method of the <em>TestManager</em> class</p></li>
+<li><p>Tagging methods in <em>Measurement</em> or <em>SetupCondition</em> classes using the decorator <em>&#64;tmpl.service</em></p></li>
+</ul>
+<p>These are described in more detail in the following sections.</p>
+<section id="adding-services-to-testmanager-class">
+<h3>Adding Services to <em>TestManager</em> class<a class="headerlink" href="#adding-services-to-testmanager-class" title="Permalink to this heading">¶</a></h3>
+<p>Services can be added globally to the <em>TestManager</em> class using the optional method <em>define_services()</em>. Services are basically functions and can be added directly to the <em>.services</em> property of the <em>TestManager</em> as shown in this example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define a function to use as a service</span>
+<span class="k">def</span> <span class="nf">percent</span><span class="p">(</span><span class="n">fraction</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">100</span><span class="o">*</span><span class="n">fraction</span>
+
+
+<span class="k">class</span> <span class="nc">ExampleTestSequence</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractTestManager</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">define_setup_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># ...</span>
+
+    <span class="k">def</span> <span class="nf">define_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># ...</span>
+
+
+    <span class="k">def</span> <span class="nf">define_services</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define service functions</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Add service as function reference</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">percent</span> <span class="o">=</span> <span class="n">percent</span>
+
+        <span class="c1"># Or lambda function</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">meters_to_cm</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">m</span><span class="p">:</span> <span class="n">m</span><span class="o">*</span><span class="mi">100</span>
+
+        <span class="c1"># dict style</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="s1">&#39;kg_to_g&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">kg</span><span class="p">:</span> <span class="n">kg</span><span class="o">*</span><span class="mi">1000</span>
+</pre></div>
+</div>
+<p>Services defined in <em>define_services</em> should be stand alone functions. However services can also be derived from <em>Measurement</em> or <em>SetupCondition</em> classes as described next.</p>
+</section>
+<section id="services-from-measurement-and-setupcondition-classes">
+<h3>Services from <em>Measurement</em> and <em>SetupCondition</em> classes<a class="headerlink" href="#services-from-measurement-and-setupcondition-classes" title="Permalink to this heading">¶</a></h3>
+<p>Sometimes data generated or measured in one <em>Measurement</em> or <em>SetupCondition</em> class is useful in another class. For example a <em>Measurement</em> class may take a series of readings that act as a look up table for other <em>Measurement</em> classes. This data could be pushed into the <em>ds_results</em> Dataset or <em>global_data</em> or <em>local_data</em> so other classes could access it. In the case of a look up table each class that wanted to use it would have to implement its own code for cross referencing through the table. It would be more convenient if the class that generated the look up table could provide a “service” that implements the cross referencing code. Then other classes can just call the service function. This can be done by tagging class methods with the <em>&#64;tmpl.service</em> decorator.</p>
+<p>Any class method can be tagged using the <em>&#64;tmpl.service</em> decorator to turn it into a service. The following example shows one class creating a service and another class using it.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MeasurementWithService</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This measurement class takes some readings and makes the results</span>
+<span class="sd">    available for others via a service called &quot;lut_lookup&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Top level measurement sequence</span>
+        <span class="c1"># Takes readings that are logged into a table in self.local_data</span>
+
+        <span class="c1"># Measurement code</span>
+        <span class="c1"># ...</span>
+
+        <span class="c1"># Store data locally</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">local_data</span><span class="o">.</span><span class="n">lut_dict</span> <span class="o">=</span> <span class="n">lut_measured</span>
+
+    <span class="nd">@tmpl</span><span class="o">.</span><span class="n">service</span>
+    <span class="k">def</span> <span class="nf">lut_lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">key_value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Provide a lookup service to other classes</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        key_value: str</span>
+<span class="sd">            key to cross reference in lookup table</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_data</span><span class="o">.</span><span class="n">lut_dict</span><span class="p">[</span><span class="n">key_value</span><span class="p">]</span>
+
+
+
+<span class="k">class</span> <span class="nc">MeasurementUsingService</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This measurement uses the &quot;lut_lookup&quot; service</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">lut_key</span> <span class="o">=</span> <span class="s1">&#39;chamber_id&#39;</span>
+
+    <span class="nd">@tmp</span><span class="o">.</span><span class="n">with_service</span><span class="p">([</span><span class="s1">&#39;lut_lookup&#39;</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># Get value from lookup table</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">lut_lookup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">lut_key</span><span class="p">)</span>
+
+        <span class="c1"># Measurement code</span>
+        <span class="c1"># ...</span>
+</pre></div>
+</div>
+<p>In the example the second <em>Measurement</em> class that uses the service has a decorator <em>tmpl.with_service</em>. This accepts a list of service names. The decorator just checks if the services listed are available and if not will throw an error. The <em>with_service</em> decorator is entirely optional, it just adds a layer of robustness.</p>
+<p>Alternatively the services available can be checked at any time by checking the property <em>services_available</em> which is a list of service names. For the lookup table example this might be something like:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="s1">&#39;lut_lookup&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">services_available</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;No service&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Although this section has presented all the examples using <em>Measurement</em> classes, the same can be used from within <em>SetupCondition</em> classes as well.</p>
+</section>
+</section>
 <section id="sequence-states">
 <h2>Sequence states<a class="headerlink" href="#sequence-states" title="Permalink to this heading">¶</a></h2>
 <p>When a <em>TestManager</em> sequence is executed using the <em>run()</em> method it creates a loop. Before starting the loop a table of setup conditions is created. Each row of the table represents a combination of setup conditions. Each iteration of the loop is one row of the table. Within this loop there are particular states where <em>Measurement</em> classes can be executed. These states are <em>Startup</em>, <em>Setup</em>, <em>Main</em>, <em>After</em>, <em>Teardown</em> and <em>Error</em>. The sequence loop runs in the order below, with the states shown in <strong>bold</strong>.</p>
@@ -77,45 +227,10 @@
 <li><p><em>run_on_teardown</em>: Run at the end of the sequence. This is useful for shutting down.</p></li>
 <li><p><em>run_on_error</em>: Run when an error occurs</p></li>
 </ul>
-</section>
 <section id="sequencing">
-<h2>Sequencing<a class="headerlink" href="#sequencing" title="Permalink to this heading">¶</a></h2>
+<h3>Sequencing<a class="headerlink" href="#sequencing" title="Permalink to this heading">¶</a></h3>
 <p>TODO</p>
 </section>
-<section id="processing">
-<h2>Processing<a class="headerlink" href="#processing" title="Permalink to this heading">¶</a></h2>
-<p>TODO</p>
-</section>
-<section id="customisation">
-<h2>Customisation<a class="headerlink" href="#customisation" title="Permalink to this heading">¶</a></h2>
-<p>TODO</p>
-</section>
-<section id="data">
-<h2>Data<a class="headerlink" href="#data" title="Permalink to this heading">¶</a></h2>
-<p>TMPL objects have several internal data structures that can be used for static and temporary storage. These are the following:</p>
-<ul class="simple">
-<li><p><em>config</em>: static storage, usually defined in the object’s <em>initialise</em> method. <em>config</em> is intended for configuration settings that are set once per sequence run.</p></li>
-<li><p><em>local_data</em>: storage structure local to measurements and conditions. This can be used to store temporary data that is local to a <em>Measurement</em> or <em>SetupCondition</em>.</p></li>
-<li><p><em>global_data</em>: temporary storage available to all measurements and conditions. <em>global_data</em> provides a way for different measurements and conditions in a sequence to pass data between each other. It should be used with care because relying on it will make objects less modular.</p></li>
-</ul>
-<p>All of these data structures are objects of the class <em>ObjDict</em>. This means they are basically dictionaries. They have all the same methods as a dictionary. The main difference is that the keys can be specified using the dot,’.’, notation. Some examples are shown below:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set/get a flag</span>
-<span class="n">test_seq</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="n">flag</span> <span class="o">=</span> <span class="n">test_seq</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">flag</span>
-
-<span class="c1"># Change number of averages in a measurement</span>
-<span class="n">test_seq</span><span class="o">.</span><span class="n">meas</span><span class="o">.</span><span class="n">Current</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ammeter_averages</span> <span class="o">=</span> <span class="mi">16</span>
-
-<span class="c1"># Set global data in test sequence</span>
-<span class="n">test_seq</span><span class="o">.</span><span class="n">global_data</span><span class="o">.</span><span class="n">my_name</span> <span class="o">=</span> <span class="s1">&#39;fred&#39;</span>
-
-<span class="c1"># Read back global data in measurement</span>
-<span class="n">name</span> <span class="o">=</span> <span class="n">test_seq</span><span class="o">.</span><span class="n">meas</span><span class="o">.</span><span class="n">Current</span><span class="o">.</span><span class="n">global_data</span><span class="o">.</span><span class="n">my_name</span>
-
-<span class="c1"># Set local data in measurement</span>
-<span class="n">test_seq</span><span class="o">.</span><span class="n">meas</span><span class="o">.</span><span class="n">Current</span><span class="o">.</span><span class="n">local_data</span><span class="o">.</span><span class="n">timer_count</span> <span class="o">=</span> <span class="mi">1</span>
-</pre></div>
-</div>
 </section>
 </section>
 
@@ -133,11 +248,18 @@
     <h3><a href="index.html">Table of Contents</a></h3>
     <ul>
 <li><a class="reference internal" href="#">TMPL Advanced usage</a><ul>
-<li><a class="reference internal" href="#sequence-states">Sequence states</a></li>
-<li><a class="reference internal" href="#sequencing">Sequencing</a></li>
+<li><a class="reference internal" href="#data">Data</a></li>
 <li><a class="reference internal" href="#processing">Processing</a></li>
 <li><a class="reference internal" href="#customisation">Customisation</a></li>
-<li><a class="reference internal" href="#data">Data</a></li>
+<li><a class="reference internal" href="#services">Services</a><ul>
+<li><a class="reference internal" href="#adding-services-to-testmanager-class">Adding Services to <em>TestManager</em> class</a></li>
+<li><a class="reference internal" href="#services-from-measurement-and-setupcondition-classes">Services from <em>Measurement</em> and <em>SetupCondition</em> classes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#sequence-states">Sequence states</a><ul>
+<li><a class="reference internal" href="#sequencing">Sequencing</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

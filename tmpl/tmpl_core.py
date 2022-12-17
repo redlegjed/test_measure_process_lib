@@ -23,8 +23,8 @@ Initialise test
 
 Setup conditions under which test is to be run
 
->>> test.setup.temperature.values = [25,40,75]
->>> test.setup.wavelength.values = [1528,1545,1565]
+>>> test.conditions.temperature.values = [25,40,75]
+>>> test.conditions.wavelength.values = [1528,1545,1565]
 
 Setup which measurements are to be run
 
@@ -959,6 +959,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         self.add_measurement(Timestamp)
         self.define_setup_conditions()
         self.define_measurements()
+        self.define_services()
 
         # Disable iteration by default
         self.conditions.Iteration.enable = False
@@ -2251,6 +2252,31 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         Custom initialisation/setup
         """
         pass
+
+
+    def define_services(self) ->None:
+        """
+        Add service functions globally so that they are available to all
+        classes.
+
+        Services are added to the self.services dict
+
+        Example
+
+        def define_services(self):
+
+            # Add service as function reference
+            self.services.my_function = my_function
+
+            # Or lambda function
+            self.services.meters_to_cm = lambda m: m*100
+
+            # dict style
+            self.services['kg_to_g'] = lambda kg: kg*1000
+
+        """
+        pass
+
 
 
 #================================================================

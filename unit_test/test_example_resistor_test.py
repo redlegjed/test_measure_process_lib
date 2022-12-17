@@ -26,7 +26,7 @@ print(basepath)
 
 # Local libraries
 # from test_measure_process import AbstractMeasurement
-from example_resistor_test import (ExampleTestSequence,ResistorModel,
+from tmpl.examples.example_resistor_test import (ExampleTestSequence,ResistorModel,
                                     VoltageSupply,set_temperature,
                                     set_humidity)
 
@@ -296,14 +296,34 @@ class TestExampleSequence(unittest.TestCase):
             msg='Global config did not overwrite local config')
 
 
+    def test_services(self):
+        """
+        Check services are available and being used
+        """    
+
+        service_labels = ['Amps_to_mA']
+
+        # Check services were added
+        for serv in service_labels:
+            self.assertIn(serv,self.testseq.services,
+                    msg=f'Missing service: {serv}')
+
+        # Run sequence and check for evidence of services being used by
+        # looking for the data variables that should have been calculated
+        data_vars = ['current_mA']
+
+        self.testseq.run()
+        for dv in data_vars:
+            self.assertIn(dv,self.testseq.ds_results,
+                    msg=f'Service testing: missing data var : {dv}')
 
 #================================================================
 #%% Runner
 #================================================================
  
 if __name__ == '__main__':
-    # all_tests = True
-    all_tests = False
+    all_tests = True
+    # all_tests = False
 
     if all_tests:
         unittest.main()
@@ -320,7 +340,8 @@ if __name__ == '__main__':
         # suite.addTest(TestExampleSequence('test_save_and_load_results'))
         # suite.addTest(TestExampleSequence('test_custom_config'))
         # suite.addTest(TestExampleSequence('test_global_data_passing'))
-        suite.addTest(TestExampleSequence('test_global_config_precedence'))
+        # suite.addTest(TestExampleSequence('test_global_config_precedence'))
+        suite.addTest(TestExampleSequence('test_services'))
         
         
         runner = unittest.TextTestRunner()

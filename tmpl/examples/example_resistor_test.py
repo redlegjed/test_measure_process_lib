@@ -200,7 +200,6 @@ class VoltageSweeper(tmpl.AbstractMeasurement):
         # Set up the voltage values to sweep over
         self.config.voltage_sweep = np.linspace(0,1,10)
         
-
     def meas_sequence(self):
         
         #  Do the measurement
@@ -230,6 +229,26 @@ class VoltageSweeper(tmpl.AbstractMeasurement):
         resistance_ohms = p.polyfit_coefficients.sel(degree=1).values
 
         self.store_data_var('resistance_ohms',[resistance_ohms])
+
+        self.convert_units()
+
+
+    @tmpl.with_services(['Amps_to_mA'])
+    def convert_units(self):
+        """
+        Example of using services
+
+        This method uses the service Amps_to_mA which is defined in the 
+        main test sequence
+        """
+
+        current = self.current_results.current_A.values
+
+        # Use services function to convert to mA
+        self.store_data_var('current_mA',self.services.Amps_to_mA(current),
+                        coords=['swp_voltage'])
+
+
 
 # Measurement class that runs every time the temperature changes
 class Stabilise(tmpl.AbstractMeasurement):
@@ -312,6 +331,11 @@ class ExampleTestSequence(tmpl.AbstractTestManager):
         self.add_measurement(Stabilise)
         self.add_measurement(VoltageSweeper)
         self.add_measurement(TurnOff)
+
+
+    def define_services(self) -> None:
+
+        self.services.Amps_to_mA = lambda Amps: Amps*1000
 
 
     def initialise(self):
