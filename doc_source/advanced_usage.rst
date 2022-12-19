@@ -41,12 +41,265 @@ All of these data structures are objects of the class *ObjDict*. This means they
 
 Processing
 ----------
-TODO
+*Measurement* objects can have an optional method, *process()*, which if defined in the class will be called automatically after *meas_sequence()*. This method is intended for processing data that has been measured in *meas_sequence()*. Like *meas_sequence()* there are no restrictions on what can be done in *process()* its name is just a guideline.
+
+Here is an example of a *Measurement* class that includes a *process()* method:
+
+.. code-block:: python
+
+    class VoltageSweeper(tmpl.AbstractMeasurement):
+        """
+        Example of a Measurement that adds its own coordinates and has
+        a process method
+
+        Measurement method:
+
+        * Sweep voltage
+        * Measure current at each voltage step
+        * Process voltage and current to calculate resistances
+
+        """
+        name = 'VoltageSweep'
+
+        def initialise(self):
+
+            # Set up the voltage values to sweep over
+            self.config.voltage_sweep = np.linspace(0,1,10)
+            
+        def meas_sequence(self):
+            
+            #  Do the measurement
+            
+            current = np.zeros(self.config.voltage_sweep.shape)
+
+            for index,V in enumerate(self.config.voltage_sweep):
+                # Set voltage
+                self.voltage_supply.set_voltage(V,self.resistor)
+
+                # Measure current
+                current[index] = self.resistor.current_A
+
+            
+            # Store the data
+            self.store_coords('swp_voltage',self.config.voltage_sweep)
+            self.store_data_var('current_A',current,coords=['swp_voltage'])
+
+            # Debug point
+            self.log('finished sweep')
+
+
+        @tmpl.with_results(data_vars=['current_A'])
+        def process(self):
+
+            # Get measurement data for current set of conditions
+            ds = self.current_results
+
+            # Fit a line to current vs voltage
+            p = ds.current_A.polyfit('swp_voltage',1)
+
+            # Get resistance from slope of line
+            resistance_ohms = p.polyfit_coefficients.sel(degree=1).values
+
+            # Store data into self.ds_results
+            self.store_data_var('resistance_ohms',[resistance_ohms])
+
+
+The *process()* method in the example makes use of several TMPL features:
+
+* The *@tmpl.with_results* decorator is used to ensure that the data required for processing is present in the *self.ds_results* Dataset.
+* The *current_results* property is used to pull data from the last run of *meas_sequence()* into a local *xarray* Dataset that only contains data for the current *SetupConditions*.
+* The actual calculation makes use of *xarray* polynomial fitting to fit a line and get its slope.
+* Finally the result is store into *self.ds_results* using the *store_data_var()* method.
+
+Like any other method in the class *process()* can also access data in the other data storage properties: *config*, *local_data* and *global_data*. These can all be used for passing data between methods.
+
+The *process()* method can also be used as a top level method that calls other processing methods or functions.
+
+.. code-block:: python
+
+    def process(self):
+        """
+        Top level process method, call other method to do
+        actual processing
+
+        """
+        self.process_convert_degC_to_degK()
+        self.process_smooth_data()
+        self.process_curve_fit()
+
+    def process_convert_degC_to_degK(self):
+        # :
+
+    def process_smooth_data(self):
+        # :
+
+    def process_curve_fit(self):
+        # :
+
+
+Processing only classes
+++++++++++++++++++++++++
+There is no specific class for purely processing data. This is because it would just be the same as a *Measurement* class. However if you want to make a processing only class then it can either be done the same way as any other *Measurement* class, using the *meas_sequence()* method as the top level code or by creating an empty *meas_sequence()* and putting the main code in the *process()* method as in this example:
+
+.. code-block:: python
+
+    class ProcessOnly(tmp.AbstractMeasurement):
+
+        def meas_sequence(self):
+            # Empty method
+            pass
+
+        def process(self):
+            # Main code goes here
+            # :
+
+
+Post processing
+++++++++++++++++
+If post-processing is required after all measurements have been executed over all conditions then the class can be tagged to run only at the end in the teardown stage. 
+
+
+.. code-block:: python
+
+    class PostProcess(tmp.AbstractMeasurement):
+
+        def initialise(self):
+            # Tag this class to run only at the end
+            self.run_on_teardown(True)
+
+        def meas_sequence(self):
+            # Empty method
+            pass
+
+        def process(self):
+            # Main code goes here
+            # :
 
 
 Customisation
 -------------
-TODO
+All the TMPL objects have a *.config* property. From its name it is intended to hold configuration data. This is usually static values that are required for performing measurements or processing.
+
+
+.. code-block:: python
+
+    class CustomisableMeasurement(tmpl.Measurement):
+
+        def initialise(self):
+
+            # Add customisable parameters to self.config
+            self.config.number_averages = 16
+            self.config.ammeter_range_A = 0.01
+
+
+        def meas_sequence(self):
+            # Use config setting in measurement
+
+            # Instrument setting
+            self.ammeter.range_A = self.config.ammeter_range_A
+
+            # Measurement setting
+            readings = []
+            for n in self.config.number_averages:
+                readings.append(self.ammeter.read_current())
+
+            ave_current = np.mean(readings)
+
+
+The values defined in *.config* should be regarded as defaults. When running the *Measurement* from a *TestManager* sequence the values in *.config* can be changed for experimentation. For example if the *CustomisableMeasurement* class above were to be run from a *TestManager* sequence called *seq* then the *.config* settings can be changed by accessing them through the *TestManagers* *meas* property.
+
+.. code-block:: python
+
+    # Change a config value from TestManager object
+    seq.meas.CustomisableMeasurement.config.number_averages = 4
+
+
+Global configuration
++++++++++++++++++++++
+Setting configurations through each *Measurement* object may not always be desired, especially if *Measurement* objects share a common configuration value. For this reason  *TestManager* objects have *.config* properties that will be copied to all *Measurement* and *SetupCondition* objects when the *TestManager* object is created.
+
+
+.. code-block:: python
+
+    class SeqWithGlobalConfig(tmp.AbstractTestManager):
+        """
+        Test sequence that defines global config settings
+
+        """
+
+        def initialise(self):
+            # Define global config settings here
+            self.config.length_units = 'cm'
+            self.config.storage_path = '/home/experimental_data'
+
+
+        def define_setup_conditions(self):
+            # :
+
+        def define_measurements(self):
+            # :
+
+
+Another way to define global configuration settings is to pass a dictionary into the *TestManager* object when creating it. The contents of the dictionary will be copied into the *.config* property of the *TestManager* and all *Measurement* and *SetupCondition* objects contained inside it.
+
+.. code-block:: python
+
+    # Config values defined in external dict
+    my_config = {'serial_number':'B345',
+                'lab_name':'Maxwell_House'}
+
+    # resources
+    my_res = {'voltmeter':voltmeter_object}
+
+    # Pass config values as optional input argument
+    test_seq = SeqWithGlobalConfig(my_res,config=my_config)
+
+    # Access config values from TestManager object
+    test_seq.config.lab_name
+
+    # or measurement objects
+    test_seq.meas.VoltageSweep.config.serial_number
+
+    # or SetupCondition objects
+    test_seq.conditions.temperature.config.lab_name
+
+The global config settings will also be available at the individual class level from *self.config*, for example:
+
+.. code-block:: python
+
+    self.config.lab_name
+    self.config.serial_number
+
+Values passed in through a dictionary as shown above will **overwrite** config values with the **same name** defined locally in the classes. This is useful if several *Measurement* or *SetupCondition* classes rely on the same config setting. The default values can be defined locally in the class and overwritten by passing in a dictionary with same name as the local classes. The *serial_number* property in the code above is a good example of this. Many classes may want to know this value. The code below shows how this might work:
+
+.. code-block:: python
+
+    # Measurement classes
+    class Meas1(tmpl.AbstractMeasurement):
+
+        def initialise(self):
+            self.config.serial_number = 'default_ser_num'
+
+        # :
+
+    class Meas2(tmpl.AbstractMeasurement):
+
+        def initialise(self):
+            self.config.serial_number = 'default_ser_num'
+
+        # :
+
+
+    class TestSequence(tmpl.AbstractTestManager):
+
+        def initialise(self):
+            self.config.serial_number = 'default_ser_num'
+
+        # :
+
+    # Set serial number for all objects in test sequence
+    my_config = {'serial_number':'AG678'}
+    seq = TestSequence(resources,config=my_config)
 
 
 

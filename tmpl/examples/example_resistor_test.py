@@ -192,6 +192,11 @@ class VoltageSweeper(tmpl.AbstractMeasurement):
     Example of a Measurement that adds its own coordinates and has
     a process method
 
+    Measurement method:
+
+    * Sweep voltage
+    * Measure current at each voltage step
+    * Process voltage and current to calculate resistances
     """
     name = 'VoltageSweep'
 
@@ -225,9 +230,16 @@ class VoltageSweeper(tmpl.AbstractMeasurement):
     @tmpl.with_results(data_vars=['current_A'])
     def process(self):
 
-        p=self.current_results.current_A.polyfit('swp_voltage',1)
+        # Get measurement data for current set of conditions
+        ds = self.current_results
+
+        # Fit a line to current vs voltage
+        p = ds.current_A.polyfit('swp_voltage',1)
+
+        # Get resistance from slope of line
         resistance_ohms = p.polyfit_coefficients.sel(degree=1).values
 
+        # Store data into self.ds_results
         self.store_data_var('resistance_ohms',[resistance_ohms])
 
         self.convert_units()

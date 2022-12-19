@@ -79,11 +79,238 @@
 </section>
 <section id="processing">
 <h2>Processing<a class="headerlink" href="#processing" title="Permalink to this heading">¶</a></h2>
-<p>TODO</p>
+<p><em>Measurement</em> objects can have an optional method, <em>process()</em>, which if defined in the class will be called automatically after <em>meas_sequence()</em>. This method is intended for processing data that has been measured in <em>meas_sequence()</em>. Like <em>meas_sequence()</em> there are no restrictions on what can be done in <em>process()</em> its name is just a guideline.</p>
+<p>Here is an example of a <em>Measurement</em> class that includes a <em>process()</em> method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">VoltageSweeper</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Example of a Measurement that adds its own coordinates and has</span>
+<span class="sd">    a process method</span>
+
+<span class="sd">    Measurement method:</span>
+
+<span class="sd">    * Sweep voltage</span>
+<span class="sd">    * Measure current at each voltage step</span>
+<span class="sd">    * Process voltage and current to calculate resistances</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;VoltageSweep&#39;</span>
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># Set up the voltage values to sweep over</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">voltage_sweep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1">#  Do the measurement</span>
+
+        <span class="n">current</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">voltage_sweep</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span><span class="n">V</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">voltage_sweep</span><span class="p">):</span>
+            <span class="c1"># Set voltage</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">voltage_supply</span><span class="o">.</span><span class="n">set_voltage</span><span class="p">(</span><span class="n">V</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">resistor</span><span class="p">)</span>
+
+            <span class="c1"># Measure current</span>
+            <span class="n">current</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resistor</span><span class="o">.</span><span class="n">current_A</span>
+
+
+        <span class="c1"># Store the data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store_coords</span><span class="p">(</span><span class="s1">&#39;swp_voltage&#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">voltage_sweep</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store_data_var</span><span class="p">(</span><span class="s1">&#39;current_A&#39;</span><span class="p">,</span><span class="n">current</span><span class="p">,</span><span class="n">coords</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;swp_voltage&#39;</span><span class="p">])</span>
+
+        <span class="c1"># Debug point</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s1">&#39;finished sweep&#39;</span><span class="p">)</span>
+
+
+    <span class="nd">@tmpl</span><span class="o">.</span><span class="n">with_results</span><span class="p">(</span><span class="n">data_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;current_A&#39;</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># Get measurement data for current set of conditions</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_results</span>
+
+        <span class="c1"># Fit a line to current vs voltage</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">current_A</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="s1">&#39;swp_voltage&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Get resistance from slope of line</span>
+        <span class="n">resistance_ohms</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">polyfit_coefficients</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">degree</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="c1"># Store data into self.ds_results</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store_data_var</span><span class="p">(</span><span class="s1">&#39;resistance_ohms&#39;</span><span class="p">,[</span><span class="n">resistance_ohms</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The <em>process()</em> method in the example makes use of several TMPL features:</p>
+<ul class="simple">
+<li><p>The <em>&#64;tmpl.with_results</em> decorator is used to ensure that the data required for processing is present in the <em>self.ds_results</em> Dataset.</p></li>
+<li><p>The <em>current_results</em> property is used to pull data from the last run of <em>meas_sequence()</em> into a local <em>xarray</em> Dataset that only contains data for the current <em>SetupConditions</em>.</p></li>
+<li><p>The actual calculation makes use of <em>xarray</em> polynomial fitting to fit a line and get its slope.</p></li>
+<li><p>Finally the result is store into <em>self.ds_results</em> using the <em>store_data_var()</em> method.</p></li>
+</ul>
+<p>Like any other method in the class <em>process()</em> can also access data in the other data storage properties: <em>config</em>, <em>local_data</em> and <em>global_data</em>. These can all be used for passing data between methods.</p>
+<p>The <em>process()</em> method can also be used as a top level method that calls other processing methods or functions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Top level process method, call other method to do</span>
+<span class="sd">    actual processing</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">process_convert_degC_to_degK</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">process_smooth_data</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">process_curve_fit</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">process_convert_degC_to_degK</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># :</span>
+
+<span class="k">def</span> <span class="nf">process_smooth_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># :</span>
+
+<span class="k">def</span> <span class="nf">process_curve_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># :</span>
+</pre></div>
+</div>
+<section id="processing-only-classes">
+<h3>Processing only classes<a class="headerlink" href="#processing-only-classes" title="Permalink to this heading">¶</a></h3>
+<p>There is no specific class for purely processing data. This is because it would just be the same as a <em>Measurement</em> class. However if you want to make a processing only class then it can either be done the same way as any other <em>Measurement</em> class, using the <em>meas_sequence()</em> method as the top level code or by creating an empty <em>meas_sequence()</em> and putting the main code in the <em>process()</em> method as in this example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ProcessOnly</span><span class="p">(</span><span class="n">tmp</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Empty method</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Main code goes here</span>
+        <span class="c1"># :</span>
+</pre></div>
+</div>
+</section>
+<section id="post-processing">
+<h3>Post processing<a class="headerlink" href="#post-processing" title="Permalink to this heading">¶</a></h3>
+<p>If post-processing is required after all measurements have been executed over all conditions then the class can be tagged to run only at the end in the teardown stage.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">PostProcess</span><span class="p">(</span><span class="n">tmp</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Tag this class to run only at the end</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_on_teardown</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Empty method</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Main code goes here</span>
+        <span class="c1"># :</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="customisation">
 <h2>Customisation<a class="headerlink" href="#customisation" title="Permalink to this heading">¶</a></h2>
-<p>TODO</p>
+<p>All the TMPL objects have a <em>.config</em> property. From its name it is intended to hold configuration data. This is usually static values that are required for performing measurements or processing.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CustomisableMeasurement</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">Measurement</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># Add customisable parameters to self.config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">number_averages</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ammeter_range_A</span> <span class="o">=</span> <span class="mf">0.01</span>
+
+
+    <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Use config setting in measurement</span>
+
+        <span class="c1"># Instrument setting</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ammeter</span><span class="o">.</span><span class="n">range_A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ammeter_range_A</span>
+
+        <span class="c1"># Measurement setting</span>
+        <span class="n">readings</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">number_averages</span><span class="p">:</span>
+            <span class="n">readings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ammeter</span><span class="o">.</span><span class="n">read_current</span><span class="p">())</span>
+
+        <span class="n">ave_current</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">readings</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The values defined in <em>.config</em> should be regarded as defaults. When running the <em>Measurement</em> from a <em>TestManager</em> sequence the values in <em>.config</em> can be changed for experimentation. For example if the <em>CustomisableMeasurement</em> class above were to be run from a <em>TestManager</em> sequence called <em>seq</em> then the <em>.config</em> settings can be changed by accessing them through the <em>TestManagers</em> <em>meas</em> property.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Change a config value from TestManager object</span>
+<span class="n">seq</span><span class="o">.</span><span class="n">meas</span><span class="o">.</span><span class="n">CustomisableMeasurement</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">number_averages</span> <span class="o">=</span> <span class="mi">4</span>
+</pre></div>
+</div>
+<section id="global-configuration">
+<h3>Global configuration<a class="headerlink" href="#global-configuration" title="Permalink to this heading">¶</a></h3>
+<p>Setting configurations through each <em>Measurement</em> object may not always be desired, especially if <em>Measurement</em> objects share a common configuration value. For this reason  <em>TestManager</em> objects have <em>.config</em> properties that will be copied to all <em>Measurement</em> and <em>SetupCondition</em> objects when the <em>TestManager</em> object is created.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SeqWithGlobalConfig</span><span class="p">(</span><span class="n">tmp</span><span class="o">.</span><span class="n">AbstractTestManager</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test sequence that defines global config settings</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Define global config settings here</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">length_units</span> <span class="o">=</span> <span class="s1">&#39;cm&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">storage_path</span> <span class="o">=</span> <span class="s1">&#39;/home/experimental_data&#39;</span>
+
+
+    <span class="k">def</span> <span class="nf">define_setup_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># :</span>
+
+    <span class="k">def</span> <span class="nf">define_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># :</span>
+</pre></div>
+</div>
+<p>Another way to define global configuration settings is to pass a dictionary into the <em>TestManager</em> object when creating it. The contents of the dictionary will be copied into the <em>.config</em> property of the <em>TestManager</em> and all <em>Measurement</em> and <em>SetupCondition</em> objects contained inside it.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Config values defined in external dict</span>
+<span class="n">my_config</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;serial_number&#39;</span><span class="p">:</span><span class="s1">&#39;B345&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;lab_name&#39;</span><span class="p">:</span><span class="s1">&#39;Maxwell_House&#39;</span><span class="p">}</span>
+
+<span class="c1"># resources</span>
+<span class="n">my_res</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;voltmeter&#39;</span><span class="p">:</span><span class="n">voltmeter_object</span><span class="p">}</span>
+
+<span class="c1"># Pass config values as optional input argument</span>
+<span class="n">test_seq</span> <span class="o">=</span> <span class="n">SeqWithGlobalConfig</span><span class="p">(</span><span class="n">my_res</span><span class="p">,</span><span class="n">config</span><span class="o">=</span><span class="n">my_config</span><span class="p">)</span>
+
+<span class="c1"># Access config values from TestManager object</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">lab_name</span>
+
+<span class="c1"># or measurement objects</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">meas</span><span class="o">.</span><span class="n">VoltageSweep</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">serial_number</span>
+
+<span class="c1"># or SetupCondition objects</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">conditions</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">lab_name</span>
+</pre></div>
+</div>
+<p>The global config settings will also be available at the individual class level from <em>self.config</em>, for example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">lab_name</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">serial_number</span>
+</pre></div>
+</div>
+<p>Values passed in through a dictionary as shown above will <strong>overwrite</strong> config values with the <strong>same name</strong> defined locally in the classes. This is useful if several <em>Measurement</em> or <em>SetupCondition</em> classes rely on the same config setting. The default values can be defined locally in the class and overwritten by passing in a dictionary with same name as the local classes. The <em>serial_number</em> property in the code above is a good example of this. Many classes may want to know this value. The code below shows how this might work:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Measurement classes</span>
+<span class="k">class</span> <span class="nc">Meas1</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">serial_number</span> <span class="o">=</span> <span class="s1">&#39;default_ser_num&#39;</span>
+
+    <span class="c1"># :</span>
+
+<span class="k">class</span> <span class="nc">Meas2</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">serial_number</span> <span class="o">=</span> <span class="s1">&#39;default_ser_num&#39;</span>
+
+    <span class="c1"># :</span>
+
+
+<span class="k">class</span> <span class="nc">TestSequence</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractTestManager</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">serial_number</span> <span class="o">=</span> <span class="s1">&#39;default_ser_num&#39;</span>
+
+    <span class="c1"># :</span>
+
+<span class="c1"># Set serial number for all objects in test sequence</span>
+<span class="n">my_config</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;serial_number&#39;</span><span class="p">:</span><span class="s1">&#39;AG678&#39;</span><span class="p">}</span>
+<span class="n">seq</span> <span class="o">=</span> <span class="n">TestSequence</span><span class="p">(</span><span class="n">resources</span><span class="p">,</span><span class="n">config</span><span class="o">=</span><span class="n">my_config</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
 </section>
 <section id="services">
 <h2>Services<a class="headerlink" href="#services" title="Permalink to this heading">¶</a></h2>
@@ -249,8 +476,15 @@
     <ul>
 <li><a class="reference internal" href="#">TMPL Advanced usage</a><ul>
 <li><a class="reference internal" href="#data">Data</a></li>
-<li><a class="reference internal" href="#processing">Processing</a></li>
-<li><a class="reference internal" href="#customisation">Customisation</a></li>
+<li><a class="reference internal" href="#processing">Processing</a><ul>
+<li><a class="reference internal" href="#processing-only-classes">Processing only classes</a></li>
+<li><a class="reference internal" href="#post-processing">Post processing</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#customisation">Customisation</a><ul>
+<li><a class="reference internal" href="#global-configuration">Global configuration</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#services">Services</a><ul>
 <li><a class="reference internal" href="#adding-services-to-testmanager-class">Adding Services to <em>TestManager</em> class</a></li>
 <li><a class="reference internal" href="#services-from-measurement-and-setupcondition-classes">Services from <em>Measurement</em> and <em>SetupCondition</em> classes</a></li>

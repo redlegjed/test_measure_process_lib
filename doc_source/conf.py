@@ -51,7 +51,7 @@ exclude_patterns = []
 # a list of builtin themes.
 #
 html_theme = 'classic'
-pygments_style =  'stata-dark' # 'monokai'#
+pygments_style =  'one-dark' #'stata-dark'  'monokai'#
 
 # # These folders are copied to the documentation's HTML output
 # html_static_path = ['_static']

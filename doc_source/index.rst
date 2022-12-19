@@ -18,6 +18,7 @@ The Test, Measure, Process Library (TMPL) is a modular framework for running seq
    getting_started
    tmpl_class_reference
    advanced_usage
+   howto.rst
    
 
 Indices and tables
