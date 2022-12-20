@@ -456,8 +456,8 @@ When a *TestManager* sequence is executed using the *run()* method it creates a 
 
 
 
-Sequencing
-++++++++++
+Sequencing example
+++++++++++++++++++++
 This section will go through an example of sequencing measurements. We will start with the *TestManager* definition for the simple resistor measurement.
 
 .. code-block:: python

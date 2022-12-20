@@ -10,9 +10,10 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('..'))
+print(sys.path)
 
 
 # -- Project information -----------------------------------------------------
@@ -107,6 +108,7 @@ html_logo = 'images/tmpl_dark_logo.png'
 
 # Autodoc settings
 autoclass_content = 'both'
-autodoc_member_order = 'groupwise'
+autodoc_member_order = 'bysource'
+toc_object_entries_show_parents = 'hide'
 
 

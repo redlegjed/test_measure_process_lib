@@ -495,11 +495,11 @@ class CommonUtility():
             by default []
             Can also be a dict if a specific coordinate value is being
             requested
-            e.g. {'trib':'XI'}
+            e.g. {'Resistor':'R1'}
             If some coordinates need specific values and others do not then
             they can be mixed in the dict by setting the value to None for those
             that do not have a value
-            e.g. {'trib':'XI','sweep_voltage':None}
+            e.g. {'Resistor':'R1','sweep_voltage':None}
 
         Raises
         ------
@@ -864,18 +864,18 @@ class CommonUtility():
 class AbstractTestManager(abc.ABC,CommonUtility):
     """
     Test manager class template definition
-    Test manager is responsible for running measurements over multiple conditions
+
+    TestManagers are responsible for running measurements over multiple conditions
     and collecting up all the data.
 
-    Measurements are implemented as class that inherit from AbstractMeasurement.
+    Measurements are implemented as classes that inherit from AbstractMeasurement.
     Setup conditions are classes based on AbstractSetupConditions.
 
     Measurements and setup conditions are held in dictionaries that are class
     properties:
+
         * self.meas : contains all available measurements for this test
         * self.conditions : all conditions classes for this test
-
-    
     """
     name = ''
 
@@ -892,7 +892,10 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         config : dict, optional
             Configuration settings dictionary. Can be used to store 
             settings and options for measurements. These should be 'standard'
-            python variable types, like strings, numbers, lists and dicts
+            python variable types, like strings, numbers, lists and dicts.
+            Values entered in this dict will OVERWRITE anything with the same
+            name in the *self.config* property of *Measurement* and 
+            *SetupConditions* classes.
         """
 
         # Main components
@@ -1099,11 +1102,16 @@ class AbstractTestManager(abc.ABC,CommonUtility):
             Conditions are specified as key value pairs
             e.g.
                 conditions = [dict(temperature_degC=34,humidity=50)]
+
                 conditions = [{'temperature_degC':34,'humidity':50}]
+
                 conditions = [{'temperature_degC':40,'humidity':50}]
+
                 conditions = [
                     {'temperature_degC':25,'humidity':50},
+
                     {'temperature_degC':40,'wavelength_nm':1560},
+
                     ]
 
 
@@ -1750,7 +1758,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         class Temperature():
             ...
 
-        testseq.add_condition(Temperature)
+        testseq.add_setup_condition(Temperature)
 
         Parameters
         ----------
@@ -1808,8 +1816,13 @@ class AbstractTestManager(abc.ABC,CommonUtility):
                 * list : List of states, same names as for str
                 * dict : This is primarily for the 'setup' and 'after' states
                          where a condition needs to be specified.
-                         Here the format would be {'setup':'<Condition name>'}
-                         or {'after':'<Condition name>'}
+                         Here the format would be 
+
+                         {'setup':'<Condition name>'}
+
+                         or 
+                         
+                         {'after':'<Condition name>'}
 
         """
         if meas_name=='':
@@ -2192,15 +2205,17 @@ class AbstractTestManager(abc.ABC,CommonUtility):
     def define_setup_conditions(self):
         """
         Define setup condition classes to be used for this test.
-        This means populating the _self.conditions_ property.
+        
+        All that is required is to add *SetupCondition* classes using the
+        *add_setup_condition()* method as shown below:
 
         Example usage
 
-        ```python
-        def define_setup_conditions(self):
-            self.condition['temperature_degC'] = TemperatureConditions(self.resources,values=[25,35,45])
-            self.condition['humidity_pc'] = HumidityConditions(self.resources,values=[25,35,45])
-        ```
+        .. code-block:: python
+
+            def define_setup_conditions(self):
+                self.add_setup_condition(TemperatureConditions)
+                self.add_setup_condition(HumidityConditions)
 
         Returns
         -------
@@ -2213,15 +2228,19 @@ class AbstractTestManager(abc.ABC,CommonUtility):
     def define_measurements(self):
         """
         Define measurement classes to be used for this test.
-        This means populating the _self.meas_ property.
+
+        All that is required is to add *Measurement* classes using the
+        *add_measurement()* method as shown below:
 
         Example usage
 
-        ```python
-        def define_measurements(self):
-            self.meas['SweepVoltage'] = SweepVoltageMeasurement(self.resources)
-            self.meas['SweepCurrent'] = SweepCurrentMeasurement(self.resources)
-        ```
+        .. code-block:: python
+
+            def define_measurements(self):
+                self.add_measurement(TurnOn)
+                self.add_measurement(Stabilise)
+                self.add_measurement(VoltageSweeper)
+                self.add_measurement(TurnOff)
 
         Returns
         -------
@@ -2925,14 +2944,17 @@ class AbstractSetupConditions(abc.ABC,CommonUtility):
         Get/Set the condition setpoint
 
         e.g.
+
         >>> cond_temperature_degC.setpoint = 25
+
         >>> cond_temperature_degC.setpoint
+
         25
 
         Raises
         ------
         NotImplementedError
-            [description]
+            If user has not defined this property in *SetupCondition* class
         """
         raise NotImplemented('SetupConditions setpoint property not implemented')
 
@@ -2952,14 +2974,17 @@ class AbstractSetupConditions(abc.ABC,CommonUtility):
         Read only value
 
         e.g.
+
         >>> cond_temperature_degC.setpoint = 25
+
         >>> cond_temperature_degC.actual
+
         25.2
 
         Raises
         ------
         NotImplementedError
-            [description]
+            If user has not defined this property in *SetupCondition* class
         """
         raise NotImplemented('SetupConditions actual property not implemented')
 

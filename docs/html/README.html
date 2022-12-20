@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Installation &#8212; Test, Measure, Process Library 0.1.0 documentation</title>
+    <title>Documentation building &#8212; Test, Measure, Process Library 0.1.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
@@ -18,9 +18,7 @@
     <script src="_static/sphinx_highlight.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Getting Started" href="getting_started.html" />
-    <link rel="prev" title="Test, Measure, Process Library (TMPL) documentation" href="index.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -29,13 +27,10 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="getting_started.html" title="Getting Started"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="index.html" title="Test, Measure, Process Library (TMPL) documentation"
-             accesskey="P">previous</a> |</li>
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.0 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Installation</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Documentation building</a></li> 
       </ul>
     </div>  
 
@@ -44,20 +39,25 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶</a></h1>
-<p>TMPL depends on these libraries.</p>
+  <section id="documentation-building">
+<h1>Documentation building<a class="headerlink" href="#documentation-building" title="Permalink to this heading">¶</a></h1>
 <ul class="simple">
-<li><p><a class="reference external" href="http://xarray.pydata.org/en/stable/">xarray</a></p></li>
-<li><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/">pandas</a></p></li>
+<li><p>Documentation is built using <a class="reference external" href="https://www.sphinx-doc.org/en/master/">Sphinx</a></p></li>
+<li><p>Published on github pages following <a class="reference external" href="https://coderefinery.github.io/documentation/gh_workflow/#">these instructions</a></p></li>
 </ul>
-<p>TMPL can be installed locally by cloning the repository to a local folder and then installing with pip</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> &lt;local_path&gt;
-git clone https://github.com/redlegjed/test_measure_process_lib.git
-pip install -e &lt;local_path&gt;/test_measure_process_lib
+<section id="checking-links">
+<h2>Checking links<a class="headerlink" href="#checking-links" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sphinx-build docs/source -W -b linkcheck -d docs/build/doctrees docs/build/html
 </pre></div>
 </div>
-<p>Note that this does not install the dependencies. This is in case another package manager, e.g. Anaconda, is being used. So they have to be manually installed.</p>
+</section>
+<section id="build">
+<h2>Build<a class="headerlink" href="#build" title="Permalink to this heading">¶</a></h2>
+<p>Build the documentation from <em>test_measure_process_lib</em> with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sphinx-build -b html doc_source docs
+</pre></div>
+</div>
+</section>
 </section>
 
 
@@ -71,19 +71,20 @@ pip install -e &lt;local_path&gt;/test_measure_process_lib
               <img class="logo" src="_static/tmpl_dark_logo.png" alt="Logo"/>
             </a></p>
   <div>
-    <h4>Previous topic</h4>
-    <p class="topless"><a href="index.html"
-                          title="previous chapter">Test, Measure, Process Library (TMPL)  documentation</a></p>
-  </div>
-  <div>
-    <h4>Next topic</h4>
-    <p class="topless"><a href="getting_started.html"
-                          title="next chapter">Getting Started</a></p>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Documentation building</a><ul>
+<li><a class="reference internal" href="#checking-links">Checking links</a></li>
+<li><a class="reference internal" href="#build">Build</a></li>
+</ul>
+</li>
+</ul>
+
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/installation.rst.txt"
+      <li><a href="_sources/README.md.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -108,13 +109,10 @@ pip install -e &lt;local_path&gt;/test_measure_process_lib
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="getting_started.html" title="Getting Started"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="index.html" title="Test, Measure, Process Library (TMPL) documentation"
-             >previous</a> |</li>
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.0 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Installation</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Documentation building</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

@@ -19,6 +19,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="TMPL Application Programming Interface" href="api.html" />
     <link rel="prev" title="TMPL Advanced usage" href="advanced_usage.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -27,6 +28,12 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="TMPL Application Programming Interface"
+             accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="advanced_usage.html" title="TMPL Advanced usage"
              accesskey="P">previous</a> |</li>
@@ -44,12 +51,32 @@
 <h1>How to …<a class="headerlink" href="#how-to" title="Permalink to this heading">¶</a></h1>
 <p>A collection or recipes for how to do various things in TMPL.</p>
 <section id="how-to-access-measured-data">
-<h2>How to access measured data<a class="headerlink" href="#how-to-access-measured-data" title="Permalink to this heading">¶</a></h2>
+<h2>How to access measured data?<a class="headerlink" href="#how-to-access-measured-data" title="Permalink to this heading">¶</a></h2>
 <p>Measured data is stored in the <em>.ds_results</em> property of any TMPL object. Data from all measurements can be accessed from the top level <em>TestManager</em> object:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">test_seq</span><span class="o">.</span><span class="n">ds_results</span>
 </pre></div>
 </div>
 <p><em>.ds_results</em> is an <a class="reference external" href="http://xarray.pydata.org/en/stable/">xarray</a> <em>Dataset</em> object.</p>
+</section>
+<section id="how-to-repeat-a-test-sequence-multiple-times">
+<h2>How to repeat a test sequence multiple times?<a class="headerlink" href="#how-to-repeat-a-test-sequence-multiple-times" title="Permalink to this heading">¶</a></h2>
+<p>Repeating a whole test sequence can be done multiple times by enabling the <em>Iteration</em> condition. This is a <em>SetupCondition</em> class that is populated by default but disabled. It is a counter where you set the number of iterations of the test sequence. To set multiple runs through the sequence follow the code below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enable Iteration condition</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">conditions</span><span class="o">.</span><span class="n">Iteration</span><span class="o">.</span><span class="n">enable</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># Set iterations as a list, e.g. for 3 iterations</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">conditions</span><span class="o">.</span><span class="n">Iteration</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+
+<span class="c1"># For many iterations use a list comprehension</span>
+<span class="n">test_seq</span><span class="o">.</span><span class="n">conditions</span><span class="o">.</span><span class="n">Iteration</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p><strong>WARNING</strong> When iterating a whole sequence make sure that the code in the <em>Measurement</em> and <em>SetupCondition</em> classes can handle this, i.e. instrument settings are reset at the start of the sequence.</p>
+<p>After the iterations have finished inspect the <em>test_seq.df_results</em> property. There will be a coordinate called <em>Iteration</em> for all measured data.</p>
+</section>
+<section id="how-to-add-a-timestamp-to-df-results">
+<h2>How to add a timestamp to <em>df_results</em><a class="headerlink" href="#how-to-add-a-timestamp-to-df-results" title="Permalink to this heading">¶</a></h2>
+<p>This is done automatically. A <em>Measurement</em> called <em>Timestamp</em> is always added to every test sequence.</p>
 </section>
 </section>
 
@@ -67,7 +94,9 @@
     <h3><a href="index.html">Table of Contents</a></h3>
     <ul>
 <li><a class="reference internal" href="#">How to …</a><ul>
-<li><a class="reference internal" href="#how-to-access-measured-data">How to access measured data</a></li>
+<li><a class="reference internal" href="#how-to-access-measured-data">How to access measured data?</a></li>
+<li><a class="reference internal" href="#how-to-repeat-a-test-sequence-multiple-times">How to repeat a test sequence multiple times?</a></li>
+<li><a class="reference internal" href="#how-to-add-a-timestamp-to-df-results">How to add a timestamp to <em>df_results</em></a></li>
 </ul>
 </li>
 </ul>
@@ -77,6 +106,11 @@
     <h4>Previous topic</h4>
     <p class="topless"><a href="advanced_usage.html"
                           title="previous chapter">TMPL Advanced usage</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="api.html"
+                          title="next chapter">TMPL Application Programming Interface</a></p>
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
@@ -105,6 +139,12 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="TMPL Application Programming Interface"
+             >next</a> |</li>
         <li class="right" >
           <a href="advanced_usage.html" title="TMPL Advanced usage"
              >previous</a> |</li>
