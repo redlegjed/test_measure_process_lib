@@ -303,6 +303,22 @@ class TurnOff(tmpl.AbstractMeasurement):
 
     def meas_sequence(self):
         self.log('TurnOff measurement')
+
+
+# class HandleError(tmpl.AbstractMeasurement):
+#     """
+#     Handle any errors generated
+#     e.g. shut off critical equipment, store data etc
+
+#     """
+
+#     def initialise(self):
+#         self.run_on_error(True)
+
+#     def meas_sequence(self):
+#         self.log('Error handler')
+
+
 #================================================================
 #%% Test Manager class
 #================================================================
@@ -333,6 +349,7 @@ class ExampleTestSequence(tmpl.AbstractTestManager):
         self.add_setup_condition(TemperatureConditions)
         self.add_setup_condition(HumidityConditions)
 
+
     def define_measurements(self):
         """
         Add measurements here in the order of execution
@@ -343,6 +360,9 @@ class ExampleTestSequence(tmpl.AbstractTestManager):
         self.add_measurement(Stabilise)
         self.add_measurement(VoltageSweeper)
         self.add_measurement(TurnOff)
+
+        # Go here if errors occur
+        # self.add_measurement(HandleError)
 
 
     def define_services(self) -> None:
@@ -358,6 +378,30 @@ class ExampleTestSequence(tmpl.AbstractTestManager):
         self.information.serial_number = 'example_sn'
         self.information.part_number = 'example_pn'
  
+class ExampleTesWithMeasSequencing(ExampleTestSequence):
+    """
+    Example test sequence where the measurement sequencing is done
+    from inside define_measurements instead of inside the Measurement
+    classes
+
+    """
+
+    def define_measurements(self):
+        """
+        Add measurements here in the order of execution
+        """
+
+        # Setup links to all the measurements
+        self.add_measurement(TurnOn,run_state=self.RUN_STAGE_STARTUP)
+        self.add_measurement(Stabilise,
+                        run_state={self.RUN_STAGE_SETUP:'temperature_degC'})
+        self.add_measurement(VoltageSweeper)
+        self.add_measurement(TurnOff,run_state=self.RUN_STAGE_TEARDOWN)
+
+        # Go here if errors occur
+        # self.add_measurement(HandleError,run_state=self.RUN_STAGE_ERROR)
+
+
 #================================================================
 #%% Runner
 #================================================================

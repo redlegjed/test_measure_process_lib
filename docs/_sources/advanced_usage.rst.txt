@@ -456,12 +456,160 @@ When a *TestManager* sequence is executed using the *run()* method it creates a 
 
 
 
-
-
-
 Sequencing
 ++++++++++
-TODO
+This section will go through an example of sequencing measurements. We will start with the *TestManager* definition for the simple resistor measurement.
+
+.. code-block:: python
+
+    class ExampleTestSequence(tmpl.AbstractTestManager):
+        """
+        Example test sequence
+
+        Runs a dummy measurement sequence over temperature and humidity conditions.
+
+        Measurement sequence is:
+
+        * Turn on equipment
+        * Wait for stabilisation
+        * Run a voltage sweep
+        * Turn off equipment
+
+        """
+        name = 'ExampleResistorTest'
+
+        def define_setup_conditions(self):
+            """
+            Add the setup conditions here in the order that they should be set
+            """
+
+            self.add_setup_condition(TemperatureConditions)
+            self.add_setup_condition(HumidityConditions)
 
 
+        def define_measurements(self):
+            """
+            Add measurements here in the order of execution
+            """
 
+            # Setup links to all the measurements
+            self.add_measurement(TurnOn)  # Run on startup
+            self.add_measurement(Stabilise) # Run after temperature is set
+            self.add_measurement(VoltageSweeper) # Run in main loop
+            self.add_measurement(TurnOff) # Run on teardown
+
+            # Go here if errors occur
+            self.add_measurement(HandleError) # Run on error
+
+
+Looking at the *define_measurements()* method at the end of the class definition, the comments indicate where we want each *Measurement* class to run. There are two ways to set when *Measurement* classes run:
+
+Set run state in class definition
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The first method is to set the run state from within the *Measurement* class definition itself. The code below shows the class definitions for *TurnOn*, *TurnOff*, *Stabilise* and *HandleError*. For each class the run state is set in the *initialise()* method.
+
+.. code-block:: python
+
+    class TurnOn(tmpl.AbstractMeasurement):
+        """
+        Turn on all equipment
+        """
+
+        def initialise(self):
+            self.run_on_startup(True) # <- Set run state
+
+
+        def meas_sequence(self):
+            self.log('TurnOn measurement')
+
+
+    class TurnOff(tmpl.AbstractMeasurement):
+        """
+        Turn off all equipment
+        """
+
+        def initialise(self):
+            self.run_on_teardown(True) # <- Set run state
+
+
+        def meas_sequence(self):
+            self.log('TurnOff measurement')
+
+
+    class HandleError(tmpl.AbstractMeasurement):
+        """
+        Handle any errors generated
+        e.g. shut off critical equipment, store data etc
+        """
+
+        def initialise(self):
+            self.run_on_error(True) # <- Set run state
+
+        def meas_sequence(self):
+            self.log('Error handler')
+    
+
+    class Stabilise(tmpl.AbstractMeasurement):
+        """
+        Wait for stabilisation
+        - only run this after temperature has be set
+        """
+
+        def initialise(self):
+            # Run in the "Setup" stage only after 
+            # temperature has been set
+            self.run_on_setup('temperature_degC')
+
+        def meas_sequence(self):
+            self.log('Stabilising')
+
+
+Setting the run state is mostly a boolean operation. However when using *run_on_setup* the name of the condition is specified. This is the value of the *name* property of the *SetupCondition* class. If *name* was not specified in the class definition then it will default to the class name. In the example above it is assumed that *name* in the *TemperatureConditions* class is "temperature_degC".
+
+
+Set run state from *define_measurements*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+An alterative way to set the run state is from inside the *TestManager* class definition. This is better if the same *Measurement* class is reused in different sequences where it might be required to run in different states.
+
+Here is a revised version of the *define_measurements* method with the run state settings added:
+
+.. code-block:: python
+
+
+    def define_measurements(self):
+        """
+        Add measurements here in the order of execution
+        - Also add the run state of each measurement
+        """
+
+        # Setup links to all the measurements
+        self.add_measurement(TurnOn,run_state=self.RUN_STAGE_STARTUP)
+
+        self.add_measurement(Stabilise,
+                                run_state={self.RUN_STAGE_SETUP:'temperature_degC'})
+
+        # Runs in main loop no need to set state
+        self.add_measurement(VoltageSweeper) 
+
+        self.add_measurement(TurnOff,run_state=self.RUN_STAGE_TEARDOWN)
+
+        # Go here if errors occur
+        self.add_measurement(HandleError,run_state=self.RUN_STAGE_ERROR)
+
+
+The *define_measurements* method has an optional keyword argument *run_state* which takes a string, list or dict as the input. For convenience the string values are all properties of the *TestManager* class with the prefix *RUN_STAGE_*. They are listed below:
+
+.. code-block:: python
+
+    # Run stages
+    # These labels are used to reference all the stages where a measurement
+    # can be run
+    RUN_STAGE_STARTUP = 'STARTUP'
+    RUN_STAGE_TEARDOWN = 'TEARDOWN'
+    RUN_STAGE_SETUP = 'SETUP'
+    RUN_STAGE_MAIN = 'MAIN'
+    RUN_STAGE_AFTER = 'AFTER'
+    RUN_STAGE_ERROR = 'ERROR'
+
+    

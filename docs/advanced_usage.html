@@ -19,6 +19,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="How to …" href="howto.html" />
     <link rel="prev" title="Class Reference" href="tmpl_class_reference.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -27,6 +28,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="howto.html" title="How to …"
+             accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="tmpl_class_reference.html" title="Class Reference"
              accesskey="P">previous</a> |</li>
@@ -456,7 +460,145 @@
 </ul>
 <section id="sequencing">
 <h3>Sequencing<a class="headerlink" href="#sequencing" title="Permalink to this heading">¶</a></h3>
-<p>TODO</p>
+<p>This section will go through an example of sequencing measurements. We will start with the <em>TestManager</em> definition for the simple resistor measurement.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ExampleTestSequence</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractTestManager</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Example test sequence</span>
+
+<span class="sd">    Runs a dummy measurement sequence over temperature and humidity conditions.</span>
+
+<span class="sd">    Measurement sequence is:</span>
+
+<span class="sd">    * Turn on equipment</span>
+<span class="sd">    * Wait for stabilisation</span>
+<span class="sd">    * Run a voltage sweep</span>
+<span class="sd">    * Turn off equipment</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;ExampleResistorTest&#39;</span>
+
+    <span class="k">def</span> <span class="nf">define_setup_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add the setup conditions here in the order that they should be set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_setup_condition</span><span class="p">(</span><span class="n">TemperatureConditions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_setup_condition</span><span class="p">(</span><span class="n">HumidityConditions</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">define_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add measurements here in the order of execution</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Setup links to all the measurements</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">TurnOn</span><span class="p">)</span>  <span class="c1"># Run on startup</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">Stabilise</span><span class="p">)</span> <span class="c1"># Run after temperature is set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">VoltageSweeper</span><span class="p">)</span> <span class="c1"># Run in main loop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">TurnOff</span><span class="p">)</span> <span class="c1"># Run on teardown</span>
+
+        <span class="c1"># Go here if errors occur</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">HandleError</span><span class="p">)</span> <span class="c1"># Run on error</span>
+</pre></div>
+</div>
+<p>Looking at the <em>define_measurements()</em> method at the end of the class definition, the comments indicate where we want each <em>Measurement</em> class to run. There are two ways to set when <em>Measurement</em> classes run:</p>
+<section id="set-run-state-in-class-definition">
+<h4>Set run state in class definition<a class="headerlink" href="#set-run-state-in-class-definition" title="Permalink to this heading">¶</a></h4>
+<p>The first method is to set the run state from within the <em>Measurement</em> class definition itself. The code below shows the class definitions for <em>TurnOn</em>, <em>TurnOff</em>, <em>Stabilise</em> and <em>HandleError</em>. For each class the run state is set in the <em>initialise()</em> method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">TurnOn</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Turn on all equipment</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_on_startup</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># &lt;- Set run state</span>
+
+
+    <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s1">&#39;TurnOn measurement&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">TurnOff</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Turn off all equipment</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_on_teardown</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># &lt;- Set run state</span>
+
+
+    <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s1">&#39;TurnOff measurement&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">HandleError</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Handle any errors generated</span>
+<span class="sd">    e.g. shut off critical equipment, store data etc</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_on_error</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># &lt;- Set run state</span>
+
+    <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s1">&#39;Error handler&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Stabilise</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wait for stabilisation</span>
+<span class="sd">    - only run this after temperature has be set</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Run in the &quot;Setup&quot; stage only after</span>
+        <span class="c1"># temperature has been set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_on_setup</span><span class="p">(</span><span class="s1">&#39;temperature_degC&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s1">&#39;Stabilising&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Setting the run state is mostly a boolean operation. However when using <em>run_on_setup</em> the name of the condition is specified. This is the value of the <em>name</em> property of the <em>SetupCondition</em> class. If <em>name</em> was not specified in the class definition then it will default to the class name. In the example above it is assumed that <em>name</em> in the <em>TemperatureConditions</em> class is “temperature_degC”.</p>
+</section>
+<section id="set-run-state-from-define-measurements">
+<h4>Set run state from <em>define_measurements</em><a class="headerlink" href="#set-run-state-from-define-measurements" title="Permalink to this heading">¶</a></h4>
+<p>An alterative way to set the run state is from inside the <em>TestManager</em> class definition. This is better if the same <em>Measurement</em> class is reused in different sequences where it might be required to run in different states.</p>
+<p>Here is a revised version of the <em>define_measurements</em> method with the run state settings added:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">define_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add measurements here in the order of execution</span>
+<span class="sd">    - Also add the run state of each measurement</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Setup links to all the measurements</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">TurnOn</span><span class="p">,</span><span class="n">run_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">RUN_STAGE_STARTUP</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">Stabilise</span><span class="p">,</span>
+                            <span class="n">run_state</span><span class="o">=</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">RUN_STAGE_SETUP</span><span class="p">:</span><span class="s1">&#39;temperature_degC&#39;</span><span class="p">})</span>
+
+    <span class="c1"># Runs in main loop no need to set state</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">VoltageSweeper</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">TurnOff</span><span class="p">,</span><span class="n">run_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">RUN_STAGE_TEARDOWN</span><span class="p">)</span>
+
+    <span class="c1"># Go here if errors occur</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">HandleError</span><span class="p">,</span><span class="n">run_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">RUN_STAGE_ERROR</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <em>define_measurements</em> method has an optional keyword argument <em>run_state</em> which takes a string, list or dict as the input. For convenience the string values are all properties of the <em>TestManager</em> class with the prefix <em>RUN_STAGE_</em>. They are listed below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run stages</span>
+<span class="c1"># These labels are used to reference all the stages where a measurement</span>
+<span class="c1"># can be run</span>
+<span class="n">RUN_STAGE_STARTUP</span> <span class="o">=</span> <span class="s1">&#39;STARTUP&#39;</span>
+<span class="n">RUN_STAGE_TEARDOWN</span> <span class="o">=</span> <span class="s1">&#39;TEARDOWN&#39;</span>
+<span class="n">RUN_STAGE_SETUP</span> <span class="o">=</span> <span class="s1">&#39;SETUP&#39;</span>
+<span class="n">RUN_STAGE_MAIN</span> <span class="o">=</span> <span class="s1">&#39;MAIN&#39;</span>
+<span class="n">RUN_STAGE_AFTER</span> <span class="o">=</span> <span class="s1">&#39;AFTER&#39;</span>
+<span class="n">RUN_STAGE_ERROR</span> <span class="o">=</span> <span class="s1">&#39;ERROR&#39;</span>
+</pre></div>
+</div>
+</section>
 </section>
 </section>
 </section>
@@ -491,7 +633,11 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#sequence-states">Sequence states</a><ul>
-<li><a class="reference internal" href="#sequencing">Sequencing</a></li>
+<li><a class="reference internal" href="#sequencing">Sequencing</a><ul>
+<li><a class="reference internal" href="#set-run-state-in-class-definition">Set run state in class definition</a></li>
+<li><a class="reference internal" href="#set-run-state-from-define-measurements">Set run state from <em>define_measurements</em></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -503,6 +649,11 @@
     <h4>Previous topic</h4>
     <p class="topless"><a href="tmpl_class_reference.html"
                           title="previous chapter">Class Reference</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="howto.html"
+                          title="next chapter">How to …</a></p>
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
@@ -531,6 +682,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="howto.html" title="How to …"
+             >next</a> |</li>
         <li class="right" >
           <a href="tmpl_class_reference.html" title="Class Reference"
              >previous</a> |</li>
