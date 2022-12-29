@@ -7,6 +7,10 @@ from one import
 >>> import tmpl
 
 """
+# Version number
+__version__ = '1.0.2'
+
+# Imports
 from .tmpl_support import *
 from .tmpl_storage import *
 from .tmpl_core import *

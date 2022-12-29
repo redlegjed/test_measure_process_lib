@@ -9,15 +9,14 @@ TMPL depends on these libraries.
 
 * [xarray](http://xarray.pydata.org/en/stable/)
 * [pandas](https://pandas.pydata.org/pandas-docs/stable/)
+* [xlsxwriter](https://xlsxwriter.readthedocs.io/)
 
-TMPL can be installed locally by cloning the repository to a local folder and then installing with pip
+TMPL can be installed via *pip*
 
 ```bash
-cd <local_path>
-git clone https://github.com/redlegjed/test_measure_process_lib.git
-pip install -e <local_path>/test_measure_process_lib
-
+pip install test-measure-process-lib
 ```
+
 Note that this does not install the dependencies. This is in case another package manager, e.g. Anaconda, is being used. So they have to be manually installed.
 
 ## Documentation
@@ -722,3 +721,16 @@ Run
 @ AdvancedResistanceMeasurement | >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 ```
+
+## Installing for development
+
+TMPL can be installed locally by cloning the repository to a local folder and then installing with pip
+
+```bash
+cd <local_path>
+git clone https://github.com/redlegjed/test_measure_process_lib.git
+pip install -e <local_path>/test_measure_process_lib
+
+```
+
+The code can then be edited from *<local_path>/test_measure_process_lib*. Changes will be included when importing *tmpl* into a new python instance.
