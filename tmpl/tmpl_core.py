@@ -1639,13 +1639,13 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
         # Check special values
         if meas.run_conditions[stage][condition_label]==meas.COND_FIRST_TIME:
-            if self.cond_index in self.condition_first_indexes(condition_label):
+            if self.cond_index in self._condition_first_indexes(condition_label):
                 # index is one of first ones
                 return True
                 
 
         if meas.run_conditions[stage][condition_label]==meas.COND_LAST_TIME:
-            if self.cond_index in  self.condition_last_indexes(condition_label):
+            if self.cond_index in  self._condition_last_indexes(condition_label):
                 # index is the last ones
                 return True
 
@@ -1653,7 +1653,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
                 
 
 
-    def condition_last_indexes(self,cond_label):
+    def _condition_last_indexes(self,cond_label):
         """
         Get the index of the last rows of the condition table where a specific
         condition is set.
@@ -1679,7 +1679,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         return ind
 
 
-    def condition_first_indexes(self,cond_label):
+    def _condition_first_indexes(self,cond_label):
         """
         Get the index of the first rows of the condition table where a specific
         condition is set.
