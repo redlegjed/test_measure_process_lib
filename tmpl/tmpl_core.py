@@ -1249,14 +1249,14 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         # Main measurement loop
         # ==============================
         nCond = len(conditions_table)
-        self.cond_index = 0
+        self._cond_index = 0
 
         # Initialise last conditions log
         # - use first column of conditions table to make a template
         last_cond = {label:None for label in conditions_table[0]}
 
         # Loop through conditions
-        for self.cond_index,current_cond in enumerate(conditions_table):
+        for self._cond_index,current_cond in enumerate(conditions_table):
 
             # Setup conditions stage
             # ------------------------------
@@ -1479,12 +1479,12 @@ class AbstractTestManager(abc.ABC,CommonUtility):
                 continue
 
             if condition_value==meas.COND_FIRST_TIME:
-                if self.cond_index in self.cond_first_indexes(condition_label):
+                if self._cond_index in self.cond_first_indexes(condition_label):
                     # Skip if this setup index is not the first one
                     continue
 
             if condition_value==meas.COND_LAST_TIME:
-                if self.cond_index in  self.cond_last_indexes(condition_label):
+                if self._cond_index in  self.cond_last_indexes(condition_label):
                     # Skip if this setup index is not the first one
                     continue
 
@@ -1639,13 +1639,13 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
         # Check special values
         if meas.run_conditions[stage][condition_label]==meas.COND_FIRST_TIME:
-            if self.cond_index in self._condition_first_indexes(condition_label):
+            if self._cond_index in self._condition_first_indexes(condition_label):
                 # index is one of first ones
                 return True
                 
 
         if meas.run_conditions[stage][condition_label]==meas.COND_LAST_TIME:
-            if self.cond_index in  self._condition_last_indexes(condition_label):
+            if self._cond_index in  self._condition_last_indexes(condition_label):
                 # index is the last ones
                 return True
 
