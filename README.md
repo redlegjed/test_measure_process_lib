@@ -1,8 +1,12 @@
 # Test, Measure, Process library (TMPL)
 
-This library is a modular framework for running sequences of lab measurements. It is intended to provide a minimal boiler-plate code framework for writing measurement code in modules that can be linked together into test sequences. Although written for use in lab measurements the framework makes no assumptions about test equipment setup and is very generic. It could be used to make test sequences based on models or data analysis instead of actual measurements.
+TMPL is a library for writing lab test measurement code in a modular and reusable way.
 
-The framework is built around storing data in the [xarray](http://xarray.pydata.org/en/stable/) _Dataset_ class. This provides a convenient data structure for storing multi-dimensional data that can be easily visualised using libraries like [Holoviews](http://holoviews.org/index.html) or its offshoot [hvplot](https://hvplot.holoviz.org/index.html).
+Lab tests are broken up into lightweight classes that represent setup conditions and measurements. These conditions and measurements can be combined together to make test sequences. TMPL provides infrastructure to execute the conditions and measurements in a specific order and log the data into a convenient format.
+
+Although written for use in lab measurements TMPL makes no assumptions about test equipment setup and is very generic. It could be used to make test sequences based on models or data analysis instead of actual measurements.
+
+TMPL is built around storing data in the [xarray](http://xarray.pydata.org/en/stable/) _Dataset_ class. This provides a convenient data structure for storing multi-dimensional data that can be easily visualised using libraries like [Holoviews](http://holoviews.org/index.html) or its offshoot [hvplot](https://hvplot.holoviz.org/index.html).
 
 ## Dependencies and installation
 TMPL depends on these libraries. 
@@ -25,7 +29,7 @@ This file gives basic descriptions of how to use TMPL, for more details consult 
 
 ## Core classes
 
-The framework is built on a set of core classes. These are built by inheriting from the Abstract classes defined in *tmpl_core.py*. The classes are:
+TMPL is built on a set of core classes. These are built by inheriting from the Abstract classes defined in *tmpl_core.py*. The classes are:
 
 * _TestManager_ classes: Based on _AbstractTestManager_ class. These classes run sequences of measurements over multiple setup conditions e.g. temperature, humidity etc. The _TestManagers_ are ultimately responsible for gathering up all data recorded during the sequence and packaging it into one xarray Dataset object.
 * _Measurement_ classes: Based on _AbstractMeasurement_ class. These are the classes that actually perform the measurements. They are classes that can be run independently or in a sequence from a _TestManager_. The data that they collect and process is stored in an internal xarray Dataset object. When run from a _TestManager_ this dataset will be scooped up at the end of the sequence and added into the overall Dataset maintained by the _TestManager_.
@@ -34,7 +38,7 @@ The framework is built on a set of core classes. These are built by inheriting f
 
 ## Example usage
 
-Before explaining the inner workings of the framework this section runs through a hypothetical example to show how the classes are used at the top level.
+Before explaining the inner workings of TMPL this section runs through a hypothetical example to show how the classes are used at the top level.
 
 Suppose a _TestManager_ has been defined that has objects for setting *temperature and pressure*. It also has three measurement objects defined called *calibrate_scales, MeasureVolume and MeasureMass*.
 
