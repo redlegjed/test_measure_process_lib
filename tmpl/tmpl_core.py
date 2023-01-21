@@ -508,6 +508,11 @@ class CommonUtility():
 
         # Input validation
         # ==============================
+        # Offload DataArray inputs to a separate method
+        if isinstance(data_values,xr.DataArray):
+            return self._store_data_array(name,data_values)
+
+
         # Convert data to array
         data_values = np.atleast_1d(data_values)
 
@@ -614,6 +619,87 @@ class CommonUtility():
 
         if not all(self.ds_results.coords[name]==np.array(values)):
             raise ValueError(f'Dataset coordinate [{name}] has different values than what is being entered')
+
+
+    def _store_data_array(self,name,da):
+        """
+        Store a DataArray object into ds_results
+
+        This method is generally called by store_data_vars() rather than being 
+        explicitly called by itself.
+
+        Parameters
+        ----------
+        name : str
+            Name of DataArray in ds_results
+
+        da : xarray DataArray
+            The DataArray object to be stored. This may have common coordinates
+            as ds_results plus others generated locally by store_coords
+
+        Returns
+        -------
+        None
+            
+
+        Raises
+        ------
+        ValueError
+            If not a DataArray
+        """
+
+        # Check coordinates
+        # ==============================
+        current_coords = copy.deepcopy(self.current_conditions)
+        local_coords = [c for c in da.coords if c not in current_coords]
+        all_coords = tuple([c for c in current_coords] + local_coords)
+
+        # Check if name exists already
+        new_data_array = name not in self.ds_results
+
+        # If new DataArray 
+        # ==============================
+        if new_data_array:
+            # Get sizes of all coordinates
+            current_coords_sizes = [self.ds_results.coords[c].size for c in self.ds_results.coords if c in current_coords]
+            local_coord_sizes = [da.coords[c].size for c in da.coords if c not in current_coords]
+
+            # Make a filler array and populate empty DataArray
+            dim_size = tuple(current_coords_sizes + local_coord_sizes)
+            filler = np.empty(dim_size)*np.nan
+
+            # Pre-allocate space for all data of this type
+            self.ds_results[name] = (all_coords,filler)
+
+            # Populate subset at current coordinates
+            self.ds_results[name].loc[current_coords] = da
+
+            return
+
+
+        # If existing DataArray
+        # ==============================
+        # Check coordinates line up
+        missing_coords = [c for c in da.coords if c not in self.ds_results.coords]
+        if any(missing_coords):
+            raise ValueError(f'DataArray being entered as [{name}] is missing coordinate {missing_coords}')
+
+        # TODO check coordinate values???
+
+        # Do a size check as a basic sanity check
+        if self.ds_results[name].loc[current_coords].shape != da.shape:
+            raise ValueError((f'Cannot insert new data into ds_results[{name}].'
+                            f' The entered DataArray size {da.shape} is different '
+                            f'to shape allocated in ds_results {self.ds_results[name].loc[current_coords].shape}'
+            ))
+
+        # Populate subset at current coordinates
+        self.ds_results[name].loc[current_coords] = da
+        
+        
+
+
+
 
 
     #----------------------------------------------------------------

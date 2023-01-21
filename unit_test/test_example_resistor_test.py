@@ -322,8 +322,8 @@ class TestExampleSequence(unittest.TestCase):
 #================================================================
  
 if __name__ == '__main__':
-    all_tests = True
-    # all_tests = False
+    # all_tests = True
+    all_tests = False
 
     if all_tests:
         unittest.main()
@@ -334,14 +334,14 @@ if __name__ == '__main__':
         # suite.addTest(TestExampleSequence('test_dummy'))
         # suite.addTest(TestExampleSequence('test_got_conditions_and_meas'))
         # suite.addTest(TestExampleSequence('test_conditions_table'))
-        # suite.addTest(TestExampleSequence('test_running_default_conditions'))
+        suite.addTest(TestExampleSequence('test_running_default_conditions'))
         # suite.addTest(TestExampleSequence('test_stacking_multiple_runs'))
         # suite.addTest(TestExampleSequence('test_save_results'))
         # suite.addTest(TestExampleSequence('test_save_and_load_results'))
         # suite.addTest(TestExampleSequence('test_custom_config'))
         # suite.addTest(TestExampleSequence('test_global_data_passing'))
         # suite.addTest(TestExampleSequence('test_global_config_precedence'))
-        suite.addTest(TestExampleSequence('test_services'))
+        # suite.addTest(TestExampleSequence('test_services'))
         
         
         runner = unittest.TextTestRunner()

@@ -243,6 +243,7 @@ class VoltageSweeper(tmpl.AbstractMeasurement):
         self.store_data_var('resistance_ohms',[resistance_ohms])
 
         self.convert_units()
+        self.calculate_power()
 
 
     @tmpl.with_services(['Amps_to_mA'])
@@ -259,6 +260,27 @@ class VoltageSweeper(tmpl.AbstractMeasurement):
         # Use services function to convert to mA
         self.store_data_var('current_mA',self.services.Amps_to_mA(current),
                         coords=['swp_voltage'])
+
+
+    def calculate_power(self):
+        """
+        Calculate the power as a function of voltage.
+
+        This is an example of using the self.ds_results Dataset to
+        calculate a new data variable. It also exercises the store_data_var()
+        function by passing in an xarray DataArray instead of a numpy array or
+        list.
+
+        """
+        # Get latest results Dataset
+        ds = self.current_results
+
+        # Calculate power from current and voltage
+        da_power_W = ds.swp_voltage*ds.current_A
+
+        # Store new data
+        self.store_data_var('power_W',da_power_W)
+
 
 
 
