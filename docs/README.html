@@ -58,6 +58,11 @@
 </pre></div>
 </div>
 </section>
+<section id="publishing-in-github-pages">
+<h2>Publishing in github-pages<a class="headerlink" href="#publishing-in-github-pages" title="Permalink to this heading">¶</a></h2>
+<p>There must be a file called <em>.nojekyll</em> in the docs directory. If not then github-pages won’t format the page correctly because it can’t find all the <em>.css</em> files in the <em>_static</em> directory.</p>
+<p>It also seems to be necessary to reset github-pages by selecting ‘None’ for the branch used for docs, saving it, then selecting ‘master’ again and setting it all up again.</p>
+</section>
 </section>
 
 
@@ -76,6 +81,7 @@
 <li><a class="reference internal" href="#">Documentation building</a><ul>
 <li><a class="reference internal" href="#checking-links">Checking links</a></li>
 <li><a class="reference internal" href="#build">Build</a></li>
+<li><a class="reference internal" href="#publishing-in-github-pages">Publishing in github-pages</a></li>
 </ul>
 </li>
 </ul>

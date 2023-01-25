@@ -405,6 +405,49 @@ class CommonUtility():
 
         return self.resources[label]
 
+    def add_resources(self,resources):
+        """
+        Add resources from within a TMPL class object
+        Add them as a dictionary of resources where the key is the property
+        name that will be used for each resource.
+
+        Resources will be added to all Measurement and SetupConditions object
+        that are under the current TestManager
+
+        Example:
+        >>> self.add_resources({'pid_ontroller':pid_ctrl})
+
+        Parameters
+        ----------
+        resources : dict
+            Dictionary with key:value format of <label>:<resource_object>
+
+        Returns
+        -------
+        None
+
+        """
+
+        # If not TestManager then offload to it
+        if not self.is_test_manager:
+            if self._test_manager is not None:
+                self._test_manager.add_resources(resources)
+                return
+            else:
+                # No test manager, just add resources locally
+                self.make_resources_into_properties(resources) 
+                return
+
+        # For test managers
+        self.make_resources_into_properties(resources)
+        
+        # Add resources to all Measurement and SetupCondition objects
+        for meas_label in self.meas:
+            self.meas[meas_label].make_resources_into_properties(resources)
+
+        for cond_label in self.conditions:
+            self.conditions[cond_label].make_resources_into_properties(resources)
+
 
     #----------------------------------------------------------------
     #%% Dataset processing methods
@@ -1866,6 +1909,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         self.conditions[cond_name]= cond_class(self.resources,config=self.config)
 
         # Add link to TestManager ds_results and global_data
+        self.conditions[cond_name]._test_manger = self
         self.conditions[cond_name]._ds_results_global = self.link_to_ds_results
         self.conditions[cond_name]._global_data_link = self.link_to_global_data
 
@@ -1920,6 +1964,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         self.meas[meas_name] = meas_class(self.resources,config=self.config)
 
         # Add link to TestManager ds_results and global_data
+        self.meas[meas_name]._test_manager = self
         self.meas[meas_name]._ds_results_global = self.link_to_ds_results
         self.meas[meas_name]._global_data_link = self.link_to_global_data
 
@@ -2462,6 +2507,9 @@ class AbstractMeasurement(abc.ABC,CommonUtility):
         # Dataset initialisation
         self.ds_results = None
 
+        # Link to TestManager
+        self._test_manager = None
+
         # Link to TestManager data
         # - TestManager must populate this with a link to a function
         self._ds_results_global = None
@@ -2947,6 +2995,9 @@ class AbstractSetupConditions(abc.ABC,CommonUtility):
 
         # Local data storage
         self.local_data = ObjDict()
+
+        # Link to TestManager
+        self._test_manager = None
 
         # Link to TestManager data
         # - TestManager must populate this with a link to a function

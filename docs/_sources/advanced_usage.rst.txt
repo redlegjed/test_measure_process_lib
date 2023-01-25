@@ -4,6 +4,7 @@ TMPL Advanced usage
 This page describes some of the more advanced features of TMPL.
 
 * *Data*: Where data can be stored in TMPL objects
+* *Resources* : Adding extra resources
 * *Processing* : How to add processing to a *Measurement* class using the *process()* method
 * *Customisation*: Using custom configuration for *Measurements*
 * *Services* : Make common functions available to all objects in a test sequence
@@ -37,6 +38,43 @@ All of these data structures are objects of the class *ObjDict*. This means they
 
     # Set local data in measurement
     test_seq.meas.Current.local_data.timer_count = 1
+
+Adding extra resources
+-----------------------
+*resources* are usually added as a dictionary when a TMPL class is instantiated. Each item in the dictionary is added as a property to all TMPL classes under the main *TestManager* object. 
+
+There may be occasions where a resource is generated inside a TMPL class, e.g. a Measurement class, and is required to be available to other classes. An example might be an object that is created at the start of a test sequence, like creating a test instrument object.
+
+In this case, all TMPL classes have a method for adding resources dynamically, *add_resources*. Passing a dictionary to this method will automatically make new properties in all TMPL class objects in the test sequence. The properties will take the names of the dictionary keys, so these must be in a suitable form, i.e. no spaces.
+
+This code shows an example of using *add_resources* to make a server object at the start of a sequence:
+
+.. code-block:: python
+    
+    class ConnectToServer(tmpl.AbstractMeasurement):
+        """
+        Connect to server at start of test sequence
+
+        """
+
+        def initialise(self):
+            self.run_on_startup(True)
+
+            # Set up configuration vaules
+            self.config.ip_address = '10.192.145.10'
+            
+
+        def meas_sequence(self):
+            """
+            Create server object and make it a resource for all 
+            other classes
+            """
+            # Make server
+            server_obj = make_server(self.config.ip_address)
+
+            # Add server to resources of all TMPL objects in sequence
+            self.add_resources({'server':server_obj})
+
 
 
 Processing

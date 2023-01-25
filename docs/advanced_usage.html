@@ -52,6 +52,7 @@
 <p>This page describes some of the more advanced features of TMPL.</p>
 <ul class="simple">
 <li><p><em>Data</em>: Where data can be stored in TMPL objects</p></li>
+<li><p><em>Resources</em> : Adding extra resources</p></li>
 <li><p><em>Processing</em> : How to add processing to a <em>Measurement</em> class using the <em>process()</em> method</p></li>
 <li><p><em>Customisation</em>: Using custom configuration for <em>Measurements</em></p></li>
 <li><p><em>Services</em> : Make common functions available to all objects in a test sequence</p></li>
@@ -81,6 +82,38 @@
 
 <span class="c1"># Set local data in measurement</span>
 <span class="n">test_seq</span><span class="o">.</span><span class="n">meas</span><span class="o">.</span><span class="n">Current</span><span class="o">.</span><span class="n">local_data</span><span class="o">.</span><span class="n">timer_count</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</section>
+<section id="adding-extra-resources">
+<h2>Adding extra resources<a class="headerlink" href="#adding-extra-resources" title="Permalink to this heading">¶</a></h2>
+<p><em>resources</em> are usually added as a dictionary when a TMPL class is instantiated. Each item in the dictionary is added as a property to all TMPL classes under the main <em>TestManager</em> object.</p>
+<p>There may be occasions where a resource is generated inside a TMPL class, e.g. a Measurement class, and is required to be available to other classes. An example might be an object that is created at the start of a test sequence, like creating a test instrument object.</p>
+<p>In this case, all TMPL classes have a method for adding resources dynamically, <em>add_resources</em>. Passing a dictionary to this method will automatically make new properties in all TMPL class objects in the test sequence. The properties will take the names of the dictionary keys, so these must be in a suitable form, i.e. no spaces.</p>
+<p>This code shows an example of using <em>add_resources</em> to make a server object at the start of a sequence:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ConnectToServer</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Connect to server at start of test sequence</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_on_startup</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Set up configuration vaules</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ip_address</span> <span class="o">=</span> <span class="s1">&#39;10.192.145.10&#39;</span>
+
+
+    <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create server object and make it a resource for all</span>
+<span class="sd">        other classes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Make server</span>
+        <span class="n">server_obj</span> <span class="o">=</span> <span class="n">make_server</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ip_address</span><span class="p">)</span>
+
+        <span class="c1"># Add server to resources of all TMPL objects in sequence</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_resources</span><span class="p">({</span><span class="s1">&#39;server&#39;</span><span class="p">:</span><span class="n">server_obj</span><span class="p">})</span>
 </pre></div>
 </div>
 </section>
@@ -621,6 +654,7 @@
     <ul>
 <li><a class="reference internal" href="#">TMPL Advanced usage</a><ul>
 <li><a class="reference internal" href="#data">Data</a></li>
+<li><a class="reference internal" href="#adding-extra-resources">Adding extra resources</a></li>
 <li><a class="reference internal" href="#processing">Processing</a><ul>
 <li><a class="reference internal" href="#processing-only-classes">Processing only classes</a></li>
 <li><a class="reference internal" href="#post-processing">Post processing</a></li>

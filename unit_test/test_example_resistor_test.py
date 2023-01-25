@@ -317,6 +317,32 @@ class TestExampleSequence(unittest.TestCase):
             self.assertIn(dv,self.testseq.ds_results,
                     msg=f'Service testing: missing data var : {dv}')
 
+    def test_adding_resources(self):
+
+        rsrc_label = 'test_resource'
+        rsrc_value = 3.123
+        self.testseq.meas.TurnOn.add_resources({rsrc_label:rsrc_value})
+
+        # Check resources have been populated to all objects under
+        # TestManager
+        self.assertTrue(hasattr(self.testseq,rsrc_label),
+                msg='TestManager does not have added resource')
+        self.assertEqual(getattr(self.testseq,rsrc_label),rsrc_value,
+                    msg='TestManager added resource is wrong value')
+
+        for meas_label,meas_obj in self.testseq.meas.items():
+            self.assertTrue(hasattr(meas_obj,rsrc_label),
+                    msg=f'Measurement [{meas_label}] does not have added resource')
+            self.assertEqual(getattr(meas_obj,rsrc_label),rsrc_value,
+                        msg=f'Measurement [{meas_label}] added resource is wrong value')
+
+        for cond_label,cond_obj in self.testseq.conditions.items():
+            self.assertTrue(hasattr(cond_obj,rsrc_label),
+                    msg=f'conditions [{cond_label}] does not have added resource')
+            self.assertEqual(getattr(cond_obj,rsrc_label),rsrc_value,
+                        msg=f'conditions [{cond_label}] added resource is wrong value')
+
+
 #================================================================
 #%% Runner
 #================================================================
@@ -334,7 +360,7 @@ if __name__ == '__main__':
         # suite.addTest(TestExampleSequence('test_dummy'))
         # suite.addTest(TestExampleSequence('test_got_conditions_and_meas'))
         # suite.addTest(TestExampleSequence('test_conditions_table'))
-        suite.addTest(TestExampleSequence('test_running_default_conditions'))
+        # suite.addTest(TestExampleSequence('test_running_default_conditions'))
         # suite.addTest(TestExampleSequence('test_stacking_multiple_runs'))
         # suite.addTest(TestExampleSequence('test_save_results'))
         # suite.addTest(TestExampleSequence('test_save_and_load_results'))
@@ -342,6 +368,8 @@ if __name__ == '__main__':
         # suite.addTest(TestExampleSequence('test_global_data_passing'))
         # suite.addTest(TestExampleSequence('test_global_config_precedence'))
         # suite.addTest(TestExampleSequence('test_services'))
+        suite.addTest(TestExampleSequence('test_adding_resources'))
+        
         
         
         runner = unittest.TextTestRunner()
