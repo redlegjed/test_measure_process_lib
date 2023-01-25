@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "test_measure_process_lib"
-version = "1.0.4"
+version = "1.0.5"
 description = "Test, Measure and Process library. Framework for lab experiments."
 readme = "README.md"
 authors = [{ name = "RedLegJed", email = "rlj_pypi@nym.hush.com" }]
