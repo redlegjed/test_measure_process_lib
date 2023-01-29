@@ -558,6 +558,7 @@ class CommonUtility():
 
         # Convert data to array
         data_values = np.atleast_1d(data_values)
+        is_string = '<U' in str(data_values.dtype)
 
         # Convert coords to dict
         if coords==[]:
@@ -583,7 +584,12 @@ class CommonUtility():
         if name not in self.ds_results:
             # Create new data variable
             # Fill it with NaNs to start
-            filler = np.empty(tuple([self.ds_results.coords[c].size for c in coordinates]))*np.nan
+            if is_string:
+                # Make empty string array with up to 64 characters per element
+                filler = np.empty(tuple([self.ds_results.coords[c].size for c in coordinates]),dtype='<U64')
+            else:
+                filler = np.empty(tuple([self.ds_results.coords[c].size for c in coordinates]))*np.nan
+                
             self.ds_results[name] = (list(coordinates.keys()),np.atleast_1d(filler))
             # Tag with the name of the class
             self.ds_results[name].attrs[TAG_CLASSNAME] = self.__class__.__name__

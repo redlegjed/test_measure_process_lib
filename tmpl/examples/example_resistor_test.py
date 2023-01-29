@@ -340,6 +340,16 @@ class TurnOff(tmpl.AbstractMeasurement):
 #     def meas_sequence(self):
 #         self.log('Error handler')
 
+class TextStorage(tmpl.AbstractMeasurement):
+    """
+    Measurement for testing storage of text strings
+
+    """
+
+    def meas_sequence(self):
+        self.store_data_var('day','monday')
+        self.log('Storing day')
+
 
 #================================================================
 #%% Test Manager class
@@ -381,6 +391,7 @@ class ExampleTestSequence(tmpl.AbstractTestManager):
         self.add_measurement(TurnOn)
         self.add_measurement(Stabilise)
         self.add_measurement(VoltageSweeper)
+        self.add_measurement(TextStorage)
         self.add_measurement(TurnOff)
 
         # Go here if errors occur
@@ -418,6 +429,7 @@ class ExampleTesWithMeasSequencing(ExampleTestSequence):
         self.add_measurement(Stabilise,
                         run_state={self.RUN_STAGE_SETUP:'temperature_degC'})
         self.add_measurement(VoltageSweeper)
+        self.add_measurement(TextStorage)
         self.add_measurement(TurnOff,run_state=self.RUN_STAGE_TEARDOWN)
 
         # Go here if errors occur
