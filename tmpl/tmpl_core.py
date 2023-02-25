@@ -78,7 +78,7 @@ import pandas as pd
 import xarray as xr
 
 
-from .tmpl_support import ObjDict,debugPrintout
+from .tmpl_support import ObjDict,debugPrintout, doc_string_to_text
 from .tmpl_storage import json_to_dataset
  
 #================================================================
@@ -2295,7 +2295,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         doc = self.__doc__
         if doc is None:
             doc = 'No description of sequence'
-        doc_lines = [l.strip() for l in doc.split('\n')]
+        doc_lines = doc_string_to_text(doc)
         markdown += [f'# {self.name}'] + doc_lines + ['']
 
         # Add Setup conditions descriptions as sub headings
@@ -2308,7 +2308,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
                 doc = self.conditions[cond].__doc__
                 if doc is None:
                     doc = 'No description'
-                doc_lines = [l.strip() for l in doc.split('\n')]
+                doc_lines = doc_string_to_text(doc)
                 markdown += [f'### {cond}'] + doc_lines + ['']
 
         # Add measurment descriptions
@@ -2321,7 +2321,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
                 doc = self.meas[meas].__doc__
                 if doc is None:
                     doc = 'No description'
-                doc_lines = [l.strip() for l in doc.split('\n')]
+                doc_lines = doc_string_to_text(doc)
                 markdown += [f'### {meas}']+ doc_lines +['']
 
         # Make into one string
