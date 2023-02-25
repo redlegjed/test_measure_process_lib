@@ -18,6 +18,7 @@ Useful classes library
 
 from collections import OrderedDict
 import os
+import statistics
 import numpy as np
 
 #============================================================================
@@ -76,6 +77,35 @@ def pad_to_length(string,width,truncate=True,pad_char=' '):
         right_pad = pad_char*int((diff)/2)
 
     return left_pad+string+right_pad
+
+
+def doc_string_to_text(doc_string):
+    """
+    Take a python docstring and remove the indent spaces on each line
+
+    Parameters
+    ----------
+    doc_string : str
+        docstring text obtained from object._doc
+
+    Returns
+    -------
+    list of str
+        Reformatted text in list form,
+    """
+    # Split text into lines
+    doc_lines = [l for l in doc_string.split('\n')]
+
+    # Find how many spaces the doc string is indented
+    # - compare length of line to stripped length
+    indents = [len(l) - len(l.lstrip()) for l in doc_lines if len(l)>1]
+    # Assume the most frequently occurring indent is the what we need
+    indent = int(statistics.mode(indents))
+
+    # Remove the indents
+    text = [l[indent:] for l in doc_lines]
+
+    return text
 
 #=============================================================================
 #%% Classes

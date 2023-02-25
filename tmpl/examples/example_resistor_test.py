@@ -196,7 +196,10 @@ class VoltageSweeper(tmpl.AbstractMeasurement):
 
     * Sweep voltage
     * Measure current at each voltage step
+        - Store voltage and current
     * Process voltage and current to calculate resistances
+        - Store calculated resistance
+    
     """
     name = 'VoltageSweep'
 
