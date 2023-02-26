@@ -1212,10 +1212,10 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         html_meas += ['</ul>']
 
         html = [
-            f'<h1>TestManager[ {self.name} ]</h1>',
-            f'<h2>Setup Conditions:</h2>',
+            f'<h3>TestManager[ {self.name} ]</h1>',
+            f'<h4>Setup Conditions:</h2>',
             '\n'.join(html_cond),
-            f'<h2>Measurements:</h2>',
+            f'<h4>Measurements:</h2>',
             '\n'.join(html_meas),
         ]
 
