@@ -8,7 +8,7 @@ from one import
 
 """
 # Version number
-__version__ = '1.0.6'
+__version__ = '1.0.7'
 
 # Imports
 from .tmpl_support import *
