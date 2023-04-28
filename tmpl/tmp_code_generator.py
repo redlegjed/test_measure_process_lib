@@ -145,7 +145,7 @@ TestManager classes:
 
 This module is based on the "Test, Measure, Process Library" (TMPL)
 framework for organising measurement code.
-See: https://github.com/redlegjed/test_measure_process_lib
+See: https://pypi.org/project/test-measure-process-lib/
 
 \"\"\"
 

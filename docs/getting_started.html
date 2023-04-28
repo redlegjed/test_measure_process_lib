@@ -211,6 +211,309 @@
 </div>
 <p>Basically you give the <em>tmpl.make_module()</em> function lists of the names of the <em>SetupCondition, Measurement</em> and <em>TestManager</em> classes that you want in your file. It will then generate template code for each class and insert it into the file together with a standard doc string and imports.</p>
 <p>Note that the order of the <em>SetupCondition</em> and <em>Measurement</em> class names will be used in the <em>TestManager</em> classes as the order in which conditions and measurements are executed. If this is not desired then they can be manually changed in the file later.</p>
+<p>The example above will generate this text:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">code_text</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module:</span>
+<span class="sd">================================================================</span>
+<span class="sd">&lt;Description of module&gt;</span>
+
+<span class="sd">SetupCondition classes:</span>
+<span class="sd">* Temperature :</span>
+<span class="sd">* Humidity :</span>
+<span class="sd">* Pressure :</span>
+
+<span class="sd">Measurement classes:</span>
+<span class="sd">* VoltageSweep :</span>
+<span class="sd">* CurrentSweep :</span>
+<span class="sd">* PostProcess :</span>
+
+<span class="sd">TestManager classes:</span>
+<span class="sd">* Calibrate :</span>
+<span class="sd">* MainMeasure :</span>
+
+
+
+<span class="sd">This module is based on the &quot;Test, Measure, Process Library&quot; (TMPL)</span>
+<span class="sd">framework for organising measurement code.</span>
+<span class="sd">See: https://pypi.org/project/test-measure-process-lib/</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1">#================================================================</span>
+<span class="c1">#%% Imports</span>
+<span class="c1">#================================================================</span>
+<span class="c1"># Standard library</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="c1"># Third party libraries</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">tmpl</span>
+
+<span class="c1">#================================================================</span>
+<span class="c1">#%% SetupCondition classes</span>
+<span class="c1">#================================================================</span>
+
+<span class="k">class</span> <span class="nc">Temperature</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractSetupConditions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &lt;Description of condition&gt;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#name = &#39;&lt;name_in_dataset&#39; # Name used in ds_results dataset (optional)</span>
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialise default values and any other setup</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Set default values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">values</span><span class="o">&gt;</span><span class="p">]</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">actual</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="o">&lt;</span><span class="n">Return</span> <span class="n">value</span> <span class="n">code</span><span class="o">&gt;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="o">&lt;</span><span class="n">Return</span> <span class="n">setpoint</span> <span class="n">code</span><span class="o">&gt;</span>
+
+    <span class="nd">@setpoint</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Setpoint = </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1"> &#39;</span><span class="p">)</span>
+        <span class="c1"># TODO :&lt;Setpoint code&gt;</span>
+        <span class="k">return</span> <span class="o">&lt;</span><span class="n">Setpoint</span> <span class="n">value</span><span class="o">&gt;</span>
+
+
+
+<span class="k">class</span> <span class="nc">Humidity</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractSetupConditions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &lt;Description of condition&gt;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#name = &#39;&lt;name_in_dataset&#39; # Name used in ds_results dataset (optional)</span>
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialise default values and any other setup</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Set default values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">values</span><span class="o">&gt;</span><span class="p">]</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">actual</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="o">&lt;</span><span class="n">Return</span> <span class="n">value</span> <span class="n">code</span><span class="o">&gt;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="o">&lt;</span><span class="n">Return</span> <span class="n">setpoint</span> <span class="n">code</span><span class="o">&gt;</span>
+
+    <span class="nd">@setpoint</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Setpoint = </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1"> &#39;</span><span class="p">)</span>
+        <span class="c1"># TODO :&lt;Setpoint code&gt;</span>
+        <span class="k">return</span> <span class="o">&lt;</span><span class="n">Setpoint</span> <span class="n">value</span><span class="o">&gt;</span>
+
+
+
+<span class="k">class</span> <span class="nc">Pressure</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractSetupConditions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &lt;Description of condition&gt;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#name = &#39;&lt;name_in_dataset&#39; # Name used in ds_results dataset (optional)</span>
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialise default values and any other setup</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Set default values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">values</span><span class="o">&gt;</span><span class="p">]</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">actual</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="o">&lt;</span><span class="n">Return</span> <span class="n">value</span> <span class="n">code</span><span class="o">&gt;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="o">&lt;</span><span class="n">Return</span> <span class="n">setpoint</span> <span class="n">code</span><span class="o">&gt;</span>
+
+    <span class="nd">@setpoint</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Setpoint = </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1"> &#39;</span><span class="p">)</span>
+        <span class="c1"># TODO :&lt;Setpoint code&gt;</span>
+        <span class="k">return</span> <span class="o">&lt;</span><span class="n">Setpoint</span> <span class="n">value</span><span class="o">&gt;</span>
+
+
+
+<span class="c1">#================================================================</span>
+<span class="c1">#%% Measurement classes</span>
+<span class="c1">#================================================================</span>
+
+<span class="k">class</span> <span class="nc">VoltageSweep</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &lt;Description of measurement&gt;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Run conditions (optional)</span>
+        <span class="c1"># self.run_on_startup(True)</span>
+        <span class="c1"># self.run_on_teardown(True)</span>
+        <span class="c1"># self.run_on_error(True)</span>
+        <span class="c1"># self.run_on_setup(condition_label,value=None)</span>
+        <span class="c1"># self.run_after(condition_label,value=None)</span>
+
+        <span class="c1"># Set up configuration vaules</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.&lt;</span><span class="n">param</span><span class="o">&gt;</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">value</span><span class="o">&gt;</span>
+
+
+    <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &lt;More description (optional)&gt;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: Measurement code goes here</span>
+        <span class="k">pass</span>
+
+
+
+
+<span class="k">class</span> <span class="nc">CurrentSweep</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &lt;Description of measurement&gt;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Run conditions (optional)</span>
+        <span class="c1"># self.run_on_startup(True)</span>
+        <span class="c1"># self.run_on_teardown(True)</span>
+        <span class="c1"># self.run_on_error(True)</span>
+        <span class="c1"># self.run_on_setup(condition_label,value=None)</span>
+        <span class="c1"># self.run_after(condition_label,value=None)</span>
+
+        <span class="c1"># Set up configuration vaules</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.&lt;</span><span class="n">param</span><span class="o">&gt;</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">value</span><span class="o">&gt;</span>
+
+
+    <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &lt;More description (optional)&gt;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: Measurement code goes here</span>
+        <span class="k">pass</span>
+
+
+
+
+<span class="k">class</span> <span class="nc">PostProcess</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &lt;Description of measurement&gt;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Run conditions (optional)</span>
+        <span class="c1"># self.run_on_startup(True)</span>
+        <span class="c1"># self.run_on_teardown(True)</span>
+        <span class="c1"># self.run_on_error(True)</span>
+        <span class="c1"># self.run_on_setup(condition_label,value=None)</span>
+        <span class="c1"># self.run_after(condition_label,value=None)</span>
+
+        <span class="c1"># Set up configuration vaules</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.&lt;</span><span class="n">param</span><span class="o">&gt;</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">value</span><span class="o">&gt;</span>
+
+
+    <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &lt;More description (optional)&gt;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: Measurement code goes here</span>
+        <span class="k">pass</span>
+
+
+
+
+<span class="c1">#================================================================</span>
+<span class="c1">#%% TestManager classes</span>
+<span class="c1">#================================================================</span>
+
+<span class="k">class</span> <span class="nc">Calibrate</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractTestManager</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &lt;Description of test sequence&gt;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">define_setup_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add the setup conditions here in the order that they should be set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_setup_condition</span><span class="p">(</span><span class="n">Temperature</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_setup_condition</span><span class="p">(</span><span class="n">Humidity</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_setup_condition</span><span class="p">(</span><span class="n">Pressure</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">define_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add measurements here in the order of execution</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Setup links to all the measurements</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">VoltageSweep</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">CurrentSweep</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">PostProcess</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add custom information here</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">information</span><span class="o">.</span><span class="n">serial_number</span> <span class="o">=</span> <span class="s1">&#39;example_sn&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">information</span><span class="o">.</span><span class="n">part_number</span> <span class="o">=</span> <span class="s1">&#39;example_pn&#39;</span>
+        <span class="c1"># Add more here ...</span>
+
+
+
+<span class="k">class</span> <span class="nc">MainMeasure</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractTestManager</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &lt;Description of test sequence&gt;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">define_setup_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add the setup conditions here in the order that they should be set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_setup_condition</span><span class="p">(</span><span class="n">Temperature</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_setup_condition</span><span class="p">(</span><span class="n">Humidity</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_setup_condition</span><span class="p">(</span><span class="n">Pressure</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">define_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add measurements here in the order of execution</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Setup links to all the measurements</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">VoltageSweep</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">CurrentSweep</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">PostProcess</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add custom information here</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">information</span><span class="o">.</span><span class="n">serial_number</span> <span class="o">=</span> <span class="s1">&#39;example_sn&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">information</span><span class="o">.</span><span class="n">part_number</span> <span class="o">=</span> <span class="s1">&#39;example_pn&#39;</span>
+        <span class="c1"># Add more here ...</span>
+</pre></div>
+</div>
 </section>
 <section id="automatic-documentation-generation">
 <h2>Automatic documentation generation<a class="headerlink" href="#automatic-documentation-generation" title="Permalink to this heading">¶</a></h2>
