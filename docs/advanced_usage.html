@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx_highlight.js"></script>
     
@@ -92,7 +89,7 @@
 <p>In this case, all TMPL classes have a method for adding resources dynamically, <em>add_resources</em>. Passing a dictionary to this method will automatically make new properties in all TMPL class objects in the test sequence. The properties will take the names of the dictionary keys, so these must be in a suitable form, i.e. no spaces.</p>
 <p>This code shows an example of using <em>add_resources</em> to make a server object at the start of a sequence:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ConnectToServer</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Connect to server at start of test sequence</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -105,7 +102,7 @@
 
 
     <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create server object and make it a resource for all</span>
 <span class="sd">        other classes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -122,7 +119,7 @@
 <p><em>Measurement</em> objects can have an optional method, <em>process()</em>, which if defined in the class will be called automatically after <em>meas_sequence()</em>. This method is intended for processing data that has been measured in <em>meas_sequence()</em>. Like <em>meas_sequence()</em> there are no restrictions on what can be done in <em>process()</em> its name is just a guideline.</p>
 <p>Here is an example of a <em>Measurement</em> class that includes a <em>process()</em> method:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">VoltageSweeper</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Example of a Measurement that adds its own coordinates and has</span>
 <span class="sd">    a process method</span>
 
@@ -188,7 +185,7 @@
 <p>Like any other method in the class <em>process()</em> can also access data in the other data storage properties: <em>config</em>, <em>local_data</em> and <em>global_data</em>. These can all be used for passing data between methods.</p>
 <p>The <em>process()</em> method can also be used as a top level method that calls other processing methods or functions.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Top level process method, call other method to do</span>
 <span class="sd">    actual processing</span>
 
@@ -277,7 +274,7 @@
 <h3>Global configuration<a class="headerlink" href="#global-configuration" title="Permalink to this heading">¶</a></h3>
 <p>Setting configurations through each <em>Measurement</em> object may not always be desired, especially if <em>Measurement</em> objects share a common configuration value. For this reason  <em>TestManager</em> objects have <em>.config</em> properties that will be copied to all <em>Measurement</em> and <em>SetupCondition</em> objects when the <em>TestManager</em> object is created.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SeqWithGlobalConfig</span><span class="p">(</span><span class="n">tmp</span><span class="o">.</span><span class="n">AbstractTestManager</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test sequence that defines global config settings</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -382,7 +379,7 @@
 
 
     <span class="k">def</span> <span class="nf">define_services</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Define service functions</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -404,7 +401,7 @@
 <p>Sometimes data generated or measured in one <em>Measurement</em> or <em>SetupCondition</em> class is useful in another class. For example a <em>Measurement</em> class may take a series of readings that act as a look up table for other <em>Measurement</em> classes. This data could be pushed into the <em>ds_results</em> Dataset or <em>global_data</em> or <em>local_data</em> so other classes could access it. In the case of a look up table each class that wanted to use it would have to implement its own code for cross referencing through the table. It would be more convenient if the class that generated the look up table could provide a “service” that implements the cross referencing code. Then other classes can just call the service function. This can be done by tagging class methods with the <em>&#64;tmpl.service</em> decorator.</p>
 <p>Any class method can be tagged using the <em>&#64;tmpl.service</em> decorator to turn it into a service. The following example shows one class creating a service and another class using it.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MeasurementWithService</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This measurement class takes some readings and makes the results</span>
 <span class="sd">    available for others via a service called &quot;lut_lookup&quot;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -421,7 +418,7 @@
 
     <span class="nd">@tmpl</span><span class="o">.</span><span class="n">service</span>
     <span class="k">def</span> <span class="nf">lut_lookup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">key_value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provide a lookup service to other classes</span>
 
 <span class="sd">        Parameters</span>
@@ -434,7 +431,7 @@
 
 
 <span class="k">class</span> <span class="nc">MeasurementUsingService</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This measurement uses the &quot;lut_lookup&quot; service</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -498,7 +495,7 @@
 <h3>Sequencing example<a class="headerlink" href="#sequencing-example" title="Permalink to this heading">¶</a></h3>
 <p>This section will go through an example of sequencing measurements. We will start with the <em>TestManager</em> definition for the simple resistor measurement.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ExampleTestSequence</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractTestManager</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Example test sequence</span>
 
 <span class="sd">    Runs a dummy measurement sequence over temperature and humidity conditions.</span>
@@ -514,7 +511,7 @@
     <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;ExampleResistorTest&#39;</span>
 
     <span class="k">def</span> <span class="nf">define_setup_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add the setup conditions here in the order that they should be set</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -523,7 +520,7 @@
 
 
     <span class="k">def</span> <span class="nf">define_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add measurements here in the order of execution</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -542,7 +539,7 @@
 <h4>Set run state in class definition<a class="headerlink" href="#set-run-state-in-class-definition" title="Permalink to this heading">¶</a></h4>
 <p>The first method is to set the run state from within the <em>Measurement</em> class definition itself. The code below shows the class definitions for <em>TurnOn</em>, <em>TurnOff</em>, <em>Stabilise</em> and <em>HandleError</em>. For each class the run state is set in the <em>initialise()</em> method.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">TurnOn</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Turn on all equipment</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -555,7 +552,7 @@
 
 
 <span class="k">class</span> <span class="nc">TurnOff</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Turn off all equipment</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -568,7 +565,7 @@
 
 
 <span class="k">class</span> <span class="nc">HandleError</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Handle any errors generated</span>
 <span class="sd">    e.g. shut off critical equipment, store data etc</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -581,7 +578,7 @@
 
 
 <span class="k">class</span> <span class="nc">Stabilise</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wait for stabilisation</span>
 <span class="sd">    - only run this after temperature has be set</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -602,7 +599,7 @@
 <p>An alterative way to set the run state is from inside the <em>TestManager</em> class definition. This is better if the same <em>Measurement</em> class is reused in different sequences where it might be required to run in different states.</p>
 <p>Here is a revised version of the <em>define_measurements</em> method with the run state settings added:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">define_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add measurements here in the order of execution</span>
 <span class="sd">    - Also add the run state of each measurement</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -734,7 +731,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2022, RedLegJed.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

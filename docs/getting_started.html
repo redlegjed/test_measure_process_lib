@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx_highlight.js"></script>
     
@@ -62,12 +59,12 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tmpl</span>
 
 <span class="k">class</span> <span class="nc">ResistanceMeasureSequence</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractTestManager</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Measure resistance over temperature and humidity</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">define_setup_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add the setup conditions here in the order that they should be set</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -76,7 +73,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_setup_condition</span><span class="p">(</span><span class="n">Humidity</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">define_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add measurements here in the order of execution</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -88,7 +85,7 @@
 <p>The <em>self.add_setup_condition()</em> and <em>self.add_measurement()</em> methods of the <em>TestManager</em> take either a <em>SetupCondition</em> or <em>Measurement</em> class. These are the classes that access test instrumentation to do the real work of the measurement sequence.</p>
 <p>A condition class might look like this:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Temperature</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractSetupConditions</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set the temperature on the chamber.</span>
 
 <span class="sd">    Assumes that there is a property called &quot;chamber&quot; that</span>
@@ -96,7 +93,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialise default values and any other setup</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -105,21 +102,21 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">actual</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read the current chamber temperature</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">chamber</span><span class="o">.</span><span class="n">temperature_degC</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read the current chamber setpoint temperature</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">chamber</span><span class="o">.</span><span class="n">temperature_setpoint_degC</span>
 
     <span class="nd">@setpoint</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set a new temperature on the chamber</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">chamber</span><span class="o">.</span><span class="n">temperature_setpoint_degC</span> <span class="o">=</span> <span class="n">value</span>
@@ -128,7 +125,7 @@
 <p>This example is for setting the temperature. By default it will set 25, 35 &amp; 45 degC during the test sequence defined in the <em>TestManager</em> class. At each temperature all the measurements defined in <em>define_measurements()</em> will be run.</p>
 <p>The measurements themselves are another class such as this one for resistance.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Resistance</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Simple resistance measurement using ohmmeter</span>
 
 <span class="sd">    Assumes there is property, &quot;ohmmeter&quot;, that gives read/write</span>
@@ -137,7 +134,7 @@
 
 
     <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Mandatory method for Measurement classes</span>
 
 <span class="sd">        Performs the actual measurement and stores data.</span>
@@ -208,7 +205,8 @@
 <span class="n">tmpl</span><span class="o">.</span><span class="n">make_module</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">conditions</span><span class="o">=</span><span class="n">cond</span><span class="p">,</span><span class="n">meas</span><span class="o">=</span><span class="n">meas</span><span class="p">,</span><span class="n">seq</span><span class="o">=</span><span class="n">managers</span><span class="p">)</span>
 
 <span class="c1"># Alternatively generate the code into a text string</span>
-<span class="n">code_text</span> <span class="o">=</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">make_module</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">conditions</span><span class="o">=</span><span class="n">cond</span><span class="p">,</span><span class="n">meas</span><span class="o">=</span><span class="n">meas</span><span class="p">,</span><span class="n">seq</span><span class="o">=</span><span class="n">managers</span><span class="p">,</span><span class="n">return_text</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># - don&#39;t specify the name of the file</span>
+<span class="n">code_text</span> <span class="o">=</span> <span class="n">tmpl</span><span class="o">.</span><span class="n">make_module</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="n">cond</span><span class="p">,</span><span class="n">meas</span><span class="o">=</span><span class="n">meas</span><span class="p">,</span><span class="n">seq</span><span class="o">=</span><span class="n">managers</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Basically you give the <em>tmpl.make_module()</em> function lists of the names of the <em>SetupCondition, Measurement</em> and <em>TestManager</em> classes that you want in your file. It will then generate template code for each class and insert it into the file together with a standard doc string and imports.</p>
@@ -226,7 +224,7 @@
 </div>
 <p>The markdown file will be dependent on what is in the docstrings at the class level, i.e. what is written in triple quotes immediately after the <em>class</em> keyword.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Resistance</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Simple resistance measurement using ohmmeter</span>
 
 <span class="sd">    Assumes there is property, &quot;ohmmeter&quot;, that gives read/write</span>
@@ -329,7 +327,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2022, RedLegJed.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

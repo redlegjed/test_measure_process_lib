@@ -248,9 +248,9 @@ def make_manager(name,conditions=['DefaultCondition'],meas=['DefaultMeasurement'
     return txt
 
 
-def make_module(filename,conditions=['DefaultCondition'],
+def make_module(filename='',conditions=['DefaultCondition'],
                     meas=['DefaultMeasurement'],
-                    seq=['DefaultSeq'],return_text=False):
+                    seq=['DefaultSeq']):
     """
     Make a module file with auto-generated code for TMPL classes.
 
@@ -278,19 +278,22 @@ def make_module(filename,conditions=['DefaultCondition'],
     Generate module file
     >>> make_module(name,conditions=cond,meas=meas,seq=seq)
 
+    Return text string only
+    >>> make_module(conditions=cond,meas=meas,seq=seq)
+
+
     Parameters
     ----------
     filename : str
         full filename for module file to be created
+        If this is empty or not specified then the function returns a 
+        text string with the code documentation.
     conditions : list, optional
         List of names of SetupCondition classes, by default ['DefaultCondition']
     meas : list, optional
         List of names of Measurement classes, by default ['DefaultMeasurement']
     seq : list, optional
         List of names of TestManager classes, by default ['DefaultSeq']
-    return_text : bool, optional
-        If True then the text of the module is returned as a string
-        otherwise the text is save to a file, by default False
 
     Returns
     -------
@@ -341,7 +344,7 @@ def make_module(filename,conditions=['DefaultCondition'],
     # - undo this here
     txt = txt.replace(r'\#','#')
     
-    if return_text:
+    if filename=='':
         return txt
 
     file.write_text(txt)

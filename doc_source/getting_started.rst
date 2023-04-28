@@ -186,7 +186,8 @@ The following code shows how to generate a module file:
     tmpl.make_module(name,conditions=cond,meas=meas,seq=managers)
 
     # Alternatively generate the code into a text string
-    code_text = tmpl.make_module(name,conditions=cond,meas=meas,seq=managers,return_text=True)
+    # - don't specify the name of the file
+    code_text = tmpl.make_module(conditions=cond,meas=meas,seq=managers)
 
 Basically you give the *tmpl.make_module()* function lists of the names of the *SetupCondition, Measurement* and *TestManager* classes that you want in your file. It will then generate template code for each class and insert it into the file together with a standard doc string and imports.
 

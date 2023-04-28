@@ -11,9 +11,6 @@
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx_highlight.js"></script>
     
@@ -63,12 +60,12 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tmpl</span>
 
 <span class="k">class</span> <span class="nc">ResistanceMeasureSequence</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractTestManager</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Measure resistance over temperature and humidity</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">define_setup_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add the setup conditions here in the order that they should be set</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -77,7 +74,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_setup_condition</span><span class="p">(</span><span class="n">Humidity</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">define_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add measurements here in the order of execution</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -220,7 +217,7 @@
 <p><em>SetupCondition</em> classes are responsible for setting and querying one specific condition. They all inherit from the <em>AbstractSetupCondition</em> class. This requires two mandatory properties: <em>actual</em> and <em>setpoint</em>, for reading the <em>actual</em> value of the condition and setting the value of the condition. <em>actual</em> and <em>setpoint</em> appear as properties of the <em>SetupCondition</em> class but usually they are <em>methods</em> that use the Python <em>&#64;property</em> decorator to appear as properties. This is because querying and setting the condition usually requires interfacing to test equipment.</p>
 <p>The code below shows an example of the definition of a <em>SetupCondition</em> class:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Temperature</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractSetupConditions</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set the temperature on the chamber.</span>
 
 <span class="sd">    Assumes that there is a property called &quot;chamber&quot; that</span>
@@ -228,7 +225,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialise default values and any other setup</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -237,21 +234,21 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">actual</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read the current chamber temperature</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">chamber</span><span class="o">.</span><span class="n">temperature_degC</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read the current chamber setpoint temperature</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">chamber</span><span class="o">.</span><span class="n">temperature_setpoint_degC</span>
 
     <span class="nd">@setpoint</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">setpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set a new temperature on the chamber</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">chamber</span><span class="o">.</span><span class="n">temperature_setpoint_degC</span> <span class="o">=</span> <span class="n">value</span>
@@ -285,13 +282,13 @@
 <h3>Definition<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
 <p><em>Measurement</em> classes are responsible for executing the code that takes a specific measurement or multiple measurements. They inherit from the <em>AbstractMeasurement</em> class. <em>Measurement</em> classes require one mandatory method, <em>meas_sequence</em>. This can either contain all the measurement code or, more usually, it can be the top level that calls other class methods in a sequence. The example below shows a simple <em>Measurement</em> class for reading electrical current from an ammeter.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Current</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Measure current with ammeter</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Mandatory method for Measurement classes</span>
 
 <span class="sd">        Performs the actual measurement and stores data.</span>
@@ -310,12 +307,12 @@
 <h3>Initialisation and configuration<a class="headerlink" href="#initialisation-and-configuration" title="Permalink to this heading">¶</a></h3>
 <p><em>Measurement</em> classes can also have an optional <em>initialise</em> method, similar to <em>SetupCondition</em> classes. This is generally used to define configuration options for the measurement. The example below shows a revised <em>Current</em> class that uses the <em>initialise</em> method to define some configuration values for the <em>ammeter</em>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Current</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Measure current with ammeter</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set configuration options</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ammeter_range_A</span> <span class="o">=</span> <span class="mf">2.5</span>
@@ -323,7 +320,7 @@
 
 
     <span class="k">def</span> <span class="nf">meas_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Mandatory method for Measurement classes</span>
 
 <span class="sd">        Performs the actual measurement and stores data.</span>
@@ -339,7 +336,7 @@
 
 
     <span class="k">def</span> <span class="nf">configure_ammeter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Setup the ammeter with configuration options</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ammeter</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ammeter_range_A</span>
@@ -555,7 +552,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2022, RedLegJed.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

@@ -106,6 +106,9 @@ def test_time(func):
     """                                                                                                   
                                                                                                                           
     def wrapper(self,*arg,**kwargs):                                                                                                      
+        """
+        Wrapper function
+        """
         t = time.time()            
         self.log('<'*40)
         self.log(f'Running {self.name}')
