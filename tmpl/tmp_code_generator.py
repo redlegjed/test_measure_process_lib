@@ -237,7 +237,7 @@ def make_manager(name,conditions=['DefaultCondition'],meas=['DefaultMeasurement'
     txt = txt.replace('<MANAGER_NAME>',name)
 
     # Make conditions lines
-    cond_txt = [f'        self.add_condition({c})' for c in conditions]
+    cond_txt = [f'        self.add_setup_condition({c})' for c in conditions]
     
     # Make conditions lines
     meas_txt = [f'        self.add_measurement({m})' for m in meas]
