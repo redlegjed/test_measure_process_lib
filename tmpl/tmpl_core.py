@@ -2033,18 +2033,27 @@ class AbstractTestManager(abc.ABC,CommonUtility):
             A TMPL object e.g. any class based on AbstractMeasurement or
             AbstractSetupConditions
         """
-        methods = inspect.getmembers(object, predicate=inspect.ismethod)
-        methods = [m[0] for m in methods if not m[0].startswith('_')]
+        # Get list of all attributes of the object
+        methods = dir(object)
+        # Filter out private methods
+        methods = [m for m in methods if not m.startswith('_')]
 
-        # for attr in [a for a in dir(object) if not a.startswith('_')]:
+        # Check attributes to see if they have an 'is_service' property
+        # if they do then add them to self.services ObjDict
         for attr in methods:
-            attr_obj = getattr(object,attr)
+            # Use the inspect module getattr_static because it does not
+            # execute code in the attribute
+            attr_obj = inspect.getattr_static(object,attr)
 
             try:
 
                 if hasattr(attr_obj,'is_service'):
                     # print(f'{attr_obj.__name__} : is a service')
-                    self.services[attr_obj.__name__] = attr_obj
+                    # Add reference to service method
+                    # - this needs to be the proper attribute obtained from
+                    #   getattr(), the inspect.getattr_static doesn't work
+                    #   for this 
+                    self.services[attr_obj.__name__] = getattr(object,attr)
 
             except:
                 # Ignore failures, which are usually the ObjDict properties

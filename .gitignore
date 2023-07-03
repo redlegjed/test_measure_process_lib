@@ -69,3 +69,6 @@ target/
 tx_dc_test_outline*
 example_measured_data.json
 sandbox/*.*
+
+# Jupyter
+.ipynb_checkpoints*
