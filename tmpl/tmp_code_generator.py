@@ -80,7 +80,7 @@ class <MEASUREMENT_NAME>(tmpl.AbstractMeasurement):
         # self.run_on_setup(condition_label,value=None)
         # self.run_after(condition_label,value=None)
 
-        # Set up configuration vaules
+        # Set up configuration values
         self.config.<param> = <value>
         
 

@@ -60,7 +60,7 @@ This code shows an example of using *add_resources* to make a server object at t
         def initialise(self):
             self.run_on_startup(True)
 
-            # Set up configuration vaules
+            # Set up configuration values
             self.config.ip_address = '10.192.145.10'
             
 
