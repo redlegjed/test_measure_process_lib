@@ -40,7 +40,7 @@ TMPL is built on a set of core classes. These are built by inheriting from the A
 
 Before explaining the inner workings of TMPL this section runs through a hypothetical example to show how the classes are used at the top level.
 
-Suppose a _TestManager_ has been defined that has objects for setting *temperature and pressure*. It also has three measurement objects defined called *calibrate_scales, MeasureVolume and MeasureMass*.
+Suppose a _TestManager_ has been defined that has objects for setting *temperature and pressure*. It also has three measurement objects defined, called *calibrate_scales, MeasureVolume and MeasureMass*.
 
 The _TestManager_ is initialised with any _resources_ that the measurement classes require, e.g. instruments.
 
@@ -55,7 +55,7 @@ resources = {'chamber':chamber_object,
 test = TestManager_mymeas(resources)
 ```
 
-Setup conditions under which test is to be run can be defined by accessing the _SetupConditions_ objects directly through the _conditions_ property.
+Setup conditions under which the test is to be run can be defined by accessing the _SetupConditions_ objects directly through the _conditions_ property.
 
 ```python
 test.conditions.temperature.values = [25,40,75]
@@ -199,7 +199,7 @@ class Voltage(tmpl.AbstractSetupConditions):
 
 Next the central measurement class is defined. Measurement classes inherit from the _AbstractMeasurement_ class. The only method that _needs_ to be defined is *meas_sequence()*. This is generally the top level function of a specific measurement procedure. Any number of extra methods can be added to the class to support *meas_sequence()*, but when a measurement is executed it basically calls the *meas_sequence()* method.
 
-In this case the measurement is simply to read the ammeter and store the reading, which can be done in the *meas_sequence()*. The resistance, however, is derived from the ammeter reading and the setpoint of the voltage source. Since this is "processing" rather than measurement it is good practice to do this in another method. This ensures that the real measurement, the ammeter reading, is done even if the processing step crashes. In this case the processing function could be re-run later to debug it, without re-running the measurement.
+In this case the measurement is simply to read the ammeter and store the reading, which can be done in the *meas_sequence()* method. The resistance, however, is derived from the ammeter reading and the setpoint of the voltage source. Since this is "processing" rather than measurement it is good practice to do this in another method. This ensures that the real measurement, the ammeter reading, is done even if the processing step crashes. In this case the processing function could be re-run later to debug it, without re-running the measurement.
 
 ```python
 class CurrentMeasure(tmpl.AbstractMeasurement):
@@ -670,7 +670,9 @@ We can see the running order again:
 14  MEASUREMENT  VoltageSweeper         45.0      85.0
 ```
 
-and run the test:
+This time the *SetupCondition* classes have more than one value. Note how *VoltageSweeper* is run over all combinations of *Temperature* and *Humidity*.
+
+Finally we can run the test:
 
 ```python
 >>> test.run()
