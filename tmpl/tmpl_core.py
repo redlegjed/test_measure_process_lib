@@ -615,7 +615,7 @@ class CommonUtility():
         # Special case of 1D vectors
         # The req_shape will be (N,) whereas the data_values shape will be (N,1) 
         # or (1,N). In this case we need to squeeze out the extra dimension
-        same_num_elements = np.product(data_values.shape)==np.product(req_shape)
+        same_num_elements = np.prod(data_values.shape)==np.prod(req_shape)
         different_shapes = data_values.shape!=req_shape
 
         if same_num_elements and different_shapes:
