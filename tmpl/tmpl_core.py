@@ -69,6 +69,7 @@ import traceback
 import itertools
 import copy
 import inspect
+import warnings
 
 #from collections import OrderedDict
  
@@ -338,6 +339,11 @@ class CommonUtility():
     # Offline mode
     offline_mode = False
     """Flag that sets if the object is to be used offline, i.e. no hardware """
+
+    # Prefix for data variables
+    # - used by store_data_var()
+    # - by default empty. It is populated by add_measurement() in TestManager
+    data_var_prefix = ''
     
 
 
@@ -551,6 +557,10 @@ class CommonUtility():
         ------
         
         """
+        # Add prefix
+        # ============
+        # This is used when the same Measurement class is used multiple times
+        name = self.data_var_prefix + name
 
         # Input validation
         # ==============================
@@ -1922,6 +1932,9 @@ class AbstractTestManager(abc.ABC,CommonUtility):
         self.conditions[cond_name]._ds_results_global = self.link_to_ds_results
         self.conditions[cond_name]._global_data_link = self.link_to_global_data
 
+        # Remove default condition
+        self.remove_default_condition = True
+
     #----------------------------------------------------------------
     #%% Measurement methods
     #----------------------------------------------------------------
@@ -1944,9 +1957,16 @@ class AbstractTestManager(abc.ABC,CommonUtility):
             Reference to the class i.e. the class name in code
 
         meas_name : str
-            Name to be used to reference measuremEnt. This will appear
+            Name to be used to reference measurement. This will appear
             as a key in the self.meas dict.
             If nothing is specified then the class name is used.
+            If the same measurement class is added multiple times, 
+            each time should be given a different name using meas_name
+            e.g.
+            testseq.add_measurement(CheckTemperature,meas_name='Before')
+            testseq.add_measurement(VoltageSweep)
+            testseq.add_measurement(CheckTemperature,meas_name='After')
+
         
         run_state : str or list of str or dict
             Specify which state this measurement should run in.
@@ -1964,13 +1984,25 @@ class AbstractTestManager(abc.ABC,CommonUtility):
                          {'after':'<Condition name>'}
 
         """
+        # If a measurment name was given, use it as a prefix
+
+        data_var_prefix = ''
+        if meas_name !='':
+            data_var_prefix = meas_name + '_'
+
         if meas_name=='':
             if meas_class.name == '':
                 meas_name = meas_class.__name__
             else:
                 meas_name = meas_class.name
 
+        if meas_name in self.meas:
+            warnings.warn(f'Multiple measurements [{meas_name}] are being added. Only last will be used. Use optional "meas_name" argument in add_measurement to create repeated measurements with different names')
+
         self.meas[meas_name] = meas_class(self.resources,config=self.config)
+
+        # Add prefix
+        self.meas[meas_name].data_var_prefix = data_var_prefix
 
         # Add link to TestManager ds_results and global_data
         self.meas[meas_name]._test_manager = self
