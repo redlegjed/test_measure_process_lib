@@ -65,10 +65,12 @@ target/
 *test_data.xlsx
 *test_data.json
 
-
-tx_dc_test_outline*
+*.bak
 example_measured_data.json
 sandbox/*.*
 
 # Jupyter
 .ipynb_checkpoints*
+
+test*_nvim.py
+BigExperiment.py

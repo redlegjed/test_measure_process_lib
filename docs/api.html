@@ -1,24 +1,23 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>TMPL Application Programming Interface &#8212; Test, Measure, Process Library 0.1.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    <title>TMPL Application Programming Interface &#8212; Test, Measure, Process Library 0.1.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=aefb6c79" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css?v=0c0ddd54" />
     
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/documentation_options.js?v=a58bc63e"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="How to …" href="howto.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -30,7 +29,7 @@
         <li class="right" >
           <a href="howto.html" title="How to …"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">TMPL Application Programming Interface</a></li> 
       </ul>
     </div>  
@@ -41,14 +40,14 @@
           <div class="body" role="main">
             
   <section id="module-tmpl">
-<span id="tmpl-application-programming-interface"></span><h1>TMPL Application Programming Interface<a class="headerlink" href="#module-tmpl" title="Permalink to this heading">¶</a></h1>
+<span id="tmpl-application-programming-interface"></span><h1>TMPL Application Programming Interface<a class="headerlink" href="#module-tmpl" title="Link to this heading">¶</a></h1>
 <p>The core TMPL classes <em>TestManager</em>, <em>Measurement</em> and <em>SetupClasses</em> are all created from <em>abstract</em> class defintions. These are like “templates” that provide most of the underlying functionality, with only a few methods that need to be defined by the user.</p>
 <section id="testmanager-classes">
-<h2>TestManager classes<a class="headerlink" href="#testmanager-classes" title="Permalink to this heading">¶</a></h2>
+<h2>TestManager classes<a class="headerlink" href="#testmanager-classes" title="Link to this heading">¶</a></h2>
 <p><em>TestManager</em> classes are defined from the <em>AbstractTestManager</em> class and require the user to define the methods: <em>define_measurements</em> and <em>define_setup_conditions</em>. Optionally a <em>define_services</em> method can also be defined. The main methods that the user will encounter are documented below:</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="tmpl.AbstractTestManager">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tmpl.</span></span><span class="sig-name descname"><span class="pre">AbstractTestManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resources</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractTestManager" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tmpl.</span></span><span class="sig-name descname"><span class="pre">AbstractTestManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resources</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractTestManager" title="Link to this definition">¶</a></dt>
 <dd><p>Test manager class template definition</p>
 <p>TestManagers are responsible for running measurements over multiple conditions
 and collecting up all the data.</p>
@@ -79,7 +78,7 @@ name in the <em>self.config</em> property of <em>Measurement</em> and
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="tmpl.AbstractTestManager.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">arg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractTestManager.run" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">arg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractTestManager.run" title="Link to this definition">¶</a></dt>
 <dd><p>Run full test over all or specified conditions [Mandatory function]</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -107,7 +106,7 @@ e.g.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tmpl.AbstractTestManager.add_setup_condition">
-<span class="sig-name descname"><span class="pre">add_setup_condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cond_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractTestManager.add_setup_condition" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">add_setup_condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cond_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractTestManager.add_setup_condition" title="Link to this definition">¶</a></dt>
 <dd><p>Add setup conditions
 This takes a class (not an instance) and creates an instance from it
 that is populated with resources</p>
@@ -132,7 +131,7 @@ If nothing is specified then the class name is used.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tmpl.AbstractTestManager.add_measurement">
-<span class="sig-name descname"><span class="pre">add_measurement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meas_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractTestManager.add_measurement" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">add_measurement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meas_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meas_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractTestManager.add_measurement" title="Link to this definition">¶</a></dt>
 <dd><p>Add measurement class
 This takes a class (not an instance) and creates an instance from it
 that is populated with resources</p>
@@ -146,10 +145,20 @@ that is populated with resources</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>meas_class</strong> (<em>class reference</em>) – Reference to the class i.e. the class name in code</p></li>
-<li><p><strong>meas_name</strong> (<em>str</em>) – Name to be used to reference measuremEnt. This will appear
+<li><p><strong>meas_name</strong> (<em>str</em>) – Name to be used to reference measurement. This will appear
 as a key in the self.meas dict.
-If nothing is specified then the class name is used.</p></li>
-<li><p><strong>run_state</strong> (<em>str</em><em> or </em><em>list</em><em> of </em><em>str</em><em> or </em><em>dict</em>) – <p>Specify which state this measurement should run in.
+If nothing is specified then the class name is used.
+If the same measurement class is added multiple times,
+each time should be given a different name using meas_name
+e.g.
+testseq.add_measurement(CheckTemperature,meas_name=’Before’)
+testseq.add_measurement(VoltageSweep)
+testseq.add_measurement(CheckTemperature,meas_name=’After’)</p></li>
+</ul>
+</dd>
+</dl>
+<dl>
+<dt>run_state<span class="classifier">str or list of str or dict</span></dt><dd><p>Specify which state this measurement should run in.
 The options are:</p>
 <blockquote>
 <div><ul>
@@ -166,15 +175,13 @@ Here the format would be</p>
 </li>
 </ul>
 </div></blockquote>
-</p></li>
-</ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tmpl.AbstractTestManager.to_markdown">
-<span class="sig-name descname"><span class="pre">to_markdown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_cond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['Iteration']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_meas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['Timestamp']</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractTestManager.to_markdown" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">to_markdown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_cond</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['Iteration']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_meas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['Timestamp']</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractTestManager.to_markdown" title="Link to this definition">¶</a></dt>
 <dd><p>Generate a markdown file containing a description of the test sequence.</p>
 <p>Creates a description of the test sequence from the docstrings of all
 setup conditions and measurements.</p>
@@ -201,7 +208,7 @@ Otherwise None</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tmpl.AbstractTestManager.define_setup_conditions">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">define_setup_conditions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractTestManager.define_setup_conditions" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">define_setup_conditions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractTestManager.define_setup_conditions" title="Link to this definition">¶</a></dt>
 <dd><p>Define setup condition classes to be used for this test.</p>
 <p>All that is required is to add <em>SetupCondition</em> classes using the
 <em>add_setup_condition()</em> method as shown below:</p>
@@ -220,7 +227,7 @@ Otherwise None</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tmpl.AbstractTestManager.define_measurements">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">define_measurements</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractTestManager.define_measurements" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">define_measurements</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractTestManager.define_measurements" title="Link to this definition">¶</a></dt>
 <dd><p>Define measurement classes to be used for this test.</p>
 <p>All that is required is to add <em>Measurement</em> classes using the
 <em>add_measurement()</em> method as shown below:</p>
@@ -241,7 +248,7 @@ Otherwise None</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tmpl.AbstractTestManager.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'json'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractTestManager.save" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'json'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractTestManager.save" title="Link to this definition">¶</a></dt>
 <dd><p>Save ds_results dataset</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -266,7 +273,7 @@ Options are:</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tmpl.AbstractTestManager.load">
-<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractTestManager.load" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractTestManager.load" title="Link to this definition">¶</a></dt>
 <dd><p>Load data into self.ds_results
 If the self object is a measurement or conditions class then it will
 only take data that is usually generated by those classes.</p>
@@ -293,16 +300,16 @@ that existed when the file was saved.</p>
 
 </section>
 <section id="measurement-classes">
-<h2><em>Measurement</em> classes<a class="headerlink" href="#measurement-classes" title="Permalink to this heading">¶</a></h2>
+<h2><em>Measurement</em> classes<a class="headerlink" href="#measurement-classes" title="Link to this heading">¶</a></h2>
 <p><em>Measurement</em> classes are defined from the <em>AbstractMeasurement</em> class. They have one mandatory method that must be defined by the user: <em>meas_sequence</em>, plus two optional methods <em>initialise</em> and <em>process</em>.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="tmpl.AbstractMeasurement">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tmpl.</span></span><span class="sig-name descname"><span class="pre">AbstractMeasurement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resources</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractMeasurement" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tmpl.</span></span><span class="sig-name descname"><span class="pre">AbstractMeasurement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resources</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractMeasurement" title="Link to this definition">¶</a></dt>
 <dd><p>Measurement class
 This class contains the measurement code. At a minimum it should define the
 ‘meas_sequence()’ method and the ‘enable’ property.</p>
 <section id="example-usage">
-<h3>Example usage<a class="headerlink" href="#example-usage" title="Permalink to this heading">¶</a></h3>
+<h3>Example usage<a class="headerlink" href="#example-usage" title="Link to this heading">¶</a></h3>
 <p>Create measurement</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">meas</span> <span class="o">=</span> <span class="n">MyMeasurement</span><span class="p">(</span><span class="n">resources</span><span class="p">)</span>
 </pre></div>
@@ -347,7 +354,7 @@ The name must correspond to a key in the TestManager objects
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="tmpl.AbstractMeasurement.initialise">
-<span class="sig-name descname"><span class="pre">initialise</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractMeasurement.initialise" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">initialise</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractMeasurement.initialise" title="Link to this definition">¶</a></dt>
 <dd><p>Custom initialisation function.
 Put any custom properties and definitions in here.
 This function will be run automatically when an object is instantiated.</p>
@@ -361,7 +368,7 @@ self.tb = self.resources[‘testboard’]</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tmpl.AbstractMeasurement.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">arg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractMeasurement.run" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">arg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractMeasurement.run" title="Link to this definition">¶</a></dt>
 <dd><p>Run measurement sequence at specified conditions
 This method will run the sequence inside a try/except block to
 catch errors.
@@ -398,7 +405,7 @@ if necessary.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tmpl.AbstractMeasurement.meas_sequence">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">meas_sequence</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractMeasurement.meas_sequence" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">meas_sequence</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractMeasurement.meas_sequence" title="Link to this definition">¶</a></dt>
 <dd><p>Define the sequence of measurements that are executed by the run()
 method.
 This is a mandatory method that all classes must define.
@@ -407,7 +414,7 @@ The user is free to put anything in this method.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tmpl.AbstractMeasurement.ds_results_global">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ds_results_global</span></span><a class="headerlink" href="#tmpl.AbstractMeasurement.ds_results_global" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ds_results_global</span></span><a class="headerlink" href="#tmpl.AbstractMeasurement.ds_results_global" title="Link to this definition">¶</a></dt>
 <dd><p>Access global dataset of test manager</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -421,7 +428,7 @@ The user is free to put anything in this method.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tmpl.AbstractMeasurement.store_data_var">
-<span class="sig-name descname"><span class="pre">store_data_var</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractMeasurement.store_data_var" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">store_data_var</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractMeasurement.store_data_var" title="Link to this definition">¶</a></dt>
 <dd><p>Store data into a data variable in self.ds_results
 Creates a new data variable or overwrites existing data.
 The new data variable also has all the current conditions appended
@@ -451,7 +458,7 @@ e.g. {‘Resistor’:’R1’,’sweep_voltage’:None}</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tmpl.AbstractMeasurement.store_coords">
-<span class="sig-name descname"><span class="pre">store_coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractMeasurement.store_coords" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">store_coords</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractMeasurement.store_coords" title="Link to this definition">¶</a></dt>
 <dd><p>Add a new coordinate to self.ds_results or overwrite and existing one</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -465,7 +472,7 @@ e.g. {‘Resistor’:’R1’,’sweep_voltage’:None}</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tmpl.AbstractMeasurement.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'json'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractMeasurement.save" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'json'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractMeasurement.save" title="Link to this definition">¶</a></dt>
 <dd><p>Save ds_results dataset</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -490,7 +497,7 @@ Options are:</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tmpl.AbstractMeasurement.load">
-<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractMeasurement.load" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractMeasurement.load" title="Link to this definition">¶</a></dt>
 <dd><p>Load data into self.ds_results
 If the self object is a measurement or conditions class then it will
 only take data that is usually generated by those classes.</p>
@@ -518,17 +525,17 @@ that existed when the file was saved.</p>
 
 </section>
 <section id="setupcondition-classes">
-<h2><em>SetupCondition</em> classes<a class="headerlink" href="#setupcondition-classes" title="Permalink to this heading">¶</a></h2>
+<h2><em>SetupCondition</em> classes<a class="headerlink" href="#setupcondition-classes" title="Link to this heading">¶</a></h2>
 <p><em>SetupCondition</em> classes are defined from <em>AbstractSetupCondition</em> class. They require the user to define two properties: <em>setpoint</em> and <em>actual</em>.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="tmpl.AbstractSetupConditions">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tmpl.</span></span><span class="sig-name descname"><span class="pre">AbstractSetupConditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resources</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractSetupConditions" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tmpl.</span></span><span class="sig-name descname"><span class="pre">AbstractSetupConditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resources</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractSetupConditions" title="Link to this definition">¶</a></dt>
 <dd><p>Setup conditions class
 This class sets up conditions like temperature, wavelength etc. Conditions
 that are not changing quickly. A measurement will be run under one combination
 of setup conditions.</p>
 <section id="id1">
-<h3>Example usage<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
+<h3>Example usage<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
 <p>Create Setup conditions</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cond</span> <span class="o">=</span> <span class="n">MySetupConditions</span><span class="p">(</span><span class="n">station</span><span class="p">,</span><span class="n">uut</span><span class="p">,</span><span class="n">values</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
 </pre></div>
@@ -574,7 +581,7 @@ of setup conditions.</p>
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="tmpl.AbstractSetupConditions.ds_results_global">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ds_results_global</span></span><a class="headerlink" href="#tmpl.AbstractSetupConditions.ds_results_global" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ds_results_global</span></span><a class="headerlink" href="#tmpl.AbstractSetupConditions.ds_results_global" title="Link to this definition">¶</a></dt>
 <dd><p>Access global dataset of test manager</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -588,7 +595,7 @@ of setup conditions.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tmpl.AbstractSetupConditions.initialise">
-<span class="sig-name descname"><span class="pre">initialise</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractSetupConditions.initialise" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">initialise</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tmpl.AbstractSetupConditions.initialise" title="Link to this definition">¶</a></dt>
 <dd><p>Custom initialisation function.
 Put any custom properties and definitions in here.
 This function will be run automatically when an object is instantiated.</p>
@@ -602,7 +609,7 @@ self.tb = self.resources[‘testboard’]</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tmpl.AbstractSetupConditions.setpoint">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setpoint</span></span><a class="headerlink" href="#tmpl.AbstractSetupConditions.setpoint" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">setpoint</span></span><a class="headerlink" href="#tmpl.AbstractSetupConditions.setpoint" title="Link to this definition">¶</a></dt>
 <dd><p>Get/Set the condition setpoint</p>
 <p>e.g.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cond_temperature_degC</span><span class="o">.</span><span class="n">setpoint</span> <span class="o">=</span> <span class="mi">25</span>
@@ -621,7 +628,7 @@ self.tb = self.resources[‘testboard’]</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tmpl.AbstractSetupConditions.actual">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">actual</span></span><a class="headerlink" href="#tmpl.AbstractSetupConditions.actual" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">actual</span></span><a class="headerlink" href="#tmpl.AbstractSetupConditions.actual" title="Link to this definition">¶</a></dt>
 <dd><p>Get the actual condition value
 Read only value</p>
 <p>e.g.</p>
@@ -650,10 +657,10 @@ Read only value</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="index.html">
-              <img class="logo" src="_static/tmpl_dark_logo.png" alt="Logo"/>
+              <img class="logo" src="_static/tmpl_dark_logo.png" alt="Logo of Test, Measure, Process Library"/>
             </a></p>
   <div>
     <h3><a href="index.html">Table of Contents</a></h3>
@@ -714,7 +721,7 @@ Read only value</p>
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -722,13 +729,13 @@ Read only value</p>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -740,13 +747,13 @@ Read only value</p>
         <li class="right" >
           <a href="howto.html" title="How to …"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">TMPL Application Programming Interface</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2022, RedLegJed.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    &#169; Copyright 2025, RedLegJed.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>

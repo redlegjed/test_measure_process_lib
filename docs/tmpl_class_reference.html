@@ -1,25 +1,24 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Class Reference &#8212; Test, Measure, Process Library 0.1.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    <title>Class Reference &#8212; Test, Measure, Process Library 0.1.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=aefb6c79" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css?v=0c0ddd54" />
     
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/documentation_options.js?v=a58bc63e"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="TMPL Advanced usage" href="advanced_usage.html" />
     <link rel="prev" title="Getting Started" href="getting_started.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -34,7 +33,7 @@
         <li class="right" >
           <a href="getting_started.html" title="Getting Started"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Class Reference</a></li> 
       </ul>
     </div>  
@@ -45,7 +44,7 @@
           <div class="body" role="main">
             
   <section id="class-reference">
-<h1>Class Reference<a class="headerlink" href="#class-reference" title="Permalink to this heading">¶</a></h1>
+<h1>Class Reference<a class="headerlink" href="#class-reference" title="Link to this heading">¶</a></h1>
 <p>Setting up a test sequence in TMPL requires creating three types of class:</p>
 <ul class="simple">
 <li><p><em>Measurement</em> : These classes take the measurements, they are responsible for communicating with test equipment, acquiring the measurement data and storing it. A test sequence may have multiple <em>Measurement</em> classes attached to it. <em>Measurement</em> classes always inherit from the <em>AbstractMeasurement</em> class defined by TMPL.</p></li>
@@ -53,9 +52,9 @@
 <li><p><em>TestManager</em> : This class manages the test sequence. It contains multiple <em>Measurement</em> and <em>SetupCondition</em> classes that it puts together in a sequence. It is responsible for running this test sequence and collecting the data from all the individual <em>Measurement</em> and <em>SetupCondition</em> classes.</p></li>
 </ul>
 <section id="testmanager-class">
-<h2>TestManager Class<a class="headerlink" href="#testmanager-class" title="Permalink to this heading">¶</a></h2>
+<h2>TestManager Class<a class="headerlink" href="#testmanager-class" title="Link to this heading">¶</a></h2>
 <section id="definition">
-<h3>Definition<a class="headerlink" href="#definition" title="Permalink to this heading">¶</a></h3>
+<h3>Definition<a class="headerlink" href="#definition" title="Link to this heading">¶</a></h3>
 <p><em>TestManager</em> classes are the top level class that combines all the setup conditions and measurements together into one sequence. They all inherit from the <em>AbstractTestManager</em> class. The <em>AbstractTestManager</em> class requires that two mandatory methods be defined: <em>define_setup_conditions</em> and <em>define_measurements</em>, as shown in the example <em>TestManager</em> class below.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tmpl</span>
 
@@ -176,7 +175,7 @@
 </ul>
 </section>
 <section id="running-the-test-sequence">
-<span id="running-test-sequence"></span><h3>Running the test sequence<a class="headerlink" href="#running-the-test-sequence" title="Permalink to this heading">¶</a></h3>
+<span id="running-test-sequence"></span><h3>Running the test sequence<a class="headerlink" href="#running-the-test-sequence" title="Link to this heading">¶</a></h3>
 <p><em>TestManager</em> classes are used in the following way:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get test instrument objects</span>
 <span class="n">resources</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ammeter&#39;</span><span class="p">:</span><span class="n">ammeter_object</span><span class="p">,</span><span class="s1">&#39;voltmeter&#39;</span><span class="p">:</span><span class="n">voltmeter_object</span><span class="p">,</span><span class="s1">&#39;chamber&#39;</span><span class="p">:</span><span class="n">chamber_object</span><span class="p">}</span>
@@ -196,7 +195,7 @@
 <p>When the sequence has finished any results that have been stored can be saved using the <em>save</em> method and passing a filename. This should include the full path because no assumption is made about the storage location.</p>
 </section>
 <section id="accessing-setup-conditions-and-measurements">
-<h3>Accessing setup conditions and measurements<a class="headerlink" href="#accessing-setup-conditions-and-measurements" title="Permalink to this heading">¶</a></h3>
+<h3>Accessing setup conditions and measurements<a class="headerlink" href="#accessing-setup-conditions-and-measurements" title="Link to this heading">¶</a></h3>
 <p>When a <em>TestManager</em> object is created, it also creates objects for all the setup conditions and measurements using the <em>define_setup_conditions</em> and <em>define_measurements</em> methods. These objects are available from the <em>TestManager</em> object through the <em>.conditions</em> and <em>.meas</em> properties. For our example the objects would be available like this:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Setup condition objects accessed through &#39;conditions&#39; property</span>
 <span class="n">test_seq</span><span class="o">.</span><span class="n">conditions</span><span class="o">.</span><span class="n">Temperature</span>
@@ -211,9 +210,9 @@
 </section>
 </section>
 <section id="setupcondition-class">
-<h2>SetupCondition Class<a class="headerlink" href="#setupcondition-class" title="Permalink to this heading">¶</a></h2>
+<h2>SetupCondition Class<a class="headerlink" href="#setupcondition-class" title="Link to this heading">¶</a></h2>
 <section id="id1">
-<h3>Definition<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
+<h3>Definition<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
 <p><em>SetupCondition</em> classes are responsible for setting and querying one specific condition. They all inherit from the <em>AbstractSetupCondition</em> class. This requires two mandatory properties: <em>actual</em> and <em>setpoint</em>, for reading the <em>actual</em> value of the condition and setting the value of the condition. <em>actual</em> and <em>setpoint</em> appear as properties of the <em>SetupCondition</em> class but usually they are <em>methods</em> that use the Python <em>&#64;property</em> decorator to appear as properties. This is because querying and setting the condition usually requires interfacing to test equipment.</p>
 <p>The code below shows an example of the definition of a <em>SetupCondition</em> class:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Temperature</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractSetupConditions</span><span class="p">):</span>
@@ -259,7 +258,7 @@
 <p><em>SetupCondition</em> classes have a property, <em>values</em>, that is a list of the <em>setpoint</em> values that will be used in the test sequence when it is run. The <em>SetupCondition</em> class definition usually sets a default list for <em>values</em>. This can be customised later by direct access to the <em>values</em> property. When a <em>TestManager</em> runs the test sequence, it will scan each <em>SetupCondition</em> object in it’s memory and extract the <em>values</em> list. It will then use these to build a table of test conditions that need to be set before performing each measurement.</p>
 </section>
 <section id="setting-querying-setup-conditions">
-<h3>Setting/Querying setup conditions<a class="headerlink" href="#setting-querying-setup-conditions" title="Permalink to this heading">¶</a></h3>
+<h3>Setting/Querying setup conditions<a class="headerlink" href="#setting-querying-setup-conditions" title="Link to this heading">¶</a></h3>
 <p><em>SetupCondition</em> objects are created inside the <em>TestManager</em>. Once created they are available through the <em>TestManager</em> object. They can be used independently to set or query conditions without running in a test sequence.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Condition is available through the &#39;conditions&#39; property of TestManager object</span>
 <span class="n">test_seq</span><span class="o">.</span><span class="n">conditions</span><span class="o">.</span><span class="n">Temperature</span>
@@ -277,9 +276,9 @@
 </section>
 </section>
 <section id="measurement-class">
-<h2>Measurement Class<a class="headerlink" href="#measurement-class" title="Permalink to this heading">¶</a></h2>
+<h2>Measurement Class<a class="headerlink" href="#measurement-class" title="Link to this heading">¶</a></h2>
 <section id="id2">
-<h3>Definition<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<h3>Definition<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
 <p><em>Measurement</em> classes are responsible for executing the code that takes a specific measurement or multiple measurements. They inherit from the <em>AbstractMeasurement</em> class. <em>Measurement</em> classes require one mandatory method, <em>meas_sequence</em>. This can either contain all the measurement code or, more usually, it can be the top level that calls other class methods in a sequence. The example below shows a simple <em>Measurement</em> class for reading electrical current from an ammeter.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Current</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -304,7 +303,7 @@
 <p>The next line stores the measured value into the class internal storage. This will be discussed in more detail in <a class="reference internal" href="#label-storing-data"><span class="std std-ref">Storing data</span></a> below.</p>
 </section>
 <section id="initialisation-and-configuration">
-<h3>Initialisation and configuration<a class="headerlink" href="#initialisation-and-configuration" title="Permalink to this heading">¶</a></h3>
+<h3>Initialisation and configuration<a class="headerlink" href="#initialisation-and-configuration" title="Link to this heading">¶</a></h3>
 <p><em>Measurement</em> classes can also have an optional <em>initialise</em> method, similar to <em>SetupCondition</em> classes. This is generally used to define configuration options for the measurement. The example below shows a revised <em>Current</em> class that uses the <em>initialise</em> method to define some configuration values for the <em>ammeter</em>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Current</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -363,9 +362,9 @@
 <p>This kind of access from the top level <em>TestManager</em> allows measurement configurations to be a adjusted without changing the code inside the <em>Measurement</em> class.</p>
 </section>
 <section id="storing-measurement-data">
-<span id="label-storing-data"></span><h3>Storing measurement data<a class="headerlink" href="#storing-measurement-data" title="Permalink to this heading">¶</a></h3>
+<span id="label-storing-data"></span><h3>Storing measurement data<a class="headerlink" href="#storing-measurement-data" title="Link to this heading">¶</a></h3>
 <section id="data-variables">
-<h4>Data variables<a class="headerlink" href="#data-variables" title="Permalink to this heading">¶</a></h4>
+<h4>Data variables<a class="headerlink" href="#data-variables" title="Link to this heading">¶</a></h4>
 <p><em>Measurement</em> classes store data into a property called <em>.ds_results</em>. This is an <a class="reference external" href="http://xarray.pydata.org/en/stable/">xarray</a> <em>Dataset</em> object. TMPL classes all have helper methods for storing data to Datasets. The simplest way to store data directly into <em>.ds_results</em> is to use the <em>store_data_var</em> method as seen in the examples above.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Store the data</span>
 <span class="bp">self</span><span class="o">.</span><span class="n">store_data_var</span><span class="p">(</span><span class="s1">&#39;current_A&#39;</span><span class="p">,</span><span class="n">current</span><span class="p">)</span>
@@ -375,7 +374,7 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">test_seq</span><span class="o">.</span><span class="n">meas</span><span class="o">.</span><span class="n">Current</span><span class="o">.</span><span class="n">ds_results</span>
 <span class="go">&lt;xarray.Dataset&gt;</span>
 <span class="go">Dimensions:      (timestamp: 1, Temperature: 3)</span>
-<span class="gp">...</span>
+<span class="go">...</span>
 <span class="go">Coordinates:</span>
 <span class="go">* timestamp    (timestamp) &lt;U19 &#39;2022-06-05 00h34m05&#39;</span>
 <span class="go">* Temperature  (Temperature) int64 25 35 45</span>
@@ -387,7 +386,7 @@
 <p>Note the <em>timestamp</em> coordinate is added automatically by TMPL.</p>
 </section>
 <section id="coordinates-and-data-variables">
-<h4>Coordinates and data variables<a class="headerlink" href="#coordinates-and-data-variables" title="Permalink to this heading">¶</a></h4>
+<h4>Coordinates and data variables<a class="headerlink" href="#coordinates-and-data-variables" title="Link to this heading">¶</a></h4>
 <p>Measurements will usually be more complicated than recording a single value. Frequently the measurement will have its own independent variables. The following <em>Measurement</em> class illustrates this by implementing a voltage sweep on the resistor. This requires stepping the voltage across the resistor over an array of values and recording the corresponding current for each voltage. In this case voltage is also an independent variable even though it is not a <em>SetupCondition</em>. The measurement also reads back the voltage from a <em>voltmeter</em> object that has been passed in as a <em>resource</em>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">VoltageSweeper</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
 
@@ -442,17 +441,17 @@
 <p>As well at <em>Temperature</em> the sweep voltage has been added as a <em>coordinate</em>. It is an array of 10 points, more than the <em>Dataset</em> printout will display. The data variables: <em>current_A</em> and <em>voltage_diff_V</em> now show the dependency as well.</p>
 </section>
 <section id="specifying-individual-coordinate-values">
-<h4>Specifying individual coordinate values<a class="headerlink" href="#specifying-individual-coordinate-values" title="Permalink to this heading">¶</a></h4>
+<h4>Specifying individual coordinate values<a class="headerlink" href="#specifying-individual-coordinate-values" title="Link to this heading">¶</a></h4>
 <p>TODO - using coords = dictionary</p>
 </section>
 </section>
 </section>
 <section id="results-data">
-<h2>Results data<a class="headerlink" href="#results-data" title="Permalink to this heading">¶</a></h2>
+<h2>Results data<a class="headerlink" href="#results-data" title="Link to this heading">¶</a></h2>
 <p>TODO</p>
 </section>
 <section id="modular-measurements">
-<h2>Modular Measurements<a class="headerlink" href="#modular-measurements" title="Permalink to this heading">¶</a></h2>
+<h2>Modular Measurements<a class="headerlink" href="#modular-measurements" title="Link to this heading">¶</a></h2>
 <p>Since all <em>Measurement</em> and <em>SetupCondition</em> classes are defined independently, they can be used in different sequences as defined by <em>TestManager</em> classes. The intention is to be able to define libraries of <em>Measurement</em> and <em>SetupCondition</em> classes. These can be used to construct many different <em>TestManager</em> classes in a “mix and match” way.</p>
 </section>
 </section>
@@ -462,10 +461,10 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="index.html">
-              <img class="logo" src="_static/tmpl_dark_logo.png" alt="Logo"/>
+              <img class="logo" src="_static/tmpl_dark_logo.png" alt="Logo of Test, Measure, Process Library"/>
             </a></p>
   <div>
     <h3><a href="index.html">Table of Contents</a></h3>
@@ -517,7 +516,7 @@
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -525,13 +524,13 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -546,13 +545,13 @@
         <li class="right" >
           <a href="getting_started.html" title="Getting Started"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Class Reference</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2022, RedLegJed.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    &#169; Copyright 2025, RedLegJed.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>

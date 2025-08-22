@@ -1,25 +1,24 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>TMPL Advanced usage &#8212; Test, Measure, Process Library 0.1.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    <title>TMPL Advanced usage &#8212; Test, Measure, Process Library 0.1.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=aefb6c79" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css?v=0c0ddd54" />
     
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/documentation_options.js?v=a58bc63e"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="How to …" href="howto.html" />
     <link rel="prev" title="Class Reference" href="tmpl_class_reference.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -34,7 +33,7 @@
         <li class="right" >
           <a href="tmpl_class_reference.html" title="Class Reference"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">TMPL Advanced usage</a></li> 
       </ul>
     </div>  
@@ -45,7 +44,7 @@
           <div class="body" role="main">
             
   <section id="tmpl-advanced-usage">
-<h1>TMPL Advanced usage<a class="headerlink" href="#tmpl-advanced-usage" title="Permalink to this heading">¶</a></h1>
+<h1>TMPL Advanced usage<a class="headerlink" href="#tmpl-advanced-usage" title="Link to this heading">¶</a></h1>
 <p>This page describes some of the more advanced features of TMPL.</p>
 <ul class="simple">
 <li><p><em>Data</em>: Where data can be stored in TMPL objects</p></li>
@@ -56,7 +55,7 @@
 <li><p><em>Sequencing</em> : How to make <em>Measurements</em> execute only under certain conditions or stages of the sequence</p></li>
 </ul>
 <section id="data">
-<h2>Data<a class="headerlink" href="#data" title="Permalink to this heading">¶</a></h2>
+<h2>Data<a class="headerlink" href="#data" title="Link to this heading">¶</a></h2>
 <p>TMPL objects have several internal data structures that can be used for static and temporary storage. These are the following:</p>
 <ul class="simple">
 <li><p><em>config</em>: static storage, usually defined in the object’s <em>initialise</em> method. <em>config</em> is intended for configuration settings that are set once per sequence run.</p></li>
@@ -83,7 +82,7 @@
 </div>
 </section>
 <section id="adding-extra-resources">
-<h2>Adding extra resources<a class="headerlink" href="#adding-extra-resources" title="Permalink to this heading">¶</a></h2>
+<h2>Adding extra resources<a class="headerlink" href="#adding-extra-resources" title="Link to this heading">¶</a></h2>
 <p><em>resources</em> are usually added as a dictionary when a TMPL class is instantiated. Each item in the dictionary is added as a property to all TMPL classes under the main <em>TestManager</em> object.</p>
 <p>There may be occasions where a resource is generated inside a TMPL class, e.g. a Measurement class, and is required to be available to other classes. An example might be an object that is created at the start of a test sequence, like creating a test instrument object.</p>
 <p>In this case, all TMPL classes have a method for adding resources dynamically, <em>add_resources</em>. Passing a dictionary to this method will automatically make new properties in all TMPL class objects in the test sequence. The properties will take the names of the dictionary keys, so these must be in a suitable form, i.e. no spaces.</p>
@@ -115,7 +114,7 @@
 </div>
 </section>
 <section id="processing">
-<h2>Processing<a class="headerlink" href="#processing" title="Permalink to this heading">¶</a></h2>
+<h2>Processing<a class="headerlink" href="#processing" title="Link to this heading">¶</a></h2>
 <p><em>Measurement</em> objects can have an optional method, <em>process()</em>, which if defined in the class will be called automatically after <em>meas_sequence()</em>. This method is intended for processing data that has been measured in <em>meas_sequence()</em>. Like <em>meas_sequence()</em> there are no restrictions on what can be done in <em>process()</em> its name is just a guideline.</p>
 <p>Here is an example of a <em>Measurement</em> class that includes a <em>process()</em> method:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">VoltageSweeper</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
@@ -205,7 +204,7 @@
 </pre></div>
 </div>
 <section id="processing-only-classes">
-<h3>Processing only classes<a class="headerlink" href="#processing-only-classes" title="Permalink to this heading">¶</a></h3>
+<h3>Processing only classes<a class="headerlink" href="#processing-only-classes" title="Link to this heading">¶</a></h3>
 <p>There is no specific class for purely processing data. This is because it would just be the same as a <em>Measurement</em> class. However if you want to make a processing only class then it can either be done the same way as any other <em>Measurement</em> class, using the <em>meas_sequence()</em> method as the top level code or by creating an empty <em>meas_sequence()</em> and putting the main code in the <em>process()</em> method as in this example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ProcessOnly</span><span class="p">(</span><span class="n">tmp</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
 
@@ -220,7 +219,7 @@
 </div>
 </section>
 <section id="post-processing">
-<h3>Post processing<a class="headerlink" href="#post-processing" title="Permalink to this heading">¶</a></h3>
+<h3>Post processing<a class="headerlink" href="#post-processing" title="Link to this heading">¶</a></h3>
 <p>If post-processing is required after all measurements have been executed over all conditions then the class can be tagged to run only at the end in the teardown stage.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">PostProcess</span><span class="p">(</span><span class="n">tmp</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
 
@@ -240,7 +239,7 @@
 </section>
 </section>
 <section id="customisation">
-<h2>Customisation<a class="headerlink" href="#customisation" title="Permalink to this heading">¶</a></h2>
+<h2>Customisation<a class="headerlink" href="#customisation" title="Link to this heading">¶</a></h2>
 <p>All the TMPL objects have a <em>.config</em> property. From its name it is intended to hold configuration data. This is usually static values that are required for performing measurements or processing.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CustomisableMeasurement</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">Measurement</span><span class="p">):</span>
 
@@ -271,7 +270,7 @@
 </pre></div>
 </div>
 <section id="global-configuration">
-<h3>Global configuration<a class="headerlink" href="#global-configuration" title="Permalink to this heading">¶</a></h3>
+<h3>Global configuration<a class="headerlink" href="#global-configuration" title="Link to this heading">¶</a></h3>
 <p>Setting configurations through each <em>Measurement</em> object may not always be desired, especially if <em>Measurement</em> objects share a common configuration value. For this reason  <em>TestManager</em> objects have <em>.config</em> properties that will be copied to all <em>Measurement</em> and <em>SetupCondition</em> objects when the <em>TestManager</em> object is created.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SeqWithGlobalConfig</span><span class="p">(</span><span class="n">tmp</span><span class="o">.</span><span class="n">AbstractTestManager</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -350,7 +349,7 @@
 </section>
 </section>
 <section id="services">
-<h2>Services<a class="headerlink" href="#services" title="Permalink to this heading">¶</a></h2>
+<h2>Services<a class="headerlink" href="#services" title="Link to this heading">¶</a></h2>
 <p>Services are functions that can be accessed by any of the TMPL objects. For example a service might be a function to convert metres into centimetres called <em>m_to_cm</em>. This would be called from inside a TMPL object like this:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">length_cm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">m_to_cm</span><span class="p">(</span><span class="n">length_m</span><span class="p">)</span>
 </pre></div>
@@ -362,7 +361,7 @@
 </ul>
 <p>These are described in more detail in the following sections.</p>
 <section id="adding-services-to-testmanager-class">
-<h3>Adding Services to <em>TestManager</em> class<a class="headerlink" href="#adding-services-to-testmanager-class" title="Permalink to this heading">¶</a></h3>
+<h3>Adding Services to <em>TestManager</em> class<a class="headerlink" href="#adding-services-to-testmanager-class" title="Link to this heading">¶</a></h3>
 <p>Services can be added globally to the <em>TestManager</em> class using the optional method <em>define_services()</em>. Services are basically functions and can be added directly to the <em>.services</em> property of the <em>TestManager</em> as shown in this example</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define a function to use as a service</span>
 <span class="k">def</span> <span class="nf">percent</span><span class="p">(</span><span class="n">fraction</span><span class="p">):</span>
@@ -397,7 +396,7 @@
 <p>Services defined in <em>define_services</em> should be stand alone functions. However services can also be derived from <em>Measurement</em> or <em>SetupCondition</em> classes as described next.</p>
 </section>
 <section id="services-from-measurement-and-setupcondition-classes">
-<h3>Services from <em>Measurement</em> and <em>SetupCondition</em> classes<a class="headerlink" href="#services-from-measurement-and-setupcondition-classes" title="Permalink to this heading">¶</a></h3>
+<h3>Services from <em>Measurement</em> and <em>SetupCondition</em> classes<a class="headerlink" href="#services-from-measurement-and-setupcondition-classes" title="Link to this heading">¶</a></h3>
 <p>Sometimes data generated or measured in one <em>Measurement</em> or <em>SetupCondition</em> class is useful in another class. For example a <em>Measurement</em> class may take a series of readings that act as a look up table for other <em>Measurement</em> classes. This data could be pushed into the <em>ds_results</em> Dataset or <em>global_data</em> or <em>local_data</em> so other classes could access it. In the case of a look up table each class that wanted to use it would have to implement its own code for cross referencing through the table. It would be more convenient if the class that generated the look up table could provide a “service” that implements the cross referencing code. Then other classes can just call the service function. This can be done by tagging class methods with the <em>&#64;tmpl.service</em> decorator.</p>
 <p>Any class method can be tagged using the <em>&#64;tmpl.service</em> decorator to turn it into a service. The following example shows one class creating a service and another class using it.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MeasurementWithService</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
@@ -457,7 +456,7 @@
 </section>
 </section>
 <section id="sequence-states">
-<h2>Sequence states<a class="headerlink" href="#sequence-states" title="Permalink to this heading">¶</a></h2>
+<h2>Sequence states<a class="headerlink" href="#sequence-states" title="Link to this heading">¶</a></h2>
 <p>When a <em>TestManager</em> sequence is executed using the <em>run()</em> method it creates a loop. Before starting the loop a table of setup conditions is created. Each row of the table represents a combination of setup conditions. Each iteration of the loop is one row of the table. Within this loop there are particular states where <em>Measurement</em> classes can be executed. These states are <em>Startup</em>, <em>Setup</em>, <em>Main</em>, <em>After</em>, <em>Teardown</em> and <em>Error</em>. The sequence loop runs in the order below, with the states shown in <strong>bold</strong>.</p>
 <ul class="simple">
 <li><p>Build setup conditions table</p></li>
@@ -492,7 +491,7 @@
 <li><p><em>run_on_error</em>: Run when an error occurs</p></li>
 </ul>
 <section id="sequencing-example">
-<h3>Sequencing example<a class="headerlink" href="#sequencing-example" title="Permalink to this heading">¶</a></h3>
+<h3>Sequencing example<a class="headerlink" href="#sequencing-example" title="Link to this heading">¶</a></h3>
 <p>This section will go through an example of sequencing measurements. We will start with the <em>TestManager</em> definition for the simple resistor measurement.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ExampleTestSequence</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractTestManager</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -536,7 +535,7 @@
 </div>
 <p>Looking at the <em>define_measurements()</em> method at the end of the class definition, the comments indicate where we want each <em>Measurement</em> class to run. There are two ways to set when <em>Measurement</em> classes run:</p>
 <section id="set-run-state-in-class-definition">
-<h4>Set run state in class definition<a class="headerlink" href="#set-run-state-in-class-definition" title="Permalink to this heading">¶</a></h4>
+<h4>Set run state in class definition<a class="headerlink" href="#set-run-state-in-class-definition" title="Link to this heading">¶</a></h4>
 <p>The first method is to set the run state from within the <em>Measurement</em> class definition itself. The code below shows the class definitions for <em>TurnOn</em>, <em>TurnOff</em>, <em>Stabilise</em> and <em>HandleError</em>. For each class the run state is set in the <em>initialise()</em> method.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">TurnOn</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractMeasurement</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -595,7 +594,7 @@
 <p>Setting the run state is mostly a boolean operation. However when using <em>run_on_setup</em> the name of the condition is specified. This is the value of the <em>name</em> property of the <em>SetupCondition</em> class. If <em>name</em> was not specified in the class definition then it will default to the class name. In the example above it is assumed that <em>name</em> in the <em>TemperatureConditions</em> class is “temperature_degC”.</p>
 </section>
 <section id="set-run-state-from-define-measurements">
-<h4>Set run state from <em>define_measurements</em><a class="headerlink" href="#set-run-state-from-define-measurements" title="Permalink to this heading">¶</a></h4>
+<h4>Set run state from <em>define_measurements</em><a class="headerlink" href="#set-run-state-from-define-measurements" title="Link to this heading">¶</a></h4>
 <p>An alterative way to set the run state is from inside the <em>TestManager</em> class definition. This is better if the same <em>Measurement</em> class is reused in different sequences where it might be required to run in different states.</p>
 <p>Here is a revised version of the <em>define_measurements</em> method with the run state settings added:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">define_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -641,10 +640,10 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="index.html">
-              <img class="logo" src="_static/tmpl_dark_logo.png" alt="Logo"/>
+              <img class="logo" src="_static/tmpl_dark_logo.png" alt="Logo of Test, Measure, Process Library"/>
             </a></p>
   <div>
     <h3><a href="index.html">Table of Contents</a></h3>
@@ -696,7 +695,7 @@
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -704,13 +703,13 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -725,13 +724,13 @@
         <li class="right" >
           <a href="tmpl_class_reference.html" title="Class Reference"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">TMPL Advanced usage</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2022, RedLegJed.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    &#169; Copyright 2025, RedLegJed.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>

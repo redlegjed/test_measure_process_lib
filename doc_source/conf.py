@@ -19,11 +19,11 @@ print(sys.path)
 # -- Project information -----------------------------------------------------
 
 project = 'Test, Measure, Process Library'
-copyright = '2022, RedLegJed'
+copyright = '2025, RedLegJed'
 author = 'RedLegJed'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.0'
+release = '0.1.1'
 
 
 # -- General configuration ---------------------------------------------------

@@ -1,25 +1,24 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>How to … &#8212; Test, Measure, Process Library 0.1.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    <title>How to … &#8212; Test, Measure, Process Library 0.1.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=aefb6c79" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css?v=0c0ddd54" />
     
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/documentation_options.js?v=a58bc63e"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="TMPL Application Programming Interface" href="api.html" />
     <link rel="prev" title="TMPL Advanced usage" href="advanced_usage.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -34,7 +33,7 @@
         <li class="right" >
           <a href="advanced_usage.html" title="TMPL Advanced usage"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">How to …</a></li> 
       </ul>
     </div>  
@@ -45,10 +44,10 @@
           <div class="body" role="main">
             
   <section id="how-to">
-<h1>How to …<a class="headerlink" href="#how-to" title="Permalink to this heading">¶</a></h1>
+<h1>How to …<a class="headerlink" href="#how-to" title="Link to this heading">¶</a></h1>
 <p>A collection or recipes for how to do various things in TMPL.</p>
 <section id="how-to-access-measured-data">
-<h2>How to access measured data?<a class="headerlink" href="#how-to-access-measured-data" title="Permalink to this heading">¶</a></h2>
+<h2>How to access measured data?<a class="headerlink" href="#how-to-access-measured-data" title="Link to this heading">¶</a></h2>
 <p>Measured data is stored in the <em>.ds_results</em> property of any TMPL object. Data from all measurements can be accessed from the top level <em>TestManager</em> object:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">test_seq</span><span class="o">.</span><span class="n">ds_results</span>
 </pre></div>
@@ -56,7 +55,7 @@
 <p><em>.ds_results</em> is an <a class="reference external" href="http://xarray.pydata.org/en/stable/">xarray</a> <em>Dataset</em> object.</p>
 </section>
 <section id="how-to-repeat-a-test-sequence-multiple-times">
-<h2>How to repeat a test sequence multiple times?<a class="headerlink" href="#how-to-repeat-a-test-sequence-multiple-times" title="Permalink to this heading">¶</a></h2>
+<h2>How to repeat a test sequence multiple times?<a class="headerlink" href="#how-to-repeat-a-test-sequence-multiple-times" title="Link to this heading">¶</a></h2>
 <p>Repeating a whole test sequence can be done multiple times by enabling the <em>Iteration</em> condition. This is a <em>SetupCondition</em> class that is populated by default but disabled. It is a counter where you set the number of iterations of the test sequence. To set multiple runs through the sequence follow the code below:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enable Iteration condition</span>
 <span class="n">test_seq</span><span class="o">.</span><span class="n">conditions</span><span class="o">.</span><span class="n">Iteration</span><span class="o">.</span><span class="n">enable</span> <span class="o">=</span> <span class="kc">True</span>
@@ -71,9 +70,38 @@
 <p><strong>WARNING</strong> When iterating a whole sequence make sure that the code in the <em>Measurement</em> and <em>SetupCondition</em> classes can handle this, i.e. instrument settings are reset at the start of the sequence.</p>
 <p>After the iterations have finished inspect the <em>test_seq.df_results</em> property. There will be a coordinate called <em>Iteration</em> for all measured data.</p>
 </section>
-<section id="how-to-add-a-timestamp-to-df-results">
-<h2>How to add a timestamp to <em>df_results</em><a class="headerlink" href="#how-to-add-a-timestamp-to-df-results" title="Permalink to this heading">¶</a></h2>
+<section id="how-to-add-a-timestamp-to-ds-results">
+<h2>How to add a timestamp to <em>ds_results</em><a class="headerlink" href="#how-to-add-a-timestamp-to-ds-results" title="Link to this heading">¶</a></h2>
 <p>This is done automatically. A <em>Measurement</em> called <em>Timestamp</em> is always added to every test sequence.</p>
+</section>
+<section id="how-to-repeat-a-measurement-multiple-times-in-the-same-sequence">
+<h2>How to repeat a Measurement multiple times in the same sequence?<a class="headerlink" href="#how-to-repeat-a-measurement-multiple-times-in-the-same-sequence" title="Link to this heading">¶</a></h2>
+<p>The same <em>Measurement</em> class can be used repeatedly, however it needs to be “tagged”. This is done by using the optional <em>meas_names</em> argument in
+the <em>add_measurement()</em> method.</p>
+<p>The main problem with repeating <em>Measurements</em> is there will be a conflict with any data that is stored using <em>store_data_vars()</em> method. Since the
+<em>Measurement</em> will always store under the same name. If the <em>meas_names</em> argument is used to tag each <em>Measurement</em>, as shown below, the contents of
+<em>meas_names</em> will be used as a prefix for any data stored using <em>store_data_vars()</em>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MeasureSequenceWithRepeats</span><span class="p">(</span><span class="n">tmpl</span><span class="o">.</span><span class="n">AbstractTestManager</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;&quot;</span>
+<span class="sd">    Sequence with repeated Measurements</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="k">def</span> <span class="nf">define_setup_conditions</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+<span class="k">def</span> <span class="nf">define_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add measurements here in the order of execution</span>
+<span class="sd">    - Use &quot;meas_names&quot; to tag the same Measurement Class used multiple times</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">CheckTemperature</span><span class="p">,</span><span class="n">meas_name</span><span class="o">=</span><span class="s1">&#39;Before&#39;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">VoltageSweep</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">add_measurement</span><span class="p">(</span><span class="n">CheckTemperature</span><span class="p">,</span><span class="n">meas_name</span><span class="o">=</span><span class="s1">&#39;After&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this example, if the <em>CheckTemperature</em> class stores a data variable called <em>Temperature_degC</em>, then the final results will have two versions called:
+<em>Before_Temperature_degC</em> and <em>After_Temperature_degC</em>.</p>
 </section>
 </section>
 
@@ -82,10 +110,10 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="index.html">
-              <img class="logo" src="_static/tmpl_dark_logo.png" alt="Logo"/>
+              <img class="logo" src="_static/tmpl_dark_logo.png" alt="Logo of Test, Measure, Process Library"/>
             </a></p>
   <div>
     <h3><a href="index.html">Table of Contents</a></h3>
@@ -93,7 +121,8 @@
 <li><a class="reference internal" href="#">How to …</a><ul>
 <li><a class="reference internal" href="#how-to-access-measured-data">How to access measured data?</a></li>
 <li><a class="reference internal" href="#how-to-repeat-a-test-sequence-multiple-times">How to repeat a test sequence multiple times?</a></li>
-<li><a class="reference internal" href="#how-to-add-a-timestamp-to-df-results">How to add a timestamp to <em>df_results</em></a></li>
+<li><a class="reference internal" href="#how-to-add-a-timestamp-to-ds-results">How to add a timestamp to <em>ds_results</em></a></li>
+<li><a class="reference internal" href="#how-to-repeat-a-measurement-multiple-times-in-the-same-sequence">How to repeat a Measurement multiple times in the same sequence?</a></li>
 </ul>
 </li>
 </ul>
@@ -116,7 +145,7 @@
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -124,13 +153,13 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
+</search>
 <script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -145,13 +174,13 @@
         <li class="right" >
           <a href="advanced_usage.html" title="TMPL Advanced usage"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Test, Measure, Process Library 0.1.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">How to …</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2022, RedLegJed.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+    &#169; Copyright 2025, RedLegJed.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>
