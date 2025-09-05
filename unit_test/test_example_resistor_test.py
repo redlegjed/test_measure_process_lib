@@ -164,6 +164,10 @@ class TestExampleSequence(unittest.TestCase):
     def test_save_and_load_results(self):
         """
         Save data after a test run and load it back
+
+        Currently this fails because the "power_W" data coordinate
+        in the VoltageSweep measurement is not being tagged in its
+        attributes when saved.
         """
 
         data_filename_json = os.path.join(DATAFILE_PATH,'test_data.json')
@@ -190,7 +194,18 @@ class TestExampleSequence(unittest.TestCase):
                 continue
 
             print(meas_name)
-            self.assertTrue(self.testseq.meas[meas_name].ds_results.equals(new_seq.meas[meas_name].ds_results),
+            check = self.testseq.meas[meas_name].ds_results.equals(new_seq.meas[meas_name].ds_results)
+            if not check:
+                # Print out datasets
+                print('*'*40)
+                print('Original dataset:')
+                print(self.testseq.meas[meas_name].ds_results)
+                print('-'*40)
+                print('Readback dataset:')
+                print(new_seq.meas[meas_name].ds_results)
+                print('*'*40)
+
+            self.assertTrue(check,
                 msg=f'Reloaded Results data for meas[{meas_name}] is not equal')
 
 
@@ -348,8 +363,8 @@ class TestExampleSequence(unittest.TestCase):
 #================================================================
  
 if __name__ == '__main__':
-    # all_tests = True
-    all_tests = False
+    all_tests = True
+    # all_tests = False
 
     if all_tests:
         unittest.main()
@@ -360,10 +375,10 @@ if __name__ == '__main__':
         # suite.addTest(TestExampleSequence('test_dummy'))
         # suite.addTest(TestExampleSequence('test_got_conditions_and_meas'))
         # suite.addTest(TestExampleSequence('test_conditions_table'))
-        suite.addTest(TestExampleSequence('test_running_default_conditions'))
+        # suite.addTest(TestExampleSequence('test_running_default_conditions'))
         # suite.addTest(TestExampleSequence('test_stacking_multiple_runs'))
         # suite.addTest(TestExampleSequence('test_save_results'))
-        # suite.addTest(TestExampleSequence('test_save_and_load_results'))
+        suite.addTest(TestExampleSequence('test_save_and_load_results'))
         # suite.addTest(TestExampleSequence('test_custom_config'))
         # suite.addTest(TestExampleSequence('test_global_data_passing'))
         # suite.addTest(TestExampleSequence('test_global_config_precedence'))
