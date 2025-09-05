@@ -736,6 +736,9 @@ class CommonUtility():
             # Populate subset at current coordinates
             self.ds_results[name].loc[current_coords] = da
 
+            # Tag with the name of the class
+            self.ds_results[name].attrs[TAG_CLASSNAME] = self.__class__.__name__
+
             return
 
 
@@ -1075,7 +1078,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
         # Control flags
         # ==============================
-        self.remove_default_condition = False
+        self.remove_default_condition = True
         
 
         # Utilities
@@ -1106,7 +1109,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
         # Setup conditions and measurement objects
         # =========================================
-        self.add_setup_condition(Iteration)
+        self.add_setup_condition(Iteration) # Note: this will set remove_default_condition to True
         self.add_measurement(Timestamp)
         self.define_setup_conditions()
         self.define_measurements()
@@ -2191,7 +2194,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
 
         # Remove default coordinate, if present
         if self.remove_default_condition and 'default' in self.ds_results.coords:
-            self.ds_results = self.ds_results.drop_dims('default')
+            self.ds_results = self.ds_results.squeeze(dim='default',drop=True)
 
 
     def link_to_ds_results(self):
