@@ -520,7 +520,7 @@ class CommonUtility():
         # If existing data, merge new dataset into existing
         # - this will increase the size of data variable dimensions
         # and pad with NaNs
-        self.ds_results = xr.merge([self.ds_results,ds_new])
+        self.ds_results = xr.merge([self.ds_results,ds_new], join='outer')
         
 
 
@@ -2179,7 +2179,7 @@ class AbstractTestManager(abc.ABC,CommonUtility):
             ds_list.append(self.meas[m].ds_results)
 
         # Merge Datasets together
-        self.ds_results = xr.merge(ds_list)
+        self.ds_results = xr.merge(ds_list, join='outer')
         
 
         # Add information as coordinates or attributes
